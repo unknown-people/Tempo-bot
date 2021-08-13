@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net4.7</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Platforms>AnyCPU;x64</Platforms>
+    <ApplicationIcon>icon-bot.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Anarchy-wrapper" Version="0.8.1.1" />
+    <PackageReference Include="Anarchy.Puppeteer" Version="1.0.0" />
+    <PackageReference Include="FFMpegCore" Version="4.5.0" />
+    <PackageReference Include="libsodium" Version="1.0.18.1" />
+    <PackageReference Include="OpusDotNet" Version="1.0.3" />
+    <PackageReference Include="OpusDotNet.opus.win-x64" Version="1.3.1" />
+    <PackageReference Include="OpusDotNet.opus.win-x86" Version="1.3.1" />
+    <PackageReference Include="YoutubeExplode" Version="6.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ffplay.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ffprobe.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
