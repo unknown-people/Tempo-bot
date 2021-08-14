@@ -47,13 +47,15 @@ namespace Music_user_bot
                         VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
                         _stream = DiscordVoiceUtils.GetAudioStream(GetVideoUrl(currentSong.Id, currentChannel.Bitrate));
                     }
-
+                    
                     if (voiceClient.Microphone.CopyFrom(_stream, currentSong.CancellationTokenSource.Token))
                     {
                         _stream = null;
                         Tracks.RemoveAt(0);
                     }
-                    else if (currentSong.CancellationTokenSource.IsCancellationRequested) _stream = null;
+                    else if (currentSong.CancellationTokenSource.IsCancellationRequested){
+                        _stream = null;
+                    }
                 }
 
                 Running = false;
