@@ -17,20 +17,58 @@ namespace Discord.Media
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg.exe",
-                Arguments = $"-hide_banner -loglevel panic -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-nostats -loglevel 0 -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });
 
             return process.StandardOutput.BaseStream;
         }
+        public static void SaveAudioToFile(string url, string full_path)
+        {
+            {
+                if (!File.Exists("ffmpeg.exe"))
+                    throw new FileNotFoundException("ffmpeg.exe was not found");
 
+                if (File.Exists(full_path))
+                {
+                    DeleteFile(full_path);
+                }
+                var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "ffmpeg.exe",
+                    Arguments = $"-nostats -loglevel 0 -i \"{url}\" -ac 2 -f s16le -ar 48000 \"{full_path}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                });
+            }
+        }
+        public static void DeleteFile(string full_path)
+        {
+            File.Delete(full_path);
+        }
+        public static Stream GetFileAudioStream(string full_path, string url)
+        {
+            SaveAudioToFile(url, full_path);
+            FileStream fs = File.OpenRead(full_path);
+            DeleteFile(full_path);
+            return fs;
+        }
         public static byte[] GetAudio(string path)
         {
             using (var memStream = new MemoryStream())
             {
                 GetAudioStream(path).CopyTo(memStream);
                 return memStream.ToArray();
+            }
+        }
+
+        public static MemoryStream GetAudioMemoryStream(string path)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                GetAudioStream(path).CopyTo(memStream);
+                return memStream;
             }
         }
 

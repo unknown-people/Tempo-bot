@@ -53,7 +53,9 @@ namespace Music_user_bot
         private static void Client_OnJoinedVoiceChannel(DiscordSocketClient client, VoiceConnectEventArgs args)
         {
             if (TrackLists.TryGetValue(args.Client.Guild.Id, out var list) && !list.Running)
+            {
                 list.Start();
+            }
         }
 
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)

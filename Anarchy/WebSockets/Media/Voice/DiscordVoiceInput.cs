@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Discord.Media
 {
@@ -109,16 +107,24 @@ namespace Discord.Media
 
             return offset + OpusConverter.FrameBytes;
         }
-
-        public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default)
+        public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 0)
         {
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
 
             _nextTick = -1;
 
+            var start = DateTime.Now;
+
             while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
             {
+                var end = DateTime.Now;
+                TimeSpan duration = end.Subtract(start);
+                if ((int)duration.TotalSeconds >= streamDuration)
+                {
+                    return 1;
+                }
+
                 try
                 {
                     offset = Write(buffer, offset);
@@ -127,12 +133,15 @@ namespace Discord.Media
                 {
                     break;
                 }
+                catch (AccessViolationException)
+                {
+                    break;
+                }
             }
 
-            return offset;
+            return 0;
         }
-
-        public bool CopyFrom(Stream stream, CancellationToken cancellationToken = default)
+        public bool CopyFrom(Stream stream, CancellationToken cancellationToken = default, int streamDuration = 0)
         {
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
@@ -143,17 +152,19 @@ namespace Discord.Media
             _nextTick = -1;
 
             byte[] buffer = new byte[OpusEncoder.FrameBytes];
-            buffer = buffer.Where(x => x != 0).ToArray();
-            byte[] buffer1 = { 0 };
-            buffer = buffer.Concat(buffer1).ToArray();
+
+            var start = DateTime.Now;
 
             while (!cancellationToken.IsCancellationRequested && _client.Connection.State == MediaConnectionState.Ready)
             {
-                int read = stream.Read(buffer, 0, buffer.Length);
-                if (read == 0)
+                var end = DateTime.Now;
+                TimeSpan duration = end.Subtract(start);
+                if ((int)duration.TotalSeconds >= streamDuration)
                 {
                     return true;
                 }
+
+                int read = stream.Read(buffer, 0, buffer.Length);
 
                 byte[] actual = new byte[read];
                 Buffer.BlockCopy(buffer, 0, actual, 0, read);
@@ -166,9 +177,31 @@ namespace Discord.Media
 
                     Write(slice, 0);
                 }
+                // Added else statement for the last bit of the stream which would otherwise be skipped
+                // creating unexpected cropping at the end of songs
+                
+                else
+                {
+                    byte[] slice = _toBeUsed.Take(_toBeUsed.Count).ToArray();
+                    _toBeUsed = _toBeUsed.Skip(_toBeUsed.Count).ToList();
+
+                    if (IsNullOrEmpty(slice))
+                    {
+                        continue;
+                    }
+                    Write(slice, 0);
+                }
             }
 
             return false;
+        }
+
+        public static bool IsNullOrEmpty(byte[] array)
+        {
+            if (array == null || array.Length == 0)
+                return true;
+            else
+                return array.All(item => item == null || item == 0);
         }
     }
 }

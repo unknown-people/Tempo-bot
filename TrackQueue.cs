@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YoutubeExplode.Videos.Streams;
+using YoutubeExplode;
+using System.Windows.Forms;
 
 namespace Music_user_bot
 {
@@ -19,7 +21,6 @@ namespace Music_user_bot
 
         private DiscordSocketClient _client;
         private ulong _guildId;
-        private Stream _stream;
 
         public TrackQueue(DiscordSocketClient client, ulong guildId)
         {
@@ -32,32 +33,32 @@ namespace Music_user_bot
         {
             Running = true;
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 var voiceClient = _client.GetVoiceClient(_guildId);
 
                 while (voiceClient.State == MediaConnectionState.Ready && Tracks.Count > 0)
                 {
+
                     var currentSong = Tracks[0];
 
                     var manifest = Program.YouTubeClient.Videos.Streams.GetManifestAsync(currentSong.Id).Result;
 
-                    if (_stream == null)
-                    {
-                        VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
-                        _stream = DiscordVoiceUtils.GetAudioStream(GetVideoUrl(currentSong.Id, currentChannel.Bitrate));
-                    }
-                    
-                    if (voiceClient.Microphone.CopyFrom(_stream, currentSong.CancellationTokenSource.Token))
-                    {
-                        _stream = null;
-                        Tracks.RemoveAt(0);
-                    }
-                    else if (currentSong.CancellationTokenSource.IsCancellationRequested){
-                        _stream = null;
-                    }
-                }
+                    VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
 
+                    var youtube = new YoutubeClient();
+
+                    var video = await youtube.Videos.GetAsync(currentSong.Id);
+
+                    TimeSpan duration = TimeSpan.Zero;
+                    if (video.Duration != null)
+                    {
+                        duration = (TimeSpan)video.Duration;
+                    }
+
+                    voiceClient.Microphone.CopyFrom(DiscordVoiceUtils.GetAudio(GetVideoUrl(currentSong.Id, currentChannel.Bitrate)), 0, currentSong.CancellationTokenSource.Token, (int)duration.TotalSeconds);
+                    Tracks.RemoveAt(0);
+                }
                 Running = false;
             });
         }
@@ -71,7 +72,8 @@ namespace Music_user_bot
             {
                 if (bestStream == null || stream.Bitrate > bestStream.Bitrate)
                 {
-                    bestStream = stream;
+                    if (stream.AudioCodec == "opus")
+                        bestStream = stream;
 
                     if (stream.Bitrate.BitsPerSecond > channelBitrate)
                         break;
