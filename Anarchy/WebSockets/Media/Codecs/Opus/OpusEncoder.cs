@@ -1,6 +1,8 @@
 ﻿using Discord.Media;
 using System;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Security;
 
 namespace Discord.Media
 {
@@ -12,7 +14,8 @@ namespace Discord.Media
         private static extern void DestroyEncoder(IntPtr encoder);
         [DllImport("opus", EntryPoint = "opus_encode", CallingConvention = CallingConvention.Cdecl)]
         private static extern int Encode(IntPtr st, byte* pcm, int frame_size, byte* data, int max_data_bytes);
-        [DllImport("opus", EntryPoint = "opus_encoder_ctl", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("opus", EntryPoint = "opus_encoder_ctl", CallingConvention = CallingConvention.Cdecl), HandleProcessCorruptedStateExceptions, SecurityCritical]
+
         private static extern OpusError EncoderCtl(IntPtr st, OpusCtl request, int value);
 
         public AudioApplication Application { get; }
@@ -59,7 +62,15 @@ namespace Discord.Media
             int result = 0;
             fixed (byte* inPtr = input)
             fixed (byte* outPtr = output)
-                result = Encode(_ptr, inPtr + inputOffset, FrameSamplesPerChannel, outPtr + outputOffset, output.Length - outputOffset);
+                try
+                {
+                    if (outPtr != null && inPtr != null)
+                        result = Encode(_ptr, inPtr + inputOffset, FrameSamplesPerChannel, outPtr + outputOffset, output.Length - outputOffset);
+                }
+                catch (AccessViolationException)
+                {
+                    ;
+                }
             CheckError((OpusError)result);
             return result;
         }

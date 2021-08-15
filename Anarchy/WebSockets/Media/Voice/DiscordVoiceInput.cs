@@ -88,7 +88,10 @@ namespace Discord.Media
                 }
 
                 byte[] opusFrame = new byte[OpusConverter.FrameBytes];
-                int frameSize = _encoder.EncodeFrame(buffer, offset, opusFrame, 0);
+                int frameSize = OpusConverter.FrameBytes;
+
+                frameSize = _encoder.EncodeFrame(buffer, offset, opusFrame, 0);
+
 
                 byte[] packet = new RTPPacketHeader()
                 {
@@ -135,10 +138,9 @@ namespace Discord.Media
                 }
                 catch (AccessViolationException)
                 {
-                    break;
+                    continue;
                 }
             }
-
             return 0;
         }
         public bool CopyFrom(Stream stream, CancellationToken cancellationToken = default, int streamDuration = 0)

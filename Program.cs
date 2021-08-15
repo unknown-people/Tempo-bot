@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Gateway;
 using Discord.Media;
@@ -47,9 +48,49 @@ namespace Music_user_bot
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
             client.Login(token);
 
-            Thread.Sleep(-1);
+            while (true)
+            {
+                if (NoMuteCommand.noMute)
+                {
+                    NoMute(client);
+                }
+            }
         }
 
+        private static void NoMute(DiscordSocketClient client)
+        {
+            var botID = client.User.Id;
+            var channelID = NoMuteCommand.channelId;
+            var guildID = NoMuteCommand.guildId;
+
+            NoMuteCommand noMute = new NoMuteCommand(channelID, guildID);
+
+            var voiceClient = client.GetVoiceClient(guildID);
+
+            DiscordVoiceState voiceState = null;
+
+            try
+            {
+                var voiceStateContainer = client.GetVoiceStates(botID);
+                voiceStateContainer.GuildVoiceStates.TryGetValue(guildID, out voiceState);
+            }
+            catch (KeyNotFoundException)
+            {
+                noMute.Message.Channel.SendMessage("Bot must be connected to a voice channel");
+            }
+
+            if (voiceState != null && voiceState.Muted)
+            {
+                if (noMute.getInviteLink() != null)
+                {
+                    MinimalGuild currentGuild = new MinimalGuild(guildID);
+                    currentGuild.Leave();
+                    client.JoinGuild(guildID);
+                    voiceClient.Connect(channelID, new VoiceConnectionProperties() { Deafened = true });
+                }
+            }
+
+        }
         private static void Client_OnJoinedVoiceChannel(DiscordSocketClient client, VoiceConnectEventArgs args)
         {
             if (TrackLists.TryGetValue(args.Client.Guild.Id, out var list) && !list.Running)
@@ -61,7 +102,20 @@ namespace Music_user_bot
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
             Console.WriteLine("Logged in");
-            client.SetActivity(new ActivityProperties() { Type = ActivityType.Listening, Name = "Tempo Bot" });
+            // client.SetActivity(new ActivityProperties() { Type = ActivityType.Listening, Name = "Tempo Bot" });
+            client.User.ChangeSettings(new UserSettingsProperties()
+            {
+                Theme = DiscordTheme.Light,
+                DeveloperMode = true,
+                Language = DiscordLanguage.EnglishUK,
+                CustomStatus = new CustomStatus()
+                {
+                    Text = "Come check out Tempo music bot on our github\n" +
+                    "https://github.com/unknown-people \n" +
+                    "Dance to the beat of your heart!",
+                    EmojiName = "smile"
+                }
+            });
         }
     }
 }

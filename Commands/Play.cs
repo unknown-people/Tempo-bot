@@ -9,6 +9,7 @@ using Discord.Media;
 using System.Threading;
 using YoutubeExplode.Videos.Streams;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Music_user_bot
 {
@@ -49,7 +50,16 @@ namespace Music_user_bot
                     return;
                 }
             }
-
+            // Substitutes all occurences of m.youtube with youtube due to the link being previously broken af
+            if (Url.Contains("m.youtube"))
+            {
+                Url = Url.Replace("m.youtube", "www.youtube");
+            }
+            // Fixes url taken from playlists to fit in the next if statement
+            if (Url.Contains("&list="))
+            {
+                Url = Regex.Replace(Url, "&list=.*", string.Empty, RegexOptions.IgnoreCase);
+            }
             if (Url.StartsWith(YouTubeVideo))
             {
                 string id = Url.Substring(Url.IndexOf(YouTubeVideo) + YouTubeVideo.Length); // lazy
