@@ -10,6 +10,7 @@ using System.Threading;
 using YoutubeExplode.Videos.Streams;
 using System.IO;
 using System.Text.RegularExpressions;
+using System;
 
 namespace Music_user_bot
 {
@@ -64,8 +65,18 @@ namespace Music_user_bot
             {
                 string id = Url.Substring(Url.IndexOf(YouTubeVideo) + YouTubeVideo.Length); // lazy
 
-                var track = new AudioTrack(id);
+                AudioTrack track = null;
+                try
+                {
+                    track = new AudioTrack(id);
+                }
+                catch (ArgumentException)
+                {
+                    Message.Channel.SendMessage("Please enter a valid YouTube video URL");
+                    return;
+                }
                 if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
+
                 list.Tracks.Add(track);
 
                 Message.Channel.SendMessage($"Song \"{track.Title}\" has been added to the queue");

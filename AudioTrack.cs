@@ -13,7 +13,7 @@ namespace Music_user_bot
         public AudioTrack(string id)
         {
             Id = id;
-
+            
             var video = Program.YouTubeClient.Videos.GetAsync(Id).Result;
             Title = video.Title;
             ChannelName = video.Author.Title;
