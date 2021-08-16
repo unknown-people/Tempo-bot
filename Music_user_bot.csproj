@@ -90,6 +90,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Anarchy\Properties\" />
+  </ItemGroup>
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="del  obj\project.assets.json&#xD;&#xA;dotnet restore" />
   </Target>
