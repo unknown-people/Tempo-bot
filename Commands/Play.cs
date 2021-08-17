@@ -42,7 +42,7 @@ namespace Music_user_bot
                 if (voiceClient.Channel != null && voiceClient.Channel.Id != channel.Id)
                 {
                     voiceClient.Disconnect();
-                } 
+                }
             }
             catch (Exception)
             {
