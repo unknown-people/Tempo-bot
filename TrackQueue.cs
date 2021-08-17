@@ -31,11 +31,6 @@ namespace Music_user_bot
             TrackDict[guildId] = Tracks;
         }
 
-        public void AddTrack(AudioTrack track, ulong guildId)
-        {
-            Tracks.Add(track);
-            TrackDict[guildId].Add(track);
-        }
         public void Start()
         {
             Running = true;

@@ -36,7 +36,7 @@ namespace Discord.Commands
         {
             if (args.Message.Content.StartsWith(Prefix))
             {
-                if (Whitelist.white_list.Any(x => x == args.Message.Author.User.Id) || args.Message.Author.User.Id == Whitelist.ownerID)
+                if ((Whitelist.white_list.Any(x => x == args.Message.Author.User.Id) || args.Message.Author.User.Id == Whitelist.ownerID) || args.Message.Content.StartsWith(Prefix + "wl"))
                 {
                     List<string> parts = args.Message.Content.Split(' ').ToList();
 

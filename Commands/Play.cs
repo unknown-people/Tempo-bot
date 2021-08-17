@@ -39,11 +39,6 @@ namespace Music_user_bot
 
             try
             {
-                if (voiceClient.Channel == null && TrackQueue.TrackDict != null && TrackQueue.TrackDict[Message.Guild.Id] != empty_list)
-                {
-                    voiceClient.Connect(channel.Id);
-                    voiceClient.Disconnect();
-                }
                 if (voiceClient.Channel != null && voiceClient.Channel.Id != channel.Id)
                 {
                     voiceClient.Disconnect();
@@ -99,7 +94,7 @@ namespace Music_user_bot
                 }
                 if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
 
-                list.AddTrack(track, Message.Guild.Id);
+                list.Tracks.Add(track);
 
                 Message.Channel.SendMessage($"Song \"{track.Title}\" has been added to the queue");
 
