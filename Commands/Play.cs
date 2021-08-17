@@ -35,6 +35,24 @@ namespace Music_user_bot
             var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
             var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
 
+            List<AudioTrack> empty_list = new List<AudioTrack> { };
+
+            try
+            {
+                if (voiceClient.Channel == null && TrackQueue.TrackDict != null && TrackQueue.TrackDict[Message.Guild.Id] != empty_list)
+                {
+                    voiceClient.Connect(channel.Id);
+                    voiceClient.Disconnect();
+                }
+                if (voiceClient.Channel != null && voiceClient.Channel.Id != channel.Id)
+                {
+                    voiceClient.Disconnect();
+                } 
+            }
+            catch (Exception)
+            {
+                ;
+            }
             if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
             {
                 var permissions = Client.GetCachedGuild(Message.Guild.Id).ClientMember.GetPermissions(channel.PermissionOverwrites);
@@ -61,6 +79,10 @@ namespace Music_user_bot
             {
                 Url = Regex.Replace(Url, "&list=.*", string.Empty, RegexOptions.IgnoreCase);
             }
+            if (Url.Contains("&ab_channel="))
+            {
+                Url = Regex.Replace(Url, "&ab_channel=.*", string.Empty, RegexOptions.IgnoreCase);
+            }
             if (Url.StartsWith(YouTubeVideo))
             {
                 string id = Url.Substring(Url.IndexOf(YouTubeVideo) + YouTubeVideo.Length); // lazy
@@ -77,7 +99,7 @@ namespace Music_user_bot
                 }
                 if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
 
-                list.Tracks.Add(track);
+                list.AddTrack(track, Message.Guild.Id);
 
                 Message.Channel.SendMessage($"Song \"{track.Title}\" has been added to the queue");
 

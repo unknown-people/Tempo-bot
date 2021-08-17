@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Music_user_bot;
 
 namespace Discord.Commands
 {
@@ -35,57 +36,67 @@ namespace Discord.Commands
         {
             if (args.Message.Content.StartsWith(Prefix))
             {
-                List<string> parts = args.Message.Content.Split(' ').ToList();
-
-                if (Commands.TryGetValue(parts[0].Substring(Prefix.Length), out DiscordCommand command))
+                if (Whitelist.white_list.Any(x => x == args.Message.Author.User.Id) || args.Message.Author.User.Id == Whitelist.ownerID)
                 {
-                    parts.RemoveAt(0);
+                    List<string> parts = args.Message.Content.Split(' ').ToList();
 
-                    CommandBase inst = (CommandBase)Activator.CreateInstance(command.Type);
-                    inst.Prepare(_client, args.Message);
-
-                    for (int i = 0; i < command.Parameters.Count; i++)
+                    if (Commands.TryGetValue(parts[0].Substring(Prefix.Length), out DiscordCommand command))
                     {
-                        var param = command.Parameters[i];
 
-                        if (i < parts.Count)
+                        parts.RemoveAt(0);
+
+                        CommandBase inst = (CommandBase)Activator.CreateInstance(command.Type);
+                        inst.Prepare(_client, args.Message);
+
+                        for (int i = 0; i < command.Parameters.Count; i++)
                         {
-                            try
+                            var param = command.Parameters[i];
+
+                            if (i < parts.Count)
                             {
-                                object value;
+                                try
+                                {
+                                    object value;
 
-                                if (param.Property.PropertyType == typeof(string) && i == command.Parameters.Count - 1)
-                                    value = string.Join(" ", parts.Skip(i));
-                                else if (args.Message.Guild != null && parts[i].StartsWith("<") && parts[i].EndsWith(">"))
-                                    value = ParseReference(param.Property.PropertyType, parts[i]);
-                                else
-                                    value = parts[i];
+                                    if (param.Property.PropertyType == typeof(string) && i == command.Parameters.Count - 1)
+                                        value = string.Join(" ", parts.Skip(i));
+                                    else if (args.Message.Guild != null && parts[i].StartsWith("<") && parts[i].EndsWith(">"))
+                                        value = ParseReference(param.Property.PropertyType, parts[i]);
+                                    else
+                                        value = parts[i];
 
-                                if (!param.Property.PropertyType.IsAssignableFrom(value.GetType()))
-                                    value = Convert.ChangeType(value, param.Property.PropertyType);
+                                    if (!param.Property.PropertyType.IsAssignableFrom(value.GetType()))
+                                        value = Convert.ChangeType(value, param.Property.PropertyType);
 
-                                param.Property.SetValue(inst, value);
+                                    param.Property.SetValue(inst, value);
+                                }
+                                catch (Exception ex)
+                                {
+                                    inst.HandleError(param.Name, parts[i], ex);
+
+                                    return;
+                                }
                             }
-                            catch (Exception ex) 
-                            { 
-                                inst.HandleError(param.Name, parts[i], ex);
+                            else if (param.Optional)
+                                break;
+                            else
+                            {
+                                inst.HandleError(param.Name, null, new ArgumentNullException("Too few arguments provided"));
 
                                 return;
                             }
                         }
-                        else if (param.Optional)
-                            break;
-                        else
-                        {
-                            inst.HandleError(param.Name, null, new ArgumentNullException("Too few arguments provided"));
 
-                            return;
-                        }
+                        inst.Execute();
                     }
-
-                    inst.Execute();
+                }
+                else
+                {
+                    args.Message.Channel.SendMessage("You must be in the whitelist to use me :(\nCheck the current whitelist with &wl");
+                    return;
                 }
             }
+
         }
 
         // https://discord.com/developers/docs/reference#message-formatting

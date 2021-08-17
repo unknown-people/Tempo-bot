@@ -21,14 +21,21 @@ namespace Music_user_bot
 
         private DiscordSocketClient _client;
         private ulong _guildId;
+        public static Dictionary<ulong, List<AudioTrack>> TrackDict = new Dictionary<ulong, List<AudioTrack>> { };
 
         public TrackQueue(DiscordSocketClient client, ulong guildId)
         {
             _client = client;
             _guildId = guildId;
             Tracks = new List<AudioTrack>();
+            TrackDict[guildId] = Tracks;
         }
 
+        public void AddTrack(AudioTrack track, ulong guildId)
+        {
+            Tracks.Add(track);
+            TrackDict[guildId].Add(track);
+        }
         public void Start()
         {
             Running = true;
@@ -61,6 +68,12 @@ namespace Music_user_bot
                 }
                 Running = false;
             });
+        }
+
+        public void Stop()
+        {
+            Tracks = new List<AudioTrack>();
+            Running = false;
         }
 
         private string GetVideoUrl(string videoId, uint channelBitrate)

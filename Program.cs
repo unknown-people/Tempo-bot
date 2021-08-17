@@ -33,8 +33,8 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            Console.Write("Token: ");
-            string token = Console.ReadLine();
+            string token = "ODQ2MTUxOTM1NDY3NTg1NTM2.YKrWsQ.1mbbzh-8A_63t6UMl4yWgmUVDI4";
+            Whitelist.ownerID = 782783884768837662;
 
             DiscordSocketClient client = new DiscordSocketClient(new DiscordSocketConfig()
             {
@@ -47,6 +47,8 @@ namespace Music_user_bot
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
             client.Login(token);
+
+            Whitelist whitelist = new Whitelist();
 
             while (true)
             {

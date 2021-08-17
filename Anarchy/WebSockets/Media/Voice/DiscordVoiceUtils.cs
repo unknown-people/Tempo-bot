@@ -60,8 +60,6 @@ namespace Discord.Media
             {
                 GetAudioStream(path).CopyTo(memStream);
                 var return_value = memStream.ToArray();
-                memStream.Close();
-                memStream.Dispose();
                 return return_value;
             }
         }
