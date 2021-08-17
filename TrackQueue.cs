@@ -1,16 +1,16 @@
-﻿using Discord;
+﻿using Discord.Commands;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Gateway;
 using Discord.Media;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using YoutubeExplode.Videos.Streams;
+using System.IO;
+using System.Text.RegularExpressions;
+using System;
 using YoutubeExplode;
-using System.Windows.Forms;
 
 namespace Music_user_bot
 {
@@ -21,14 +21,12 @@ namespace Music_user_bot
 
         private DiscordSocketClient _client;
         private ulong _guildId;
-        public static Dictionary<ulong, List<AudioTrack>> TrackDict = new Dictionary<ulong, List<AudioTrack>> { };
 
         public TrackQueue(DiscordSocketClient client, ulong guildId)
         {
             _client = client;
             _guildId = guildId;
             Tracks = new List<AudioTrack>();
-            TrackDict[guildId] = Tracks;
         }
 
         public void Start()
@@ -63,12 +61,6 @@ namespace Music_user_bot
                 }
                 Running = false;
             });
-        }
-
-        public void Stop()
-        {
-            Tracks = new List<AudioTrack>();
-            Running = false;
         }
 
         private string GetVideoUrl(string videoId, uint channelBitrate)

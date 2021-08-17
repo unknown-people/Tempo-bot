@@ -56,6 +56,7 @@ namespace Music_user_bot
                 {
                     NoMute(client);
                 }
+                Thread.Sleep(10);
             }
         }
 
