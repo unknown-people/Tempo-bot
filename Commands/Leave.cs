@@ -1,15 +1,7 @@
 ﻿using System;
 using Discord.Commands;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Discord;
 using Discord.Gateway;
-using Discord.Media;
-using System.Threading;
-using YoutubeExplode.Videos.Streams;
-using System.IO;
-using System.Text.RegularExpressions;
 
 namespace Music_user_bot.Commands
 {

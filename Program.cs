@@ -16,6 +16,10 @@ namespace Music_user_bot
 
         public static Dictionary<ulong, TrackQueue> TrackLists = new Dictionary<ulong, TrackQueue>();
 
+        public static string ownerName { get; set; }
+
+        public static string botToken { get; set; }
+
         public static bool CanModifyList(DiscordSocketClient client, DiscordMessage message)
         {
             var voiceClient = client.GetVoiceClient(message.Guild.Id);
@@ -33,8 +37,10 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            string token = "ODQ2MTUyMDI5NjQxNjM3OTI5.YKrWvw.eRcBFvuHG64VHZ120nA18IvPMMw";
+            botToken = "ODQ2MTUyMDI5NjQxNjM3OTI5.YKrWvw.eRcBFvuHG64VHZ120nA18IvPMMw";
             Whitelist.ownerID = 782783884768837662;
+            DiscordClient clientNew = new DiscordClient(botToken);
+            ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
 
             DiscordSocketClient client = new DiscordSocketClient(new DiscordSocketConfig()
             {
@@ -43,10 +49,10 @@ namespace Music_user_bot
                 Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates
             });
 
-            client.CreateCommandHandler("T/");
+            client.CreateCommandHandler("&");
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
-            client.Login(token);
+            client.Login(botToken);
 
             Whitelist whitelist = new Whitelist();
 
@@ -56,7 +62,7 @@ namespace Music_user_bot
                 {
                     NoMute(client);
                 }
-                Thread.Sleep(10);
+                Thread.Sleep(100);
             }
         }
 
@@ -105,7 +111,6 @@ namespace Music_user_bot
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
             Console.WriteLine("Logged in");
-            // client.SetActivity(new ActivityProperties() { Type = ActivityType.Listening, Name = "Tempo Bot" });
             client.User.ChangeSettings(new UserSettingsProperties()
             {
                 Theme = DiscordTheme.Light,
@@ -113,12 +118,10 @@ namespace Music_user_bot
                 Language = DiscordLanguage.EnglishUK,
                 CustomStatus = new CustomStatus()
                 {
-                    Text = "Come check out Tempo music bot on our github\n" +
-                    "https://github.com/unknown-people \n" +
-                    "Dance to the beat of your heart!",
-                    EmojiName = "smile"
+                    Text = "Current owner is " + ownerName + "\n" +
+                    "Come check out Tempo user-bot!"
                 }
-            });
+            }) ;
         }
     }
 }

@@ -20,9 +20,13 @@ namespace Music_user_bot
         public override void Execute()
         {
             string white_list = "Current whitelist:\n";
+
+            DiscordClient client = new DiscordClient(Program.botToken);
+
             foreach(ulong entry in Whitelist.white_list)
             {
-                white_list += "<@" + entry.ToString() + ">\n";
+                var user_name = client.GetUser(entry).Username + "#" + client.GetUser(entry).Discriminator;
+                white_list += user_name + "\n";
             }
             if (white_list == "Current whitelist:\n")
                 Message.Channel.SendMessage("Current whitelist is empty");

@@ -9,7 +9,7 @@ namespace Music_user_bot
         [Parameter("on/off")]
         public static string noMuteString { get; private set; }
 
-        public static bool noMute { get; set; }
+        public static bool noMute { get; set; } = false;
         public static ulong channelId { get; private set; }
         public static ulong guildId { get; private set; }
         public static string inviteLink { get; private set; }

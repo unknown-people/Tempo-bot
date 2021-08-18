@@ -5,6 +5,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <ApplicationIcon>icon-bot-removebg-preview.ico</ApplicationIcon>
+    <DockerComposeProjectPath>docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -29,6 +30,12 @@
     <Compile Remove="Anarchy\Properties\**" />
     <EmbeddedResource Remove="Anarchy\Properties\**" />
     <None Remove="Anarchy\Properties\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Commands\JoinServer.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commands\JoinServer.txt" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Leaf.xNet" Version="5.2.10" />
@@ -89,6 +96,5 @@
     </None>
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="del  obj\project.assets.json&#xD;&#xA;dotnet restore" />
   </Target>
 </Project>

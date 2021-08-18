@@ -11,8 +11,8 @@ namespace Discord.Commands
     public class CommandHandler
     {
         private readonly DiscordSocketClient _client;
-        public string Prefix { get; private set; }
-        public Dictionary<string, DiscordCommand> Commands { get; private set; }
+        public static string Prefix { get; private set; }
+        public static Dictionary<string, DiscordCommand> Commands { get; private set; }
 
         internal CommandHandler(string prefix, DiscordSocketClient client)
         {
@@ -46,6 +46,7 @@ namespace Discord.Commands
                         parts.RemoveAt(0);
 
                         CommandBase inst = (CommandBase)Activator.CreateInstance(command.Type);
+
                         inst.Prepare(_client, args.Message);
 
                         for (int i = 0; i < command.Parameters.Count; i++)
@@ -92,7 +93,7 @@ namespace Discord.Commands
                 }
                 else
                 {
-                    args.Message.Channel.SendMessage("You must be in the whitelist to use me :(\nCheck the current whitelist with &wl");
+                    args.Message.Channel.SendMessage("You must be in the whitelist to use me :(\nCheck the current whitelist with " + Prefix +"wl");
                     return;
                 }
             }

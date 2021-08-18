@@ -1,15 +1,8 @@
-﻿using System;
-using Discord.Commands;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Discord.Commands;
 using Discord;
 using Discord.Gateway;
 using Discord.Media;
-using System.Threading;
-using YoutubeExplode.Videos.Streams;
-using System.IO;
-using System.Text.RegularExpressions;
+using System;
 
 namespace Music_user_bot.Commands
 {
@@ -20,11 +13,18 @@ namespace Music_user_bot.Commands
         {
             Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
 
-            var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
-            var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
+            try
+            {
+                var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
+                var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
 
-            if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
-                voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Deafened = true });
+                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
+                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Deafened = true });
+            }
+            catch (Exception)
+            {
+                Message.Channel.SendMessage("You need to be in a voice channel for me to join you :tired_face:");
+            }
         }
     }
 }

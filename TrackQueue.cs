@@ -1,14 +1,10 @@
-﻿using Discord.Commands;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Gateway;
 using Discord.Media;
-using System.Threading;
 using YoutubeExplode.Videos.Streams;
-using System.IO;
-using System.Text.RegularExpressions;
 using System;
 using YoutubeExplode;
 
@@ -57,10 +53,40 @@ namespace Music_user_bot
                     }
 
                     voiceClient.Microphone.CopyFrom(DiscordVoiceUtils.GetAudio(GetVideoUrl(currentSong.Id, currentChannel.Bitrate)), 0, currentSong.CancellationTokenSource.Token, (int)duration.TotalSeconds);
+                    bool must_disconnect = await IsSleeping(Tracks);
+                    if (must_disconnect)
+                    {
+                        _client.GetVoiceStates(_guildId).GuildVoiceStates.TryGetValue(_guildId, out var theirState);
+
+                        var channel = (VoiceChannel)_client.GetChannel(theirState.Channel.Id);
+
+                        if (voiceClient.Channel.Id == channel.Id)
+                        {
+                            try
+                            {
+                                voiceClient.Disconnect();
+                            }
+                            catch (Exception) { }
+                        }
+                    }
                     Tracks.RemoveAt(0);
                 }
                 Running = false;
             });
+        }
+        public async ValueTask<bool> IsSleeping(List<AudioTrack> Tracks)
+        {
+            DateTime last_song = DateTime.Now;
+            while (Tracks.Count < 1)
+            {
+                DateTime now = DateTime.Now;
+                TimeSpan since_last_song = now.Subtract(last_song);
+                if ((int)since_last_song.TotalSeconds > 300)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private string GetVideoUrl(string videoId, uint channelBitrate)
