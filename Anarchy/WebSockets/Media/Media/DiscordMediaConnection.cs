@@ -212,7 +212,7 @@ namespace Discord.Media
                     }
                     else if (received[0] == 0x80 || received[0] == 0x90)
                     {
-                        while (SecretKey == null) { Thread.Sleep(10); }
+                        // while (SecretKey == null) { Thread.Sleep(1); }
 
                         //Console.WriteLine($"{received[0]} {received[1]} {received[2]} {received[3]} {received[4]} {received[5]} {received[6]} {received[7]} {received[8]} {received[9]} {received[10]} {received[11]}");
                         /*

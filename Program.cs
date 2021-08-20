@@ -37,7 +37,7 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            botToken = "ODQ2MTUyMDI5NjQxNjM3OTI5.YKrWvw.eRcBFvuHG64VHZ120nA18IvPMMw";
+            botToken = "ODQ2MTUyNzAzNzg0OTEwODg5.YKrXUA.GLzHPfjE5rCmEklxel4JJtSCZF0";
             Whitelist.ownerID = 782783884768837662;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
@@ -49,7 +49,7 @@ namespace Music_user_bot
                 Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates
             });
 
-            client.CreateCommandHandler("&");
+            client.CreateCommandHandler("T/");
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
             client.Login(botToken);
@@ -121,7 +121,7 @@ namespace Music_user_bot
                     Text = "Current owner is " + ownerName + "\n" +
                     "Come check out Tempo user-bot!"
                 }
-            }) ;
+            });
         }
     }
 }

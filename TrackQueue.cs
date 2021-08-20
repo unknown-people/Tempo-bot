@@ -14,6 +14,7 @@ namespace Music_user_bot
     {
         public List<AudioTrack> Tracks { get; private set; }
         public bool Running { get; private set; }
+        public static bool isLooping { get; set; }
 
         private DiscordSocketClient _client;
         private ulong _guildId;
@@ -23,6 +24,7 @@ namespace Music_user_bot
             _client = client;
             _guildId = guildId;
             Tracks = new List<AudioTrack>();
+            isLooping = false;
         }
 
         public void Start()
@@ -33,9 +35,10 @@ namespace Music_user_bot
             {
                 var voiceClient = _client.GetVoiceClient(_guildId);
 
+                int song_index = 0;
+
                 while (voiceClient.State == MediaConnectionState.Ready && Tracks.Count > 0)
                 {
-
                     var currentSong = Tracks[0];
 
                     var manifest = Program.YouTubeClient.Videos.Streams.GetManifestAsync(currentSong.Id).Result;
@@ -53,23 +56,15 @@ namespace Music_user_bot
                     }
 
                     voiceClient.Microphone.CopyFrom(DiscordVoiceUtils.GetAudio(GetVideoUrl(currentSong.Id, currentChannel.Bitrate)), 0, currentSong.CancellationTokenSource.Token, (int)duration.TotalSeconds);
-                    bool must_disconnect = await IsSleeping(Tracks);
-                    if (must_disconnect)
+
+                    if (isLooping)
                     {
-                        _client.GetVoiceStates(_guildId).GuildVoiceStates.TryGetValue(_guildId, out var theirState);
-
-                        var channel = (VoiceChannel)_client.GetChannel(theirState.Channel.Id);
-
-                        if (voiceClient.Channel.Id == channel.Id)
-                        {
-                            try
-                            {
-                                voiceClient.Disconnect();
-                            }
-                            catch (Exception) { }
-                        }
+                        var track = new AudioTrack(currentSong.Id);
+                        Tracks.Add(track);
                     }
+
                     Tracks.RemoveAt(0);
+
                 }
                 Running = false;
             });

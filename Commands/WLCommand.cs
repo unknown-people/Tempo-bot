@@ -25,7 +25,13 @@ namespace Music_user_bot
 
             foreach(ulong entry in Whitelist.white_list)
             {
-                var user_name = client.GetUser(entry).Username + "#" + client.GetUser(entry).Discriminator;
+                string discriminator = "";
+                for(int i=0; i < 4 - ((client.GetUser(entry).Discriminator)).ToString().Length; i++)
+                {
+                    discriminator += "0";
+                }
+                discriminator += client.GetUser(entry).Discriminator;
+                var user_name = client.GetUser(entry).Username + "#" + discriminator;
                 white_list += user_name + "\n";
             }
             if (white_list == "Current whitelist:\n")

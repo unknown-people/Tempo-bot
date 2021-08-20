@@ -6,6 +6,12 @@ using Discord.Gateway;
 using Discord.Media;
 using System.Text.RegularExpressions;
 using System;
+using YoutubeExplode.Bridge;
+using YoutubeExplode.Common;
+using YoutubeExplode.Exceptions;
+using YoutubeExplode.Utils.Extensions;
+using System.Threading.Tasks;
+using YoutubeExplode.Search;
 
 namespace Music_user_bot
 {
@@ -15,9 +21,10 @@ namespace Music_user_bot
         [Parameter("YouTube video URL")]
         public string Url { get; private set; }
 
+        public const string YouTubeVideo = "https://www.youtube.com/watch?v=";
+
         public override void Execute()
         {
-            const string YouTubeVideo = "https://www.youtube.com/watch?v=";
 
             var targetConnected = Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
 
@@ -79,31 +86,46 @@ namespace Music_user_bot
             }
             if (Url.StartsWith(YouTubeVideo))
             {
-                string id = Url.Substring(Url.IndexOf(YouTubeVideo) + YouTubeVideo.Length); // lazy
-
-                AudioTrack track = null;
-                try
-                {
-                    track = new AudioTrack(id);
-                }
-                catch (ArgumentException)
-                {
-                    Message.Channel.SendMessage("Please enter a valid YouTube video URL");
-                    return;
-                }
-                if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
-
-                list.Tracks.Add(track);
-
-                Message.Channel.SendMessage($"Song \"{track.Title}\" has been added to the queue");
-
-                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
-                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Deafened = true });
-                else if (!list.Running)
-                    list.Start();
+                SearchVideo(Url, Message, voiceClient, channel, Client).GetAwaiter().GetResult();
             }
-            else Message.Channel.SendMessage("Please enter a valid YouTube video URL");
+            else
+            {
+                SearchVideo(Url, Message, voiceClient, channel, Client, true).GetAwaiter().GetResult();
+            }
+        }
+        public static async Task<int> SearchVideo(string Url, DiscordMessage Message, DiscordVoiceClient voiceClient, VoiceChannel channel, DiscordSocketClient Client, bool isQuery = false)
+        {
+            string id = "";
+            if (!isQuery)
+            {
+                id = Url.Substring(Url.IndexOf(YouTubeVideo) + YouTubeVideo.Length); // lazy
+            }
+            else
+            {
+                VideoSearchResult video = Program.YouTubeClient.Search.GetVideo(Url);
+                id = video.Id;
+            }
+            AudioTrack track = null;
+            try
+            {
+                track = new AudioTrack(id);
+            }
+            catch (ArgumentException)
+            {
+                Message.Channel.SendMessage("Please enter a valid YouTube video URL");
+                return 1;
+            }
+            if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
 
+            list.Tracks.Add(track);
+
+            Message.Channel.SendMessage($"Song \"{track.Title}\" has been added to the queue");
+
+            if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
+                voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Deafened = true });
+            else if (!list.Running)
+                list.Start();
+            return 0;
         }
     }
 }
