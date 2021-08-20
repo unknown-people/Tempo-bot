@@ -14,6 +14,7 @@ namespace Music_user_bot
     {
         public List<AudioTrack> Tracks { get; private set; }
         public bool Running { get; private set; }
+        public static string followSongId { get; set; }
         public static bool isLooping { get; set; }
 
         private DiscordSocketClient _client;
@@ -64,7 +65,6 @@ namespace Music_user_bot
                     }
 
                     Tracks.RemoveAt(0);
-
                 }
                 Running = false;
             });

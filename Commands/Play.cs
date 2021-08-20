@@ -25,6 +25,11 @@ namespace Music_user_bot
 
         public override void Execute()
         {
+            if (Program.toFollow)
+            {
+                Message.Channel.SendMessage("Currently following a user, cannot play any other songs");
+                return;
+            }
 
             var targetConnected = Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
 
@@ -36,8 +41,6 @@ namespace Music_user_bot
 
             var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
             var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
-
-            List<AudioTrack> empty_list = new List<AudioTrack> { };
 
             try
             {

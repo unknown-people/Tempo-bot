@@ -15,6 +15,7 @@ namespace Music_user_bot
         public static YoutubeClient YouTubeClient { get; private set; } = new YoutubeClient();
 
         public static Dictionary<ulong, TrackQueue> TrackLists = new Dictionary<ulong, TrackQueue>();
+        public static bool toFollow { get; set; }
 
         public static string ownerName { get; set; }
 
@@ -37,7 +38,7 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            botToken = "ODQ2MTUyNzAzNzg0OTEwODg5.YKrXUA.GLzHPfjE5rCmEklxel4JJtSCZF0";
+            botToken = "ODQ2MTUyMDI5NjQxNjM3OTI5.YKrWvw.eRcBFvuHG64VHZ120nA18IvPMMw";
             Whitelist.ownerID = 782783884768837662;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
@@ -49,7 +50,7 @@ namespace Music_user_bot
                 Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates
             });
 
-            client.CreateCommandHandler("T/");
+            client.CreateCommandHandler("&");
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
             client.Login(botToken);
@@ -98,7 +99,6 @@ namespace Music_user_bot
                     voiceClient.Connect(channelID, new VoiceConnectionProperties() { Deafened = true });
                 }
             }
-
         }
         private static void Client_OnJoinedVoiceChannel(DiscordSocketClient client, VoiceConnectEventArgs args)
         {
