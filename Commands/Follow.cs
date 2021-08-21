@@ -58,28 +58,24 @@ namespace Music_user_bot
                     var targetConnected = Client.GetVoiceStates(userId).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
                     var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
 
-                    if (voiceClient.Channel == null || (voiceClient.State < MediaConnectionState.Ready && channel.Id != voiceClient.Channel.Id) || !Program.TrackLists.TryGetValue(Message.Guild.Id, out var list))
+                    if (voiceClient.Channel == null)
+                        voiceClient.Connect(channel.Id);
+                    if (voiceClient.Channel.Id != channel.Id)
                     {
-                        if (voiceClient.Channel != null && channel.Id != voiceClient.Channel.Id)
-                        {
-                            voiceClient.Disconnect();
-                        }
-                        AudioTrack track = null;
-
-                        while (channel.UserLimit > 0 && Client.GetChannelVoiceStates(channel.Id).Count >= channel.UserLimit)
-                        {
-                            Thread.Sleep(100);
-                        };
-                        voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Deafened = true });
-
-                        if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out list)) 
-                            list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
-                        TrackQueue.isLooping = true;
-
-                        track = new AudioTrack(TrackQueue.followSongId);
-
+                        voiceClient.Disconnect();
+                        continue;
+                    }
+                    while (channel.UserLimit > 0 && Client.GetChannelVoiceStates(channel.Id).Count >= channel.UserLimit)
+                    {
+                        Thread.Sleep(100);
+                        if (Client.GetChannelVoiceStates(channel.Id).Count <= channel.UserLimit)
+                            throw new InvalidOperationException("Channel is full");
+                    };
+                    if (TrackQueue.followSongId != null)
+                    {
+                        if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
+                        var track = new AudioTrack(TrackQueue.followSongId);
                         list.Tracks.Add(track);
-
                         if (!list.Running)
                             list.Start();
                     }

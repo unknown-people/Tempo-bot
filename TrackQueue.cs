@@ -13,7 +13,7 @@ namespace Music_user_bot
     public class TrackQueue
     {
         public List<AudioTrack> Tracks { get; private set; }
-        public bool Running { get; private set; }
+        public bool Running { get; set; }
         public static string followSongId { get; set; }
         public static bool isLooping { get; set; }
 
@@ -35,8 +35,6 @@ namespace Music_user_bot
             Task.Run(async () =>
             {
                 var voiceClient = _client.GetVoiceClient(_guildId);
-
-                int song_index = 0;
 
                 while (voiceClient.State == MediaConnectionState.Ready && Tracks.Count > 0)
                 {
