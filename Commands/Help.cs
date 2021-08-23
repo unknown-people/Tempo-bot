@@ -1,8 +1,4 @@
 ﻿using Discord.Commands;
-using Discord;
-using Discord.Gateway;
-using Discord.Media;
-using System;
 
 namespace Music_user_bot.Commands
 {

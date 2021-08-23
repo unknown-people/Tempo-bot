@@ -1,38 +1,48 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Gateway;
 
 namespace Music_user_bot
 {
     [Command("queue")]
     public class QueueCommand : CommandBase
     {
-        [Parameter("action", true)]
-        public string Action { get; private set; }
-
+        public bool canSendEmbed { get; set; }
         public override void Execute()
         {
-            if (Action == "clear")
+            var targetConnected = Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
+
+            var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
+
+            if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
+
+            var embed = new EmbedMaker() { Title = "Current queue" };
+            foreach (var song in list.Tracks)
+                embed.AddField(song.Title, song.ChannelName + (song == list.Tracks[0] ? " *(Currently playing)*" : ""));
+
+            var x = channel.PermissionOverwrites;
+
+            foreach (var entry in channel.PermissionOverwrites)
             {
-                if (Program.CanModifyList(Client, Message))
+                if (entry.AffectedId == Message.Author.User.Id)
                 {
-                    var list = Program.TrackLists[Message.Guild.Id];
-
-                    var currentSong = list.Tracks[0];
-                    list.Tracks.Clear();
-
-                    currentSong.CancellationTokenSource.Cancel();
-
-                    Message.Channel.SendMessage("Queue has been cleared");
+                    canSendEmbed = entry.GetPermissionState(DiscordPermission.EmbedLinks) == OverwrittenPermissionState.Allow;
                 }
             }
-            else if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list) || list.Tracks.Count == 0)
-                Message.Channel.SendMessage("The music queue is empty");
+            if(canSendEmbed)
+                Message.Channel.SendMessage(embed);
             else
             {
-                var embed = new EmbedMaker() { Title = "Current queue" };
-                foreach (var song in list.Tracks)
-                    embed.AddField(song.Title, song.ChannelName + (song == list.Tracks[0] ? " *(Currently playing)*" : ""));
-                Message.Channel.SendMessage(embed);
+                string message = "**Current queue:**";
+                int index = 1;
+                foreach(var song in list.Tracks)
+                {
+                    message += "[" + index + "]" + song.Title + ";\n";
+                    index += 1;
+                }
+                if (message == "**Current queue:**")
+                    message = "**Current queue is empty**";
+                Message.Channel.SendMessage(message);
             }
         }
     }

@@ -7,6 +7,7 @@ using Discord.Media;
 using YoutubeExplode.Videos.Streams;
 using System;
 using YoutubeExplode;
+using System.IO;
 
 namespace Music_user_bot
 {
@@ -16,6 +17,7 @@ namespace Music_user_bot
         public bool Running { get; set; }
         public static string followSongId { get; set; }
         public static bool isLooping { get; set; }
+        public Stream _stream { get; set; }
 
         private DiscordSocketClient _client;
         private ulong _guildId;
@@ -54,7 +56,7 @@ namespace Music_user_bot
                         duration = (TimeSpan)video.Duration;
                     }
 
-                    voiceClient.Microphone.CopyFrom(DiscordVoiceUtils.GetAudio(GetVideoUrl(currentSong.Id, currentChannel.Bitrate)), 0, currentSong.CancellationTokenSource.Token, (int)duration.TotalSeconds);
+                    voiceClient.Microphone.CopyFrom(GetVideoUrl(currentSong.Id, currentChannel.Bitrate), 2, currentSong.CancellationTokenSource.Token, (int)duration.TotalSeconds);
 
                     if (isLooping)
                     {
@@ -91,8 +93,7 @@ namespace Music_user_bot
             {
                 if (bestStream == null || stream.Bitrate > bestStream.Bitrate)
                 {
-                    if (stream.AudioCodec == "opus")
-                        bestStream = stream;
+                    bestStream = stream;
 
                     if (stream.Bitrate.BitsPerSecond > channelBitrate)
                         break;

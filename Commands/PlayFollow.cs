@@ -15,6 +15,11 @@ namespace Music_user_bot
 
         public override void Execute()
         {
+            if (Message.Author.User.Id != Whitelist.ownerID)
+            {
+                Message.Channel.SendMessage("You must be the owner to use this command");
+                return;
+            }
             if (Url.Contains("m.youtube"))
             {
                 Url = Url.Replace("m.youtube", "www.youtube");
@@ -42,6 +47,7 @@ namespace Music_user_bot
             try
             {
                 var track = new AudioTrack(TrackQueue.followSongId);
+                TrackQueue.isLooping = true;
                 Message.Channel.SendMessage("Now playing " + track.Title);
             }
             catch (Exception) {

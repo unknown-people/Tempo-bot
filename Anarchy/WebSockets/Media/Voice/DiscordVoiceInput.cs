@@ -19,7 +19,7 @@ namespace Discord.Media
         private DiscordVoiceClient _client;
 
         private uint _bitrate = 64000;
-        private AudioApplication _audioApp = AudioApplication.Mixed;
+        private AudioApplication _audioApp = AudioApplication.Music;
 
         public uint Bitrate
         {
@@ -143,7 +143,7 @@ namespace Discord.Media
             }
             return 0;
         }
-        public bool CopyFrom(Stream stream, CancellationToken cancellationToken = default, int streamDuration = 0)
+        public bool CopyFrom(Stream stream, int v, CancellationToken cancellationToken = default, int streamDuration = 0)
         {
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
@@ -152,52 +152,81 @@ namespace Discord.Media
                 throw new ArgumentException("Cannot read from stream", "stream");
 
             _nextTick = -1;
-
-            byte[] buffer = new byte[OpusEncoder.FrameBytes];
-
+            int read;
             var start = DateTime.Now;
 
-            while (!cancellationToken.IsCancellationRequested && _client.Connection.State == MediaConnectionState.Ready)
+            do
             {
-                var end = DateTime.Now;
-                TimeSpan duration = end.Subtract(start);
-                if ((int)duration.TotalSeconds >= streamDuration)
+                byte[] buffer = new byte[OpusConverter.FrameBytes];
+                read = stream.Read(buffer, 0, buffer.Length);
+                int offset = 0;
+
+                while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                 {
-                    return true;
-                }
+                    var end = DateTime.Now;
+                    TimeSpan duration = end.Subtract(start);
+                    if ((int)duration.TotalSeconds >= streamDuration)
+                    {
+                        return true;
+                    }
 
-                int read = stream.Read(buffer, 0, buffer.Length);
-
-                byte[] actual = new byte[read];
-                Buffer.BlockCopy(buffer, 0, actual, 0, read);
-                _toBeUsed.AddRange(actual);
-
-                if (_toBeUsed.Count >= OpusConverter.FrameBytes)
-                {
-                    byte[] slice = _toBeUsed.Take(OpusConverter.FrameBytes).ToArray();
-                    _toBeUsed = _toBeUsed.Skip(OpusConverter.FrameBytes).ToList();
-
-                    Write(slice, 0);
-                }
-                // Added else statement for the last bit of the stream which would otherwise be skipped
-                // creating unexpected cropping at the end of songs
-                
-                else
-                {
-                    byte[] slice = _toBeUsed.Take(_toBeUsed.Count).ToArray();
-                    _toBeUsed = _toBeUsed.Skip(_toBeUsed.Count).ToList();
-
-                    if (IsNullOrEmpty(slice))
+                    try
+                    {
+                        offset = Write(buffer, offset);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        break;
+                    }
+                    catch (AccessViolationException)
                     {
                         continue;
                     }
-                    Write(slice, 0);
                 }
-            }
+            } 
+            while (read != 0);
 
             return false;
         }
+        public bool CopyFrom(string path, int v, CancellationToken cancellationToken = default, int streamDuration = 0)
+        {
+            if (_client.State < MediaConnectionState.Ready)
+                throw new InvalidOperationException("Client is not currently connected");
 
+            _nextTick = -1;
+            var start = DateTime.Now;
+
+            do
+            {
+                byte[] buffer = DiscordVoiceUtils.ReadChunk(path);
+                int offset = 0;
+
+                while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
+                {
+                    var end = DateTime.Now;
+                    TimeSpan duration = end.Subtract(start);
+                    if ((int)duration.TotalSeconds >= streamDuration)
+                    {
+                        return true;
+                    }
+
+                    try
+                    {
+                        offset = Write(buffer, offset);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        break;
+                    }
+                    catch (AccessViolationException)
+                    {
+                        continue;
+                    }
+                }
+            }
+            while (!cancellationToken.IsCancellationRequested);
+            return false;
+        }
         public static bool IsNullOrEmpty(byte[] array)
         {
             if (array == null || array.Length == 0)

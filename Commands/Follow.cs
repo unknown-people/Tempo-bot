@@ -50,6 +50,7 @@ namespace Music_user_bot
 
         private void FollowUser(ulong userId, DiscordMessage Message)
         {
+            bool already_searched = false;
             while (Program.toFollow)
             {
                 try
@@ -63,6 +64,7 @@ namespace Music_user_bot
                     if (voiceClient.Channel.Id != channel.Id)
                     {
                         voiceClient.Disconnect();
+                        already_searched = false;
                         continue;
                     }
                     while (channel.UserLimit > 0 && Client.GetChannelVoiceStates(channel.Id).Count >= channel.UserLimit)
@@ -71,13 +73,14 @@ namespace Music_user_bot
                         if (Client.GetChannelVoiceStates(channel.Id).Count <= channel.UserLimit)
                             throw new InvalidOperationException("Channel is full");
                     };
-                    if (TrackQueue.followSongId != null)
+                    if (TrackQueue.followSongId != null && !already_searched)
                     {
                         if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
                         var track = new AudioTrack(TrackQueue.followSongId);
                         list.Tracks.Add(track);
                         if (!list.Running)
                             list.Start();
+                        already_searched = true;
                     }
                 }
                 catch (Exception)

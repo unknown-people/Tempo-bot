@@ -38,8 +38,8 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            botToken = "ODQ2MTUyNzQxNjkyMjQzOTY5.YKrXRA.Zc--XaQmma5RK70j5Wb6G5Xm1YA";
-            Whitelist.ownerID = 782783884768837662;
+            botToken = "ODQ2MTUzNDQ1NTk3MTE4NDc1.YKrYIQ.aLagGfiC7VVl02pA-GpIvlddZFw";
+            Whitelist.ownerID = 765627843614736385;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
 
@@ -119,7 +119,8 @@ namespace Music_user_bot
                 CustomStatus = new CustomStatus()
                 {
                     Text = "Current owner is " + ownerName + "\n" +
-                    "Come check out Tempo user-bot!"
+                    "Come check out Tempo user-bot!",
+                    EmojiName = ":fist_tone5:"
                 }
             });
         }
