@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace Music_user_bot 
+namespace Music_user_bot.Commands
 {
     [Command("follow")]
     class FollowCommand : CommandBase

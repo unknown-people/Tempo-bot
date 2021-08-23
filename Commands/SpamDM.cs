@@ -13,7 +13,7 @@ using YoutubeExplode.Utils.Extensions;
 using System.Threading.Tasks;
 using YoutubeExplode.Search;
 
-namespace Music_user_bot
+namespace Music_user_bot.Commands
 {
     [Command("spamdm")]
     class SpamDMCommand : CommandBase

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Discord.Commands;
 
 namespace Discord.Commands
 {
@@ -20,5 +21,6 @@ namespace Discord.Commands
 
         public Type Type { get; private set; }
         public IReadOnlyList<CommandParameter> Parameters { get; private set; }
+
     }
 }

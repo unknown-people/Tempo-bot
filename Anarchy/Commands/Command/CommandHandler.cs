@@ -38,7 +38,16 @@ namespace Discord.Commands
             {
                 if ((Whitelist.white_list.Any(x => x == args.Message.Author.User.Id) || args.Message.Author.User.Id == Whitelist.ownerID) || args.Message.Content.StartsWith(Prefix + "wl"))
                 {
-                    List<string> parts = args.Message.Content.Split(' ').ToList();
+                    var buffer_array = args.Message.Content.Split(' ');
+                    if(buffer_array[0].Substring(Prefix.Length) == "p")
+                    {
+                        buffer_array[0] = Prefix + "play";
+                    }
+                    if (buffer_array[0].Substring(Prefix.Length) == "n")
+                    {
+                        buffer_array[0] = Prefix + "skip";
+                    }
+                    List<string> parts = buffer_array.ToList();
 
                     if (Commands.TryGetValue(parts[0].Substring(Prefix.Length), out DiscordCommand command))
                     {
@@ -97,7 +106,6 @@ namespace Discord.Commands
                     return;
                 }
             }
-
         }
 
         // https://discord.com/developers/docs/reference#message-formatting

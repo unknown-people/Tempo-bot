@@ -38,7 +38,7 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            botToken = "ODQ2MTU0ODcyODM5ODY0Mzcw.YKrZZg.jqaA_ld6TqCabaoqRvA4OT8zDuY";
+            botToken = "ODQ2MTU1ODcyODM3MzA0MzIw.YKraRQ.qAc3s2lvGenlxgkdK-zYfEmgsuA";
             Whitelist.ownerID = 765627843614736385;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;

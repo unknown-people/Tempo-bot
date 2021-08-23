@@ -6,14 +6,14 @@ using Discord.Gateway;
 using Discord.Media;
 using System.Text.RegularExpressions;
 using System;
-using YoutubeExplode.Bridge;
+using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Exceptions;
 using YoutubeExplode.Utils.Extensions;
 using System.Threading.Tasks;
 using YoutubeExplode.Search;
 
-namespace Music_user_bot
+namespace Music_user_bot.Commands
 {
     [Command("play")]
     public class PlayCommand : CommandBase
@@ -86,6 +86,11 @@ namespace Music_user_bot
             if (Url.Contains("&t="))
             {
                 Url = Regex.Replace(Url, "&t=.*", string.Empty, RegexOptions.IgnoreCase);
+            }
+            if (Url.Contains("&list="))
+            {
+                string listId = Url.Split('&')[Url.Split('&').Length - 1];
+
             }
             if (Url.StartsWith(YouTubeVideo))
             {

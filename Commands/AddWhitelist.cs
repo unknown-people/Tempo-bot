@@ -12,7 +12,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System;
 
-namespace Music_user_bot
+namespace Music_user_bot.Commands
 {
     [Command("addw")]
     class AddWhitelist : CommandBase
