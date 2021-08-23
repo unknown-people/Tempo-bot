@@ -19,7 +19,7 @@ namespace Music_user_bot.Commands
                 var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
 
                 if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
-                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Deafened = true });
+                    voiceClient.Connect(channel.Id);
             }
             catch (Exception)
             {

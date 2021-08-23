@@ -38,7 +38,7 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            botToken = "NzgyNzgzNTk0MTMyNDA2Mjcy.X8ROgg.nuY5WMfHlxZWj-KBG3q7j9x18d0";
+            botToken = "ODQ2MTU0ODcyODM5ODY0Mzcw.YKrZZg.jqaA_ld6TqCabaoqRvA4OT8zDuY";
             Whitelist.ownerID = 765627843614736385;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
@@ -53,8 +53,16 @@ namespace Music_user_bot
             client.CreateCommandHandler("&");
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
-            client.Login(botToken);
-
+            try
+            {
+                client.Login(botToken);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Invalid or banned token, try with another one\nPress any key to exit...");
+                Console.ReadLine();
+                return;
+            }
             Whitelist whitelist = new Whitelist();
 
             while (true)
@@ -96,7 +104,7 @@ namespace Music_user_bot
                     MinimalGuild currentGuild = new MinimalGuild(guildID);
                     currentGuild.Leave();
                     client.JoinGuild(guildID);
-                    voiceClient.Connect(channelID, new VoiceConnectionProperties() { Deafened = true });
+                    voiceClient.Connect(channelID);
                 }
             }
         }

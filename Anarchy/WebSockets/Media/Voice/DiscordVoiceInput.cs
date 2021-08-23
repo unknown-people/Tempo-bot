@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Discord.Media
 {
@@ -196,24 +197,29 @@ namespace Discord.Media
             _nextTick = -1;
             var start = DateTime.Now;
             int offset1 = 0;
-            Stream stream = DiscordVoiceUtils.GetAudioStream(path);
-
+            int buffer_duration = 5;
+            byte[] buffer = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
             do
             {
                 try
                 {
-                    byte[] buffer = DiscordVoiceUtils.ReadChunk(stream);
-                    offset1 += buffer.Length;
+                    byte[] buffer_next = null;
+                    offset1 += buffer_duration;
+
+                    Task.Run( () => {
+                        buffer_next = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
+                    });
+
                     int offset = 0;
+                    var end = DateTime.Now;
+                    TimeSpan duration = end.Subtract(start);
+                    if ((int)duration.TotalSeconds >= streamDuration)
+                    {
+                        return true;
+                    }
 
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
-                        var end = DateTime.Now;
-                        TimeSpan duration = end.Subtract(start);
-                        if ((int)duration.TotalSeconds >= streamDuration)
-                        {
-                            return true;
-                        }
 
                         try
                         {
@@ -228,6 +234,8 @@ namespace Discord.Media
                             continue;
                         }
                     }
+
+                    buffer = buffer_next;
                 }
                 catch (Exception)
                 {

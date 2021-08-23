@@ -16,7 +16,23 @@ namespace Discord.Media
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg.exe",
-                Arguments = $"-nostats -loglevel 0 -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-nostats -loglevel -8 -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            });
+
+            return process.StandardOutput.BaseStream;
+        }
+        public static Stream GetAudioStream(string path, int offset, int duration)
+        {
+            if (!File.Exists("ffmpeg.exe"))
+                throw new FileNotFoundException("ffmpeg.exe was not found");
+
+            var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"-nostats -loglevel -8 " +
+                $"-i \"{path}\" -ss {offset.ToString()} -to {(offset + duration).ToString()} -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });
@@ -31,6 +47,15 @@ namespace Discord.Media
                 return memStream.ToArray();
             }
         }
+        public static byte[] GetAudio(string path, int offset, int duration)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                GetAudioStream(path, offset, duration).CopyTo(memStream);
+                return memStream.ToArray();
+            }
+        }
+
         public static byte[] ReadChunk(Stream stream)
         {
             try

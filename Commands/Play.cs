@@ -125,7 +125,7 @@ namespace Music_user_bot
             Message.Channel.SendMessage($"Song \"{track.Title}\" has been added to the queue");
 
             if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
-                voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Deafened = true });
+                voiceClient.Connect(channel.Id);
             else if (!list.Running)
                 list.Start();
             return 0;
