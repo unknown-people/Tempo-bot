@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Discord.Media
 {
@@ -30,13 +31,30 @@ namespace Discord.Media
                 return memStream.ToArray();
             }
         }
-        public static byte[] ReadChunk(string path)
+        public static byte[] ReadChunk(Stream stream)
         {
-            using (var memStream = new MemoryStream())
+            try
             {
-                byte[] buffer = new byte[OpusConverter.FrameBytes];
-                GetAudioStream(path).CopyTo(memStream, buffer.Length);
-                return memStream.ToArray();
+                using (var memStream = new MemoryStream())
+                {
+                    byte[] buffer = new byte[OpusConverter.FrameBytes];
+                    CopyStreamBytes(stream, memStream, buffer.Length);
+                    return memStream.ToArray();
+                }
+            }
+            catch (Exception)
+            {
+                return new byte[OpusConverter.FrameBytes];
+            }
+        }
+        public static void CopyStreamBytes(Stream input, Stream output, int length)
+        {
+            byte[] buffer = new byte[length];
+            int read;
+            while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, read);
+                return;
             }
         }
 

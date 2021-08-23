@@ -195,33 +195,43 @@ namespace Discord.Media
 
             _nextTick = -1;
             var start = DateTime.Now;
+            int offset1 = 0;
+            Stream stream = DiscordVoiceUtils.GetAudioStream(path);
 
             do
             {
-                byte[] buffer = DiscordVoiceUtils.ReadChunk(path);
-                int offset = 0;
-
-                while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
+                try
                 {
-                    var end = DateTime.Now;
-                    TimeSpan duration = end.Subtract(start);
-                    if ((int)duration.TotalSeconds >= streamDuration)
-                    {
-                        return true;
-                    }
+                    byte[] buffer = DiscordVoiceUtils.ReadChunk(stream);
+                    offset1 += buffer.Length;
+                    int offset = 0;
 
-                    try
+                    while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
-                        offset = Write(buffer, offset);
+                        var end = DateTime.Now;
+                        TimeSpan duration = end.Subtract(start);
+                        if ((int)duration.TotalSeconds >= streamDuration)
+                        {
+                            return true;
+                        }
+
+                        try
+                        {
+                            offset = Write(buffer, offset);
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            break;
+                        }
+                        catch (AccessViolationException)
+                        {
+                            continue;
+                        }
                     }
-                    catch (InvalidOperationException)
-                    {
-                        break;
-                    }
-                    catch (AccessViolationException)
-                    {
-                        continue;
-                    }
+                }
+                catch (Exception)
+                {
+                    continue;
                 }
             }
             while (!cancellationToken.IsCancellationRequested);
