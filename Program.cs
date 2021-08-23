@@ -119,17 +119,10 @@ namespace Music_user_bot
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
             Console.WriteLine("Logged in");
-            client.User.ChangeSettings(new UserSettingsProperties()
+            client.User.ChangeProfile(new UserProfileUpdate()
             {
-                Theme = DiscordTheme.Light,
-                DeveloperMode = true,
-                Language = DiscordLanguage.EnglishUK,
-                CustomStatus = new CustomStatus()
-                {
-                    Text = "Current owner is " + ownerName + "\n" +
-                    "Come check out Tempo user-bot!",
-                    EmojiName = ":fist_tone5:"
-                }
+                Biography = "Current owner is " + ownerName + "\n" +
+                    "Come check out Tempo user-bot!"
             });
         }
     }
