@@ -1,7 +1,6 @@
 ﻿using Discord.Commands;
 using Discord;
 using Discord.Gateway;
-using Discord.Media;
 using System;
 using System.Threading.Tasks;
 using System.Threading;
@@ -64,7 +63,7 @@ namespace Music_user_bot.Commands
                         Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
                         voiceClient.Connect(channel.Id);
                     }
-                    if (voiceClient.Channel.Id != channel.Id)
+                    if (voiceClient.Channel.Id != channel.Id || !targetConnected)
                     {
                         voiceClient.Disconnect();
                         already_searched = false;

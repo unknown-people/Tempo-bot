@@ -199,11 +199,12 @@ namespace Discord.Media
             int offset1 = 0;
             int buffer_duration = 5;
             byte[] buffer = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
+            byte[] buffer_next = buffer;
+
             do
             {
                 try
                 {
-                    byte[] buffer_next = null;
                     offset1 += buffer_duration;
 
                     Task.Run( () => {
@@ -234,7 +235,8 @@ namespace Discord.Media
                             continue;
                         }
                     }
-
+                    while (buffer_next == null)
+                        Thread.Sleep(1);
                     buffer = buffer_next;
                 }
                 catch (Exception)
