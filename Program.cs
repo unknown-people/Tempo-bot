@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -38,7 +39,7 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            botToken = "ODQ2MTU2NDc2MDgxODk3NTAz.YKra1g.wKcKotOuYIhKdzIN_EDrHN6o3ps";
+            botToken = "ODQ2MTU2MjE4MDY5MTU1ODYx.YKraqA.FuxyMoOxOHvkk4CJj6bdaUu40X4";
             Whitelist.ownerID = 765627843614736385;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
@@ -50,7 +51,7 @@ namespace Music_user_bot
                 Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates
             });
 
-            client.CreateCommandHandler("R/");
+            client.CreateCommandHandler("t/");
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
             try
@@ -121,6 +122,9 @@ namespace Music_user_bot
             Console.WriteLine("Logged in");
             client.User.ChangeProfile(new UserProfileUpdate()
             {
+                Username = "[t/]Tempo",
+                Password = "9wrpscy8m6pqr",
+                Avatar = Image.FromFile("propic.png"),
                 Biography = "Current owner is " + ownerName + "\n" +
                     "Come check out Tempo user-bot!"
             });

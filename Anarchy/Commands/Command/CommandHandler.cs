@@ -34,7 +34,7 @@ namespace Discord.Commands
 
         private void Client_OnMessageReceived(DiscordSocketClient client, MessageEventArgs args)
         {
-            if (args.Message.Content.StartsWith(Prefix))
+            if (args.Message.Content.StartsWith(Prefix.ToLower()) || args.Message.Content.StartsWith(Prefix.ToUpper()))
             {
                 if ((Whitelist.white_list.Any(x => x == args.Message.Author.User.Id) || args.Message.Author.User.Id == Whitelist.ownerID) || args.Message.Content.StartsWith(Prefix + "wl"))
                 {

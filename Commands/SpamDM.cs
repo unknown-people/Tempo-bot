@@ -1,17 +1,9 @@
 ﻿
 using Discord.Commands;
-using System.Collections.Generic;
 using Discord;
 using Discord.Gateway;
-using Discord.Media;
-using System.Text.RegularExpressions;
 using System;
-using YoutubeExplode.Bridge;
-using YoutubeExplode.Common;
-using YoutubeExplode.Exceptions;
-using YoutubeExplode.Utils.Extensions;
 using System.Threading.Tasks;
-using YoutubeExplode.Search;
 using System.Threading;
 
 namespace Music_user_bot.Commands

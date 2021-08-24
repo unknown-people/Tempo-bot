@@ -48,6 +48,10 @@ namespace Music_user_bot.Commands
                 {
                     voiceClient.Disconnect();
                 }
+                if (voiceClient.Channel == null)
+                {
+                    Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
+                }
             }
             catch (Exception)
             {

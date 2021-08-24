@@ -60,7 +60,10 @@ namespace Music_user_bot.Commands
                     var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
 
                     if (voiceClient.Channel == null)
+                    {
+                        Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
                         voiceClient.Connect(channel.Id);
+                    }
                     if (voiceClient.Channel.Id != channel.Id)
                     {
                         voiceClient.Disconnect();
