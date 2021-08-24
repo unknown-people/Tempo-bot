@@ -39,7 +39,7 @@ namespace Music_user_bot.Commands
             }
             else
             {
-                message = content.Split(' ')[2];
+                message = content.Split(' ')[1];
             }
             var dmChannel = Client.CreateDM(userId);
 

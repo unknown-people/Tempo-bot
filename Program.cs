@@ -38,7 +38,7 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            botToken = "ODQ2MTU2MjkyOTgzNjE5NTk1.YKravQ.G_5jqrqyYMeI4Ozlct-c0UtmdCg";
+            botToken = "ODQ2MTU2NDc2MDgxODk3NTAz.YKra1g.wKcKotOuYIhKdzIN_EDrHN6o3ps";
             Whitelist.ownerID = 765627843614736385;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
@@ -50,7 +50,7 @@ namespace Music_user_bot
                 Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates
             });
 
-            client.CreateCommandHandler("&");
+            client.CreateCommandHandler("R/");
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
             try
