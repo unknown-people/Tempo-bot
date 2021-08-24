@@ -31,12 +31,24 @@ namespace Discord.Commands
             }
         }
 
-
+        private List<ulong> CollectionToList(System.Collections.Specialized.StringCollection input)
+        {
+            var result = new List<ulong> { };
+            foreach(string entry in input)
+            {
+                var entry_buff = ulong.Parse(entry);
+                result.Add(entry_buff);
+            }
+            return result;
+        }
         private void Client_OnMessageReceived(DiscordSocketClient client, MessageEventArgs args)
         {
             if (args.Message.Content.StartsWith(Prefix.ToLower()) || args.Message.Content.StartsWith(Prefix.ToUpper()))
             {
-                if ((Whitelist.white_list.Any(x => x == args.Message.Author.User.Id) || args.Message.Author.User.Id == Whitelist.ownerID) || args.Message.Content.StartsWith(Prefix + "wl"))
+                if (Whitelist.white_list == null)
+                    Whitelist.white_list = new System.Collections.Specialized.StringCollection() { };
+                var WhiteList = CollectionToList(Whitelist.white_list);
+                if ((WhiteList.Any(x => x == args.Message.Author.User.Id) || args.Message.Author.User.Id == Whitelist.ownerID) || args.Message.Content.StartsWith(Prefix + "wl"))
                 {
                     var buffer_array = args.Message.Content.Split(' ');
                     if(buffer_array[0].Substring(Prefix.Length) == "p")

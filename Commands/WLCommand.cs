@@ -23,8 +23,9 @@ namespace Music_user_bot
 
             DiscordClient client = new DiscordClient(Program.botToken);
 
-            foreach(ulong entry in Whitelist.white_list)
+            foreach(string entry_string in Whitelist.white_list)
             {
+                ulong entry = ulong.Parse(entry_string);
                 string discriminator = "";
                 for(int i=0; i < 4 - ((client.GetUser(entry).Discriminator)).ToString().Length; i++)
                 {

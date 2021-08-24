@@ -39,8 +39,9 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            botToken = "ODQ2MTU2MjE4MDY5MTU1ODYx.YKraqA.FuxyMoOxOHvkk4CJj6bdaUu40X4";
-            Whitelist.ownerID = 765627843614736385;
+            var random = new string[] { };
+            botToken = Settings.Default.Token;
+            Whitelist.ownerID = Settings.Default.OwnerId;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
 
@@ -51,19 +52,11 @@ namespace Music_user_bot
                 Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates
             });
 
-            client.CreateCommandHandler("t/");
+            client.CreateCommandHandler(Settings.Default.Prefix);
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
-            try
-            {
-                client.Login(botToken);
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Invalid or banned token, try with another one\nPress any key to exit...");
-                Console.ReadLine();
-                return;
-            }
+            client.Login(botToken);
+
             Whitelist whitelist = new Whitelist();
 
             while (true)
@@ -122,12 +115,13 @@ namespace Music_user_bot
             Console.WriteLine("Logged in");
             client.User.ChangeProfile(new UserProfileUpdate()
             {
-                Username = "[t/]Tempo",
-                Password = "9wrpscy8m6pqr",
-                Avatar = Image.FromFile("propic.png"),
+                Username = Settings.Default.Username,
+                Password = Settings.Default.Password,
+                //Avatar = Image.FromFile("propic.png"),
                 Biography = "Current owner is " + ownerName + "\n" +
                     "Come check out Tempo user-bot!"
             });
+            Whitelist.white_list = Settings.Default.WhiteList;
         }
     }
 }

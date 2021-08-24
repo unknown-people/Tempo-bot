@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Collections.Specialized;
 
 namespace Music_user_bot
 {
     class Whitelist
     {
-        public static List<ulong> white_list { get; private set; }
+        public static StringCollection white_list { get; set; }
         public static ulong ownerID { get; set; }
         public Whitelist(params ulong[] userIDs) {
             if (IsNullOrEmpty(userIDs))
             {
-                white_list = new List<ulong> {};
+                white_list = new StringCollection {};
             }
-            white_list = userIDs.ToList();
+            white_list = ArrayToCollection(userIDs);
         }
         public static void AddToWL(ulong userID)
         {
-            white_list.Add(userID);
+            white_list.Add(userID.ToString());
         }
         public static void RemoveFromWL(ulong userID)
         {
-            if (white_list.FindIndex(a => a == userID) != -1)
+            if (IsInsideCollection(userID, white_list))
             {
-                white_list.Remove(userID);
+                white_list.Remove(userID.ToString());
             }
         }
         public static bool IsNullOrEmpty(ulong[] array)
@@ -34,6 +31,24 @@ namespace Music_user_bot
                 return true;
             else
                 return array.All(item => item == 0);
+        }
+        private StringCollection ArrayToCollection(ulong[] input)
+        {
+            StringCollection result = new StringCollection() { };
+            foreach(ulong entry in input)
+            {
+                result.Add(entry.ToString());
+            }
+            return result;
+        }
+        private static bool IsInsideCollection(ulong userId, StringCollection collection)
+        {
+            foreach(string entry in collection)
+            {
+                if (userId.ToString() == entry)
+                    return true;
+            }
+            return false;
         }
     }
 }
