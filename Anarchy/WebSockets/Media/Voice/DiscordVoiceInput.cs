@@ -197,7 +197,7 @@ namespace Discord.Media
             _nextTick = -1;
             var start = DateTime.Now;
             int offset1 = 0;
-            int buffer_duration = 5;
+            int buffer_duration = 3;
             byte[] buffer = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
             byte[] buffer_next = buffer;
 
@@ -221,7 +221,6 @@ namespace Discord.Media
 
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
-
                         try
                         {
                             offset = Write(buffer, offset);
