@@ -668,7 +668,7 @@ namespace Discord.Gateway
                                 }
 
                                 if (OnMessageReceived != null)
-                                    Task.Run(() => OnMessageReceived.Invoke(this, new MessageEventArgs(newMessage)));
+                                    Task.Run(async () => OnMessageReceived.Invoke(this, new MessageEventArgs(newMessage)));
                             }
                             break;
                         case "MESSAGE_UPDATE":

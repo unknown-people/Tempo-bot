@@ -36,6 +36,17 @@ namespace Music_user_bot
 
             Task.Run(async () =>
             {
+                bool sleeping = await IsSleeping(Running);
+                if (sleeping)
+                {
+                    var voiceClient = _client.GetVoiceClient(_guildId);
+                    if (voiceClient != null)
+                        voiceClient.Disconnect();
+                }
+            });
+
+            Task.Run(async () =>
+            {
                 var voiceClient = _client.GetVoiceClient(_guildId);
 
                 while (voiceClient.State == MediaConnectionState.Ready && Tracks.Count > 0)
@@ -76,10 +87,10 @@ namespace Music_user_bot
                 Running = false;
             });
         }
-        public async ValueTask<bool> IsSleeping(List<AudioTrack> Tracks)
+        public async ValueTask<bool> IsSleeping(bool running)
         {
             DateTime last_song = DateTime.Now;
-            while (Tracks.Count < 1)
+            while (!running)
             {
                 DateTime now = DateTime.Now;
                 TimeSpan since_last_song = now.Subtract(last_song);
