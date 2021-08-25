@@ -58,10 +58,17 @@ namespace Music_user_bot
 
                     voiceClient.Microphone.CopyFrom(GetVideoUrl(currentSong.Id, currentChannel.Bitrate), 2, currentSong.CancellationTokenSource.Token, (int)duration.TotalSeconds);
 
-                    if (isLooping)
+                    try
                     {
-                        var track = new AudioTrack(currentSong.Id);
-                        Tracks.Add(track);
+                        if (isLooping)
+                        {
+                            var track = new AudioTrack(currentSong.Id);
+                            Tracks.Add(track);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        ;
                     }
 
                     Tracks.RemoveAt(0);

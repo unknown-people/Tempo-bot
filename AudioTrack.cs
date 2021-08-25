@@ -14,9 +14,9 @@ namespace Music_user_bot
         {
             Id = id;
             
-            var video = Program.YouTubeClient.Videos.GetAsync(Id).Result;
+            var video = Program.YouTubeClient.Videos.GetAsyncMinimal(Id).Result;
             Title = video.Title;
-            ChannelName = video.Author.Title;
+            ChannelName = video.Title;
 
             CancellationTokenSource = new CancellationTokenSource();
         }

@@ -57,7 +57,7 @@ namespace Music_user_bot.Commands
             {
                 ;
             }
-            if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
+            if (voiceClient.State < MediaConnectionState.Ready || (voiceClient.Channel != null && voiceClient.Channel.Id != channel.Id))
             {
                 var permissions = Client.GetCachedGuild(Message.Guild.Id).ClientMember.GetPermissions(channel.PermissionOverwrites);
 

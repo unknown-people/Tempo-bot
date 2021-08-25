@@ -30,6 +30,7 @@ namespace Music_user_bot.Commands
             else
             {
                 Program.toFollow = true;
+                TrackQueue.isLooping = true;
 
                 Message.Channel.SendMessage("Now following <@" + userId.ToString() + ">");
 
@@ -62,6 +63,7 @@ namespace Music_user_bot.Commands
                     {
                         Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
                         voiceClient.Connect(channel.Id);
+                        already_searched = false;
                     }
                     if (voiceClient.Channel.Id != channel.Id || !targetConnected)
                     {
@@ -81,8 +83,10 @@ namespace Music_user_bot.Commands
                         var track = new AudioTrack(TrackQueue.followSongId);
                         list.Tracks.Add(track);
                         if (!list.Running)
+                        {
                             list.Start();
-                        already_searched = true;
+                            already_searched = true;
+                        }
                     }
                 }
                 catch (Exception)
