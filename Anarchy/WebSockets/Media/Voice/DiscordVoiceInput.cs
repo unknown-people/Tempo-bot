@@ -51,10 +51,6 @@ namespace Discord.Media
             _nextTick = -1;
         }
 
-
-        private List<byte> _toBeUsed = new List<byte>();
-
-
         private void UpdateEncoder() => _encoder = new OpusEncoder(_bitrate, _audioApp, _packetLoss);
 
 
@@ -94,7 +90,6 @@ namespace Discord.Media
 
                 frameSize = _encoder.EncodeFrame(buffer, offset, opusFrame, 0);
 
-
                 byte[] packet = new RTPPacketHeader()
                 {
                     Type = DiscordMediaConnection.SupportedCodecs["opus"].PayloadType,
@@ -117,7 +112,7 @@ namespace Discord.Media
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
 
-            _nextTick = -1;
+            _nextTick = Environment.TickCount;
 
             var start = DateTime.Now;
 
@@ -190,12 +185,13 @@ namespace Discord.Media
 
             return false;
         }
-        public bool CopyFrom(string path, CancellationToken cancellationToken = default)
+        public bool CopyFrom(string path, int duration, CancellationToken cancellationToken = default)
         {
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
 
             _nextTick = -1;
+
             int offset1 = 0;
             if (TrackQueue.pauseTimeSec > 0)
             {
@@ -206,11 +202,7 @@ namespace Discord.Media
                 offset1 = TrackQueue.seekTo;
                 TrackQueue.seekTo = 0;
             }
-            if(TrackQueue.FFseconds > 0)
-            {
-                offset1 += TrackQueue.FFseconds;
-                TrackQueue.FFseconds = 0;
-            }
+
             int buffer_duration = 1;
             byte[] buffer = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
             byte[] buffer_next = buffer;
@@ -222,14 +214,20 @@ namespace Discord.Media
                     if (TrackQueue.isPaused)
                         return true;
                     offset1 += buffer_duration;
+                    if (TrackQueue.FFseconds > 0)
+                    {
+                        offset1 += TrackQueue.FFseconds;
+                        TrackQueue.FFseconds = 0;
+                    }
+
+                    if (offset1 > duration)
+                        return false;
 
                     Task.Run( () => {
                         buffer_next = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
                     });
 
                     int offset = 0;
-                    if (IsNullOrEmpty(buffer))
-                        return false;
 
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
@@ -242,18 +240,7 @@ namespace Discord.Media
                             break;
                         }
                     }
-                    if (buffer_next == null)
-                    {
-                        buffer_next = new byte[] { };
-                        int i = 0;
-                        foreach(byte element in buffer)
-                        {
-                            buffer[i] = 0;
-                            i++;
-                        }
-                    }
-                    else
-                        buffer = buffer_next;
+                    buffer = buffer_next;
                 }
                 catch (Exception)
                 {

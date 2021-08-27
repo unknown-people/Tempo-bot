@@ -114,7 +114,7 @@ namespace Music_user_bot.Commands
                     if (query.Contains("list="))
                     {
                         id = Regex.Replace(query, "^(.*?)(?=:|list=|$)", string.Empty, RegexOptions.IgnoreCase);
-                        if(query.StartsWith("llist="))
+                        if(query.StartsWith("list="))
                             id = Regex.Replace(query, "list=", string.Empty, RegexOptions.IgnoreCase);
                         break;
                     }

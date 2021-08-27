@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -16,9 +18,11 @@ namespace Music_user_bot
 
         public static Dictionary<ulong, TrackQueue> TrackLists = new Dictionary<ulong, TrackQueue>();
         public static bool toFollow { get; set; }
-
+        public static ulong userToCopy { get; set; }
+        public static string userToCopyName { get; set; }
         public static string ownerName { get; set; }
-
+        public static string strExeFilePath { get; set; }
+        public static string strWorkPath { get; set; }
         public static string botToken { get; set; }
 
         public static bool CanModifyList(DiscordSocketClient client, DiscordMessage message)
@@ -38,6 +42,9 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
+            strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
+
             var random = new string[] { };
             botToken = Settings.Default.Token;
             Whitelist.ownerID = Settings.Default.OwnerId;
@@ -56,7 +63,7 @@ namespace Music_user_bot
             client.Login(botToken);
 
             Whitelist whitelist = new Whitelist();
-
+            /*
             while (true)
             {
                 if (NoMuteCommand.noMute)
@@ -65,6 +72,8 @@ namespace Music_user_bot
                 }
                 Thread.Sleep(100);
             }
+            */
+            Thread.Sleep(-1);
         }
 
         private static void NoMute(DiscordSocketClient client)
@@ -107,18 +116,43 @@ namespace Music_user_bot
                 list.Start();
             }
         }
-
+        
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
             Console.WriteLine("Logged in");
-            client.User.ChangeProfile(new UserProfileUpdate()
+            var path = strWorkPath + "\\propic.png";
+            path = path.Replace('\\', '/');
+
+            try
             {
-                Username = Settings.Default.Username,
-                Password = Settings.Default.Password,
-                //Avatar = Image.FromFile("propic.png"),
-                Biography = "Current owner is " + ownerName + "\n" +
-                    "Come check out Tempo user-bot!"
-            });
+                Bitmap bitmap = new Bitmap(path);
+
+                client.User.ChangeProfile(new UserProfileUpdate()
+                {
+                    Username = Settings.Default.Username,
+                    Password = Settings.Default.Password,
+                    Biography = "Current owner is " + ownerName + "\n" +
+                        "Come check out Tempo user-bot!",
+                    Avatar = bitmap
+                });
+            }
+            catch (DiscordHttpException)
+            {
+                try
+                {
+                    client.User.ChangeProfile(new UserProfileUpdate()
+                    {
+                        Username = Settings.Default.Username,
+                        Password = Settings.Default.Password,
+                        Biography = "Current owner is " + ownerName + "\n" +
+                        "Come check out Tempo user-bot!"
+                    });
+                }
+                catch (DiscordHttpException)
+                {
+                    ;
+                }
+            }
             Whitelist.white_list = Settings.Default.WhiteList;
         }
         public static void SendMessage(DiscordMessage received, string to_send)

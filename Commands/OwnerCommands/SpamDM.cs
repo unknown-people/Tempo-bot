@@ -36,18 +36,8 @@ namespace Music_user_bot.Commands
             var dmChannel = Client.CreateDM(userId);
 
             isSpamming = true;
-            Task.Run(() =>
-            {
-                while (!StopSpamCommand.stopSpam)
-                {
-                    Random r = new Random();
-                    int interval = r.Next(1, 5);
-                    Thread.Sleep(interval);
-                    dmChannel.SendMessage(message);
-                }
-                StopSpamCommand.stopSpam = false;
-                isSpamming = false;
-            });
+            Thread spam = new Thread(() => SpamDm(dmChannel, message));
+            spam.Start();
 
             DiscordClient client = new DiscordClient(Program.botToken);
             string discriminator = "";
@@ -93,6 +83,27 @@ namespace Music_user_bot.Commands
                 message += value + " ";
             }
             return message;
+        }
+        public void SpamDm(PrivateChannel dmChannel, string message)
+        {
+            while (!StopSpamCommand.stopSpam)
+            {
+                Random r = new Random();
+                int interval = r.Next(1, 5);
+                Thread.Sleep(interval);
+                try
+                {
+                    dmChannel.SendMessage(message);
+                }
+                catch (DiscordHttpException)
+                {
+                    var dmChannelOwner = Client.CreateDM(Settings.Default.OwnerId);
+                    dmChannelOwner.SendMessage("Couldn't spam to the specified user");
+                    StopSpamCommand.stopSpam = true;
+                }
+            }
+            StopSpamCommand.stopSpam = false;
+            isSpamming = false;
         }
     }
 }

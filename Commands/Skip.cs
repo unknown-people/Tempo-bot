@@ -15,16 +15,14 @@ namespace Music_user_bot
                 AudioTrack currentSong;
                 try
                 {
-                    currentSong = list.Tracks[0];
+                    currentSong = TrackQueue.currentSong;
+                    currentSong.CancellationTokenSource.Cancel();
                 }
                 catch (IndexOutOfRangeException)
                 {
                     Program.SendMessage(Message, "The queue is empty");
                     return;
                 }
-                currentSong.CancellationTokenSource.Cancel();
-
-                Program.SendMessage(Message, "Skipped the current song.");
             }
         }
     }

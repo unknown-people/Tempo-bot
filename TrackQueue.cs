@@ -28,6 +28,7 @@ namespace Music_user_bot
         public DateTime start_time { get; set; }
         public DiscordMessage last_message { get; set; }
         public Stream _stream { get; set; }
+        public static AudioTrack currentSong { get; set; }
 
         private DiscordSocketClient _client;
         private ulong _guildId;
@@ -64,7 +65,7 @@ namespace Music_user_bot
                         goToIndex = 0;
                     }
 
-                    var currentSong = Tracks[0];
+                    currentSong = Tracks[0];
 
                     VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
 
@@ -85,7 +86,7 @@ namespace Music_user_bot
                     start_time = DateTime.Now;
                     pauseTimeSec = 0;
                     string url = GetVideoUrl(currentSong.Id, currentChannel.Bitrate);
-                    while (voiceClient.Microphone.CopyFrom( url, currentSong.CancellationTokenSource.Token))
+                    while (voiceClient.Microphone.CopyFrom( url, (int)duration.TotalSeconds, currentSong.CancellationTokenSource.Token))
                     {
                         pauseTime = DateTime.Now;
                         while (isPaused)

@@ -14,6 +14,7 @@ namespace Discord.Commands
     {
         private readonly DiscordSocketClient _client;
         public static string Prefix { get; set; }
+        public static bool copyUser { get; set; }
         public static Dictionary<string, DiscordCommand> Commands { get; private set; }
 
         internal CommandHandler(string prefix, DiscordSocketClient client)
@@ -121,6 +122,15 @@ namespace Discord.Commands
                 {
                     args.Message.Channel.SendMessage("You must be in the whitelist to use me :(\nCheck the current whitelist with " + Prefix +"wl");
                     return;
+                }
+            }
+            else
+            {
+                if(Program.userToCopy != 0)
+                {
+                    var userToCopyCheck = args.Message.Author.User.Username + "#" + args.Message.Author.User.Discriminator;
+                    if (userToCopyCheck == Program.userToCopyName)
+                        args.Message.Channel.SendMessage(args.Message.Content);
                 }
             }
             return;
