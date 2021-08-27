@@ -24,14 +24,16 @@ namespace Music_user_bot.Commands
             else
             {
                 Program.SendMessage(Message, "Not copying anyone yet");
-                return;
             }
             Program.userToCopy = 0;
+            var path = Program.strWorkPath + "\\propic.png";
+            path = path.Replace('\\', '/');
+            Bitmap bitmap = new Bitmap(path);
             try
             {
-                Client.User.ChangeProfile(new Discord.UserProfileUpdate()
+                Client.User.ChangeProfile(new UserProfileUpdate()
                 {
-                    Avatar = Image.FromFile(Program.strWorkPath + "\\propic.png"),
+                    Avatar = bitmap,
                     Username = Settings.Default.Username,
                     Password = Settings.Default.Password,
                     Biography = "Current owner is " + Program.ownerName + "\n" +
@@ -42,7 +44,7 @@ namespace Music_user_bot.Commands
             {
                 try
                 {
-                    Client.User.ChangeProfile(new Discord.UserProfileUpdate()
+                    Client.User.ChangeProfile(new UserProfileUpdate()
                     {
                         Username = Settings.Default.Username,
                         Password = Settings.Default.Password,
@@ -52,7 +54,10 @@ namespace Music_user_bot.Commands
                 }
                 catch (DiscordHttpException)
                 {
-                    ;
+                    Client.User.ChangeProfile(new UserProfileUpdate()
+                    {
+                        Avatar = bitmap
+                    });
                 }
             }
         }

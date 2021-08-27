@@ -19,7 +19,7 @@ namespace Music_user_bot
         public static Dictionary<ulong, TrackQueue> TrackLists = new Dictionary<ulong, TrackQueue>();
         public static bool toFollow { get; set; }
         public static ulong userToCopy { get; set; }
-        public static string userToCopyName { get; set; }
+        public static uint userToCopyDiscrim { get; set; }
         public static string ownerName { get; set; }
         public static string strExeFilePath { get; set; }
         public static string strWorkPath { get; set; }
@@ -122,11 +122,10 @@ namespace Music_user_bot
             Console.WriteLine("Logged in");
             var path = strWorkPath + "\\propic.png";
             path = path.Replace('\\', '/');
+            Bitmap bitmap = new Bitmap(path);
 
             try
             {
-                Bitmap bitmap = new Bitmap(path);
-
                 client.User.ChangeProfile(new UserProfileUpdate()
                 {
                     Username = Settings.Default.Username,
@@ -142,15 +141,16 @@ namespace Music_user_bot
                 {
                     client.User.ChangeProfile(new UserProfileUpdate()
                     {
-                        Username = Settings.Default.Username,
-                        Password = Settings.Default.Password,
-                        Biography = "Current owner is " + ownerName + "\n" +
-                        "Come check out Tempo user-bot!"
+                        Avatar = bitmap
                     });
                 }
                 catch (DiscordHttpException)
                 {
-                    ;
+                    client.User.ChangeProfile(new UserProfileUpdate()
+                    {
+                        Username = Settings.Default.Username,
+                        Password = Settings.Default.Password,
+                    });
                 }
             }
             Whitelist.white_list = Settings.Default.WhiteList;

@@ -45,7 +45,7 @@ namespace Music_user_bot
         {
             Running = true;
 
-            Task.Run(async () =>
+            Thread track_queue = new Thread(async () =>
             {
                 FFseconds = 0;
                 seekTo = 0;
@@ -115,6 +115,7 @@ namespace Music_user_bot
                 }
                 Running = false;
             });
+            track_queue.Start();
         }
         public static TimeSpan StringToTimeSpan(string input)
         {

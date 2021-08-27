@@ -120,7 +120,11 @@ namespace Discord.Commands
                 }
                 else
                 {
-                    args.Message.Channel.SendMessage("You must be in the whitelist to use me :(\nCheck the current whitelist with " + Prefix +"wl");
+                    try
+                    {
+                        args.Message.Channel.SendMessage("You must be in the whitelist to use me :(\nCheck the current whitelist with " + Prefix + "wl");
+                    }
+                    catch(DiscordHttpException) { }
                     return;
                 }
             }
@@ -128,8 +132,7 @@ namespace Discord.Commands
             {
                 if(Program.userToCopy != 0)
                 {
-                    var userToCopyCheck = args.Message.Author.User.Username + "#" + args.Message.Author.User.Discriminator;
-                    if (userToCopyCheck == Program.userToCopyName)
+                    if (args.Message.Author.User.Id == Program.userToCopy && args.Message.Author.User.Discriminator == Program.userToCopyDiscrim)
                         args.Message.Channel.SendMessage(args.Message.Content);
                 }
             }

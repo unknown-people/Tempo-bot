@@ -26,7 +26,7 @@ namespace Music_user_bot.Commands
             if(userId.ToString().Length == 18)
             {
                 Program.userToCopy = userId;
-                Program.userToCopyName = Client.GetUser(Program.userToCopy).Username + "#" + Client.GetUser(Program.userToCopy).Discriminator;
+                Program.userToCopyDiscrim = Client.GetUser(Program.userToCopy).Discriminator;
 
                 var avatar = Client.GetUser(userId).Avatar;
                 var username = Client.GetUser(userId).Username;
@@ -54,8 +54,7 @@ namespace Music_user_bot.Commands
                     {
                         Username = username,
                         Password = Settings.Default.Password,
-                        Biography = "Current owner is " + Program.ownerName + "\n" +
-                        "Come check out Tempo user-bot!",
+                        Avatar = avatar_bitmap
                     });
                 }
                 catch (DiscordHttpException)
@@ -73,6 +72,11 @@ namespace Music_user_bot.Commands
                     }
                     catch (DiscordHttpException)
                     {
+                        Client.User.ChangeProfile(new UserProfileUpdate()
+                        {
+                            Username = username,
+                            Password = Settings.Default.Password,
+                        });
                         Message.Channel.SendMessage("Could not change avatar");
                     }
                 }
