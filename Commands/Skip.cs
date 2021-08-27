@@ -19,12 +19,12 @@ namespace Music_user_bot
                 }
                 catch (IndexOutOfRangeException)
                 {
-                    Message.Channel.SendMessage("The queue is empty");
+                    Program.SendMessage(Message, "The queue is empty");
                     return;
                 }
                 currentSong.CancellationTokenSource.Cancel();
 
-                Message.Channel.SendMessage("Skipped the current song.");
+                Program.SendMessage(Message, "Skipped the current song.");
             }
         }
     }

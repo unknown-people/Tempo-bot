@@ -21,6 +21,9 @@ namespace Music_user_bot.Commands
                 "skip/n: skip a single song\n" +
                 "loop: loop the current queue\n" +
                 "wl: display the current whitelist\n" +
+                "goto: skips to the specified song in the queue\n" +
+                "seek: seeks the current song to the specified time\n" +
+                "ff: skips the specified amount of seconds\n" +
                 "\n";
             if (Message.Author.User.Id == Settings.Default.OwnerId)
             {

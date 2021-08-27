@@ -5,13 +5,15 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Music_user_bot;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Discord.Commands
 {
     public class CommandHandler
     {
         private readonly DiscordSocketClient _client;
-        public static string Prefix { get; private set; }
+        public static string Prefix { get; set; }
         public static Dictionary<string, DiscordCommand> Commands { get; private set; }
 
         internal CommandHandler(string prefix, DiscordSocketClient client)
@@ -59,6 +61,10 @@ namespace Discord.Commands
                     {
                         buffer_array[0] = Prefix + "skip";
                     }
+                    if (buffer_array[0].Substring(Prefix.Length) == "q")
+                    {
+                        buffer_array[0] = Prefix + "queue";
+                    }
                     List<string> parts = buffer_array.ToList();
 
                     if (Commands.TryGetValue(parts[0].Substring(Prefix.Length), out DiscordCommand command))
@@ -95,7 +101,7 @@ namespace Discord.Commands
                                 catch (Exception ex)
                                 {
                                     inst.HandleError(param.Name, parts[i], ex);
-
+                                    Thread.Yield();
                                     return;
                                 }
                             }
@@ -104,7 +110,6 @@ namespace Discord.Commands
                             else
                             {
                                 inst.HandleError(param.Name, null, new ArgumentNullException("Too few arguments provided"));
-
                                 return;
                             }
                         }
@@ -118,6 +123,7 @@ namespace Discord.Commands
                     return;
                 }
             }
+            return;
         }
 
         // https://discord.com/developers/docs/reference#message-formatting

@@ -24,7 +24,7 @@ namespace Music_user_bot.Commands
                     var inviteNew = Join(invite_code);
                     if (inviteNew.Guild.Name != null)
                     {
-                        Message.Channel.SendMessage("Joined guild");
+                        Program.SendMessage(Message, "Joined guild");
                     }
                     else
                     {
@@ -32,12 +32,12 @@ namespace Music_user_bot.Commands
                     }
                 }
                 catch(Exception) {
-                    Message.Channel.SendMessage("Couldn't join guild.\n\nUsage: " + CommandHandler.Prefix + "joinserver [invite/code]");
+                    Program.SendMessage(Message, "Couldn't join guild.\n\nUsage: " + CommandHandler.Prefix + "joinserver [invite/code]");
                 }
             }
             else
             {
-                Message.Channel.SendMessage("You must be the owner to join guilds");
+                Program.SendMessage(Message, "You must be the owner to join guilds");
             }
         }
         public async Task<GuildInvite> JoinAsync(string Code)

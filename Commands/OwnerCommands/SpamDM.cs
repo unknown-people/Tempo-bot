@@ -20,7 +20,7 @@ namespace Music_user_bot.Commands
             userId = ulong.Parse(content.Split(' ')[0]);
             if(userId.ToString().Length != 18 || content.Split(' ').Length < 2)
             {
-                Message.Channel.SendMessage("Insert a valid user id and message.\n**Usage:** " + CommandHandler.Prefix + "spamdm [userId] [message]");
+                Program.SendMessage(Message, "Insert a valid user id and message.\n**Usage:** " + CommandHandler.Prefix + "spamdm [userId] [message]");
                 return;
             }
             string message = "";

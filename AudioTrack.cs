@@ -14,7 +14,7 @@ namespace Music_user_bot
         {
             Id = id;
             
-            var video = Program.YouTubeClient.Videos.GetAsyncMinimal(Id).GetAwaiter().GetResult();
+            var video = Program.YouTubeClient.Videos.GetAsyncMinimal(Id);
             Title = video.Title;
             ChannelName = video.Title;
 

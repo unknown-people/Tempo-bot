@@ -17,7 +17,12 @@ namespace Music_user_bot
         {
             if (Message.Author.User.Id != Whitelist.ownerID)
             {
-                Message.Channel.SendMessage("You must be the owner to use this command");
+                Program.SendMessage(Message, "You must be the owner to use this command");
+                return;
+            }
+            if (!Program.toFollow)
+            {
+                Program.SendMessage(Message, "You need to be following someone to use this command");
                 return;
             }
             if (Url.Contains("m.youtube"))
@@ -48,10 +53,13 @@ namespace Music_user_bot
             {
                 var track = new AudioTrack(TrackQueue.followSongId);
                 TrackQueue.isLooping = true;
-                Message.Channel.SendMessage("Now playing " + track.Title);
+
+                if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
+                list.Tracks.Add(track);
+                Program.SendMessage(Message, "Now playing " + track.Title);
             }
             catch (Exception) {
-                Message.Channel.SendMessage("Couldn't play the selected track");
+                Program.SendMessage(Message, "Couldn't play the selected track");
             }
         }
     }

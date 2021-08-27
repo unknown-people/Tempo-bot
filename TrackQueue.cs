@@ -8,6 +8,7 @@ using YoutubeExplode.Videos.Streams;
 using System;
 using YoutubeExplode;
 using System.IO;
+using System.Threading;
 
 namespace Music_user_bot
 {
@@ -15,8 +16,17 @@ namespace Music_user_bot
     {
         public List<AudioTrack> Tracks { get; private set; }
         public bool Running { get; set; }
+        public static DiscordMessage Message { get; set; }
+        public static int seekTo { get; set; }
+        public static int FFseconds { get; internal set; }
         public static string followSongId { get; set; }
+        public static int goToIndex { get; set; }
         public static bool isLooping { get; set; }
+        public static bool isPaused { get; set; }
+        public static DateTime pauseTime { get; set; }
+        public static int pauseTimeSec { get; set; }
+        public DateTime start_time { get; set; }
+        public DiscordMessage last_message { get; set; }
         public Stream _stream { get; set; }
 
         private DiscordSocketClient _client;
@@ -36,24 +46,25 @@ namespace Music_user_bot
 
             Task.Run(async () =>
             {
-                bool sleeping = await IsSleeping(Running);
-                if (sleeping)
-                {
-                    var voiceClient = _client.GetVoiceClient(_guildId);
-                    if (voiceClient != null)
-                        voiceClient.Disconnect();
-                }
-            });
+                FFseconds = 0;
+                seekTo = 0;
 
-            Task.Run(async () =>
-            {
                 var voiceClient = _client.GetVoiceClient(_guildId);
+
+                last_message = null;
 
                 while (voiceClient.State == MediaConnectionState.Ready && Tracks.Count > 0)
                 {
-                    var currentSong = Tracks[0];
+                    if (Program.TrackLists.TryGetValue(_guildId, out var list) && goToIndex > 0)
+                    {
+                        for (int i = 0; i <= list.Tracks.Count; i++)
+                        {
+                            list.Tracks.RemoveAt(0);
+                        }
+                        goToIndex = 0;
+                    }
 
-                    var manifest = Program.YouTubeClient.Videos.Streams.GetManifestAsync(currentSong.Id).Result;
+                    var currentSong = Tracks[0];
 
                     VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
 
@@ -67,14 +78,31 @@ namespace Music_user_bot
                         duration = (TimeSpan)video.Duration;
                     }
 
-                    voiceClient.Microphone.CopyFrom(GetVideoUrl(currentSong.Id, currentChannel.Bitrate), 2, currentSong.CancellationTokenSource.Token, (int)duration.TotalSeconds);
+                    if (last_message != null)
+                        last_message.Delete();
+                    last_message = Message.Channel.SendMessage("**Now playing:**\n" + video.Title + "\n**By:**    " + video.Author);
+
+                    start_time = DateTime.Now;
+                    pauseTimeSec = 0;
+                    string url = GetVideoUrl(currentSong.Id, currentChannel.Bitrate);
+                    while (voiceClient.Microphone.CopyFrom( url, currentSong.CancellationTokenSource.Token))
+                    {
+                        pauseTime = DateTime.Now;
+                        while (isPaused)
+                        {
+                            await Task.Delay(10);
+                        }
+                        pauseTimeSec += (int)(pauseTime - start_time).TotalSeconds;
+                        start_time = DateTime.Now;
+                        FFseconds = 0;
+                        seekTo = 0;
+                    }
 
                     try
                     {
                         if (isLooping)
                         {
-                            var track = new AudioTrack(currentSong.Id);
-                            Tracks.Add(track);
+                            Tracks.Add(currentSong);
                         }
                     }
                     catch (Exception)
@@ -86,6 +114,32 @@ namespace Music_user_bot
                 }
                 Running = false;
             });
+        }
+        public static TimeSpan StringToTimeSpan(string input)
+        {
+            var string_split = input.Split(':');
+            var result = "";
+            var return_value = TimeSpan.Zero;
+            if(string_split.Length == 2)
+            {
+                var buffer = new string[] { "00" };
+                buffer = buffer.Concat(string_split).ToArray();
+                result = string.Join(":", buffer);
+                return_value = TimeSpan.Parse(result);
+            }
+            else if(string_split.Length == 3)
+            {
+                return_value = TimeSpan.Parse(result);
+            }
+            else if(string_split.Length == 1)
+            {
+                var buffer0 = new string[] { "00" };
+                var buffer = buffer0.Concat(string_split).ToArray();
+                buffer = buffer0.Concat(string_split).ToArray();
+                result = string.Join(":", buffer);
+                return_value = TimeSpan.Parse(result);
+            }
+            return return_value;
         }
         public async ValueTask<bool> IsSleeping(bool running)
         {

@@ -15,13 +15,20 @@ namespace Music_user_bot.Commands
             var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
             var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
 
-            if (voiceClient.Channel.Id == channel.Id)
+            try
             {
-                try
+                if (voiceClient.Channel.Id == channel.Id)
                 {
                     voiceClient.Disconnect();
+                    Program.SendMessage(Message, "Disconnected from channel");
                 }
-                catch (Exception) { }
+                else
+                {
+                    Program.SendMessage(Message, "You need to be in the same channel as me to disconnect me");
+                }
+            }
+            catch (Exception) {
+                Program.SendMessage(Message, "I'm not connected to any voice channel");
             }
         }
     }

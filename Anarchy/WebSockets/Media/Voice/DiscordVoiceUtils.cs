@@ -31,8 +31,8 @@ namespace Discord.Media
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg.exe",
-                Arguments = $"-nostats -loglevel -8 -to {(offset + duration).ToString()} -ss {offset.ToString()} " +
-                $"-i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-nostats -loglevel -8 -t {(duration).ToString()} -ss {offset.ToString()} " +
+                $"-i \"{path}\" -fs {(duration * 192000).ToString()} -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });

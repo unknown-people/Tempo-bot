@@ -10,11 +10,11 @@ namespace Music_user_bot.Commands
             TrackQueue.isLooping = !TrackQueue.isLooping;
             if (TrackQueue.isLooping)
             {
-                Message.Channel.SendMessage("Queue is now looping");
+                Program.SendMessage(Message, "Queue is now looping");
             }
             else
             {
-                Message.Channel.SendMessage("Queue stopped looping");
+                Program.SendMessage(Message, "Queue stopped looping");
             }
         }
     }

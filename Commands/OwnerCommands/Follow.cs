@@ -16,23 +16,23 @@ namespace Music_user_bot.Commands
         {
             if(Message.Author.User.Id != Whitelist.ownerID)
             {
-                Message.Channel.SendMessage("You must be the owner to use this command");
+                Program.SendMessage(Message, "You must be the owner to use this command");
                 return;
             }
             if(userId == 0 || userId.ToString().Length != 18)
             {
                 Program.toFollow = false;
                 TrackQueue.isLooping = false;
+                TrackQueue.followSongId = null;
 
-                Message.Channel.SendMessage("Not following anyone anymore.\n\n" +
+                Program.SendMessage(Message, "Not following anyone anymore.\n\n" +
                     "Usage: " + CommandHandler.Prefix + "follow [userId]");
             }
             else
             {
                 Program.toFollow = true;
-                TrackQueue.isLooping = true;
 
-                Message.Channel.SendMessage("Now following <@" + userId.ToString() + ">");
+                Program.SendMessage(Message, "Now following <@" + userId.ToString() + ">");
 
                 Task.Run(() =>
                 {
@@ -42,7 +42,7 @@ namespace Music_user_bot.Commands
                     }
                     catch (Exception)
                     {
-                        Message.Channel.SendMessage("Be sure to use a valid user ID");
+                        Program.SendMessage(Message, "Be sure to use a valid user ID");
                     }
                 });
             }
@@ -51,6 +51,7 @@ namespace Music_user_bot.Commands
         private void FollowUser(ulong userId, DiscordMessage Message)
         {
             bool already_searched = false;
+            AudioTrack to_loop = null;
             while (Program.toFollow)
             {
                 try
@@ -61,7 +62,8 @@ namespace Music_user_bot.Commands
 
                     if (voiceClient.Channel == null)
                     {
-                        Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
+                        if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list))
+                            Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
                         voiceClient.Connect(channel.Id);
                         already_searched = false;
                     }
@@ -79,9 +81,12 @@ namespace Music_user_bot.Commands
                     };
                     if (TrackQueue.followSongId != null && !already_searched)
                     {
-                        if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
-                        var track = new AudioTrack(TrackQueue.followSongId);
-                        list.Tracks.Add(track);
+                        if(!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list))
+                            list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
+                        TrackQueue.isLooping = true;
+                        if (to_loop == null)
+                            to_loop = new AudioTrack(TrackQueue.followSongId);
+                        list.Tracks.Add(to_loop);
                         if (!list.Running)
                         {
                             list.Start();

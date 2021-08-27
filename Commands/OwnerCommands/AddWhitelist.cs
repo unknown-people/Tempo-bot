@@ -26,19 +26,19 @@ namespace Music_user_bot.Commands
             {
                 if (Message.Author.User.Id != Whitelist.ownerID)
                 {
-                    Message.Channel.SendMessage("You need to be the owner or an administrator to change the whitelist");
+                    Program.SendMessage(Message, "You need to be the owner or an administrator to change the whitelist");
                     return;
                 }
                 if (IDtoAdd.ToString().Length == 18)
                 {
                     Whitelist.AddToWL(IDtoAdd);
-                    Message.Channel.SendMessage("Added <@" + IDtoAdd.ToString() + "> to whitelist");
+                    Program.SendMessage(Message, "Added <@" + IDtoAdd.ToString() + "> to whitelist");
                 }
-                else Message.Channel.SendMessage("Usage: addw [userID]");
+                else Program.SendMessage(Message, "Usage: addw [userID]");
             }
             catch (Exception)
             {
-                Message.Channel.SendMessage("Usage: addw [userID]");
+                Program.SendMessage(Message, "Usage: addw [userID]");
             }
         }
     }

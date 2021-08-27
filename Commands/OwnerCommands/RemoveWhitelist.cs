@@ -26,19 +26,19 @@ namespace Music_user_bot
             {
                 if (Message.Author.User.Id != Whitelist.ownerID)
                 {
-                    Message.Channel.SendMessage("You need to be the owner or an administrator to change the whitelist");
+                    Program.SendMessage(Message, "You need to be the owner or an administrator to change the whitelist");
                     return;
                 }
                 if (IDtoDel.ToString().Length == 18)
                 {
                     Whitelist.RemoveFromWL(IDtoDel);
-                    Message.Channel.SendMessage("Removed <@" + IDtoDel.ToString() + "> from whitelist");
+                    Program.SendMessage(Message, "Removed <@" + IDtoDel.ToString() + "> from whitelist");
                 }
-                else Message.Channel.SendMessage("Usage: delw [userID]");
+                else Program.SendMessage(Message, "Usage: delw [userID]");
             }
             catch (Exception)
             {
-                Message.Channel.SendMessage("Usage: delw [userID]");
+                Program.SendMessage(Message, "Usage: delw [userID]");
             }
         }
     }

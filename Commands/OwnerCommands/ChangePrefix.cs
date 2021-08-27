@@ -14,15 +14,16 @@ namespace Music_user_bot.Commands
             {
                 if(Message.Author.User.Id != Settings.Default.OwnerId)
                 {
-                    Message.Channel.SendMessage("You must be the owner to use this command");
+                    Program.SendMessage(Message, "You must be the owner to use this command");
                     return;
                 }
                 Settings.Default.Prefix = new_prefix;
-                Message.Channel.SendMessage("prefix has been changed to: " + new_prefix);
+                CommandHandler.Prefix = new_prefix;
+                Program.SendMessage(Message, "prefix has been changed to: " + new_prefix);
             }
             catch (Exception)
             {
-                Message.Channel.SendMessage("Couldn't save new prefix. Try again");
+                Program.SendMessage(Message, "Couldn't save new prefix. Try again");
             }
         }
     }

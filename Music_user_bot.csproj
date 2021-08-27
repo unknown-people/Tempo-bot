@@ -45,7 +45,7 @@
     <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1" />
-    <PackageReference Include="YoutubeExplodeModified" Version="1.0.7" />
+    <PackageReference Include="YoutubeExplodeModified" Version="1.1.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Diagnostics.Tracing" />

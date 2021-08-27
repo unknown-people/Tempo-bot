@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Gateway;
+using System;
 
 namespace Music_user_bot
 {
@@ -16,12 +17,6 @@ namespace Music_user_bot
 
             if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
 
-            var embed = new EmbedMaker() { Title = "Current queue" };
-            foreach (var song in list.Tracks)
-                embed.AddField(song.Title, song.ChannelName + (song == list.Tracks[0] ? " *(Currently playing)*" : ""));
-
-            var x = channel.PermissionOverwrites;
-
             foreach (var entry in channel.PermissionOverwrites)
             {
                 if (entry.AffectedId == Message.Author.User.Id)
@@ -29,20 +24,29 @@ namespace Music_user_bot
                     canSendEmbed = entry.GetPermissionState(DiscordPermission.EmbedLinks) == OverwrittenPermissionState.Allow;
                 }
             }
-            if(canSendEmbed)
+            if (canSendEmbed)
+            {
+                var embed = new EmbedMaker() { Title = "Current queue" };
+                try
+                {
+                    foreach (var song in list.Tracks)
+                        embed.AddField(song.Title, song.ChannelName + (song == list.Tracks[0] ? " *(Currently playing)*" : ""));
+                }
+                catch (Exception) { }
                 Message.Channel.SendMessage(embed);
+            }
             else
             {
-                string message = "**Current queue:**";
+                string message = "**Current queue:**\n";
                 int index = 1;
                 foreach(var song in list.Tracks)
                 {
-                    message += "[" + index + "]" + song.Title + ";\n";
+                    message += "**[" + index + "]**" + song.Title + ";\n";
                     index += 1;
                 }
-                if (message == "**Current queue:**")
+                if (message == "**Current queue:**\n")
                     message = "**Current queue is empty**";
-                Message.Channel.SendMessage(message);
+                Program.SendMessage(Message, message);
             }
         }
     }

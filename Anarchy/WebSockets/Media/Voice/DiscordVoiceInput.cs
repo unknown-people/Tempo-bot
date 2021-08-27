@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Music_user_bot;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -189,15 +190,28 @@ namespace Discord.Media
 
             return false;
         }
-        public bool CopyFrom(string path, int v, CancellationToken cancellationToken = default, int streamDuration = 0)
+        public bool CopyFrom(string path, CancellationToken cancellationToken = default)
         {
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
 
             _nextTick = -1;
-            var start = DateTime.Now;
             int offset1 = 0;
-            int buffer_duration = 3;
+            if (TrackQueue.pauseTimeSec > 0)
+            {
+                offset1 = TrackQueue.pauseTimeSec - 1;
+            }
+            if(TrackQueue.seekTo > 0)
+            {
+                offset1 = TrackQueue.seekTo;
+                TrackQueue.seekTo = 0;
+            }
+            if(TrackQueue.FFseconds > 0)
+            {
+                offset1 += TrackQueue.FFseconds;
+                TrackQueue.FFseconds = 0;
+            }
+            int buffer_duration = 1;
             byte[] buffer = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
             byte[] buffer_next = buffer;
 
@@ -205,6 +219,8 @@ namespace Discord.Media
             {
                 try
                 {
+                    if (TrackQueue.isPaused)
+                        return true;
                     offset1 += buffer_duration;
 
                     Task.Run( () => {
@@ -212,12 +228,8 @@ namespace Discord.Media
                     });
 
                     int offset = 0;
-                    var end = DateTime.Now;
-                    TimeSpan duration = end.Subtract(start);
-                    if ((int)duration.TotalSeconds >= streamDuration)
-                    {
-                        return true;
-                    }
+                    if (IsNullOrEmpty(buffer))
+                        return false;
 
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
@@ -225,18 +237,23 @@ namespace Discord.Media
                         {
                             offset = Write(buffer, offset);
                         }
-                        catch (InvalidOperationException)
+                        catch (Exception)
                         {
                             break;
                         }
-                        catch (AccessViolationException)
+                    }
+                    if (buffer_next == null)
+                    {
+                        buffer_next = new byte[] { };
+                        int i = 0;
+                        foreach(byte element in buffer)
                         {
-                            continue;
+                            buffer[i] = 0;
+                            i++;
                         }
                     }
-                    while (buffer_next == null)
-                        Thread.Sleep(1);
-                    buffer = buffer_next;
+                    else
+                        buffer = buffer_next;
                 }
                 catch (Exception)
                 {

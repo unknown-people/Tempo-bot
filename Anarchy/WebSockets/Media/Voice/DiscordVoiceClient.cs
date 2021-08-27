@@ -45,9 +45,18 @@ namespace Discord.Media
             _ssrcToUserDictionary.Clear();
             _receivers.Clear();
             //if (_guildId.HasValue) Livestream = new DiscordLivestreamClient(_client, _guildId.Value, _channelId.Value);
-
-            Connection = new DiscordMediaConnection(_client, server.Guild == null ? _channelId.Value : server.Guild.Id, server);
-            
+            while (true)
+            {
+                try
+                {
+                    Connection = new DiscordMediaConnection(_client, server.Guild == null ? _channelId.Value : server.Guild.Id, server);
+                    break;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
             Connection.OnReady += (c) =>
             {
                 Microphone = new DiscordVoiceInput(this);

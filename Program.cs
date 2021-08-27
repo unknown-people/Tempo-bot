@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Gateway;
 using Discord.Media;
@@ -25,11 +26,11 @@ namespace Music_user_bot
             var voiceClient = client.GetVoiceClient(message.Guild.Id);
 
             if (voiceClient.State != MediaConnectionState.Ready)
-                message.Channel.SendMessage("I am not connected to a voice channel");
+                Program.SendMessage(message, "I am not connected to a voice channel");
             else if (!client.GetVoiceStates(message.Author.User.Id).GuildVoiceStates.TryGetValue(message.Guild.Id, out var state) || state.Channel == null || state.Channel.Id != voiceClient.Channel.Id)
-                message.Channel.SendMessage("You must be connected to the same voice channel as me to skip songs");
+                Program.SendMessage(message, "You must be connected to the same voice channel as me to skip songs");
             else if (!TrackLists.TryGetValue(message.Guild.Id, out var queue) || queue.Tracks.Count == 0)
-                message.Channel.SendMessage("The queue is empty");
+                Program.SendMessage(message, "The queue is empty");
             else return true;
 
             return false;
@@ -45,7 +46,6 @@ namespace Music_user_bot
 
             DiscordSocketClient client = new DiscordSocketClient(new DiscordSocketConfig()
             {
-                VoiceChannelConnectTimeout = 5000,
                 HandleIncomingMediaData = false,
                 Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates
             });
@@ -120,6 +120,10 @@ namespace Music_user_bot
                     "Come check out Tempo user-bot!"
             });
             Whitelist.white_list = Settings.Default.WhiteList;
+        }
+        public static void SendMessage(DiscordMessage received, string to_send)
+        {
+            Task.Run(() => received.Channel.SendMessageAsync(to_send));
         }
     }
 }

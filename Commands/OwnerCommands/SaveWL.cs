@@ -12,16 +12,16 @@ namespace Music_user_bot.Commands
             {
                 if(Message.Author.User.Id != Settings.Default.OwnerId)
                 {
-                    Message.Channel.SendMessage("You must be the owner to use this command");
+                    Program.SendMessage(Message, "You must be the owner to use this command");
                     return;
                 }
                 Settings.Default.WhiteList = Whitelist.white_list;
                 Settings.Default.Save();
-                Message.Channel.SendMessage("Whitelist has been saved");
+                Program.SendMessage(Message, "Whitelist has been saved");
             }
             catch (Exception)
             {
-                Message.Channel.SendMessage("Couldn't save whitelist. Try again");
+                Program.SendMessage(Message, "Couldn't save whitelist. Try again");
             }
         }
     }
