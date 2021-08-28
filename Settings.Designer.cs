@@ -60,7 +60,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[&]Tempo(Rojetti)")]
+        [global::System.Configuration.DefaultSettingValueAttribute("EmisKillato")]
         public string Username {
             get {
                 return ((string)(this["Username"]));
@@ -84,7 +84,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("&")]
+        [global::System.Configuration.DefaultSettingValueAttribute("e/")]
         public string Prefix {
             get {
                 return ((string)(this["Prefix"]));

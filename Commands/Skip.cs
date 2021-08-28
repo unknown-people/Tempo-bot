@@ -12,11 +12,9 @@ namespace Music_user_bot
             if (Program.CanModifyList(Client, Message))
             {
                 var list = Program.TrackLists[Message.Guild.Id];
-                AudioTrack currentSong;
                 try
                 {
-                    currentSong = TrackQueue.currentSong;
-                    currentSong.CancellationTokenSource.Cancel();
+                    TrackQueue.currentSong.CancellationTokenSource.Cancel();
                 }
                 catch (IndexOutOfRangeException)
                 {
