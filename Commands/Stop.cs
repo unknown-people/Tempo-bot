@@ -10,10 +10,10 @@ namespace Music_user_bot.Commands
         public override void Execute()
         {
             TrackQueue list = Program.TrackLists[Message.Guild.Id];
-            AudioTrack currentSong;
+            AudioTrack currentSong = TrackQueue.currentSong;
             try
             {
-                currentSong = list.Tracks[0];
+                currentSong.CancellationTokenSource.Cancel();
                 Stop();
             }
             catch (IndexOutOfRangeException)
@@ -21,7 +21,6 @@ namespace Music_user_bot.Commands
                 Message.Channel.SendMessage("Queue is already empty");
                 return;
             }
-            currentSong.CancellationTokenSource.Cancel();
         }
 
         public void Stop()

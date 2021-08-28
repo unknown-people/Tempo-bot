@@ -202,9 +202,9 @@ namespace Discord.Media
                 offset1 = TrackQueue.seekTo;
                 TrackQueue.seekTo = 0;
             }
-
+            
             int buffer_duration = 1;
-            byte[] buffer = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
+            byte[] buffer = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration, TrackQueue.stream_volume);
             byte[] buffer_next = buffer;
 
             do
@@ -223,9 +223,11 @@ namespace Discord.Media
                     if (offset1 > duration)
                         return false;
 
-                    Task.Run( () => {
-                        buffer_next = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration);
+                    Thread next_buffer = new Thread( () => {
+                        buffer_next = DiscordVoiceUtils.GetAudio(path, offset1, buffer_duration, TrackQueue.stream_volume);
                     });
+                    next_buffer.Priority = ThreadPriority.Highest;
+                    next_buffer.Start();
 
                     int offset = 0;
 
@@ -240,6 +242,8 @@ namespace Discord.Media
                             break;
                         }
                     }
+                    if (next_buffer.IsAlive)
+                        next_buffer.Join();
                     buffer = buffer_next;
                 }
                 catch (Exception)

@@ -23,20 +23,21 @@ namespace Discord.Media
 
             return process.StandardOutput.BaseStream;
         }
-        public static Stream GetAudioStream(string path, int offset, int duration)
+        public static Stream GetAudioStream(string path, int offset, int duration, int volume = 100)
         {
             if (!File.Exists("ffmpeg.exe"))
                 throw new FileNotFoundException("ffmpeg.exe was not found");
-
+            float volume_stream = (float)volume / 100;
+            string volume_string = volume_stream.ToString().Replace(',', '.');
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"-nostats -loglevel -8 -t {(duration).ToString()} -ss {offset.ToString()} " +
-                $"-i \"{path}\" -fs {(duration * 192000).ToString()} -ac 2 -f s16le -ar 48000 pipe:1",
+                $"-i \"{path}\" -fs {(duration * 192000).ToString()} -filter:a \"volume={volume_string}\" -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });
-
+            process.PriorityClass = ProcessPriorityClass.RealTime;
             return process.StandardOutput.BaseStream;
         }
         public static byte[] GetAudio(string path)
@@ -47,11 +48,11 @@ namespace Discord.Media
                 return memStream.ToArray();
             }
         }
-        public static byte[] GetAudio(string path, int offset, int duration)
+        public static byte[] GetAudio(string path, int offset, int duration, int volume)
         {
             using (var memStream = new MemoryStream())
             {
-                GetAudioStream(path, offset, duration).CopyTo(memStream);
+                GetAudioStream(path, offset, duration, volume).CopyTo(memStream);
                 return memStream.ToArray();
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace Music_user_bot
 
         public static Dictionary<ulong, TrackQueue> TrackLists = new Dictionary<ulong, TrackQueue>();
         public static bool toFollow { get; set; }
+        public static bool isCamping { get; set; }
         public static ulong userToCopy { get; set; }
         public static uint userToCopyDiscrim { get; set; }
         public static string ownerName { get; set; }
@@ -42,6 +44,12 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
+            if (!IsUserAdministrator())
+            {
+                Console.WriteLine("You need to run this program as an administrator.");
+                Console.ReadLine();
+                return;
+            }
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
 
@@ -158,6 +166,25 @@ namespace Music_user_bot
         public static void SendMessage(DiscordMessage received, string to_send)
         {
             Task.Run(() => received.Channel.SendMessageAsync(to_send));
+        }
+        private static bool IsUserAdministrator()
+        {
+            bool isAdmin;
+            try
+            {
+                WindowsIdentity user = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new WindowsPrincipal(user);
+                isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                isAdmin = false;
+            }
+            catch (Exception ex)
+            {
+                isAdmin = false;
+            }
+            return isAdmin;
         }
     }
 }

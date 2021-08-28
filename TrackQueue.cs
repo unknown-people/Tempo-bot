@@ -28,6 +28,7 @@ namespace Music_user_bot
         public DateTime start_time { get; set; }
         public DiscordMessage last_message { get; set; }
         public Stream _stream { get; set; }
+        public static int stream_volume { get; set; }
         public static AudioTrack currentSong { get; set; }
 
         private DiscordSocketClient _client;
@@ -39,6 +40,7 @@ namespace Music_user_bot
             _guildId = guildId;
             Tracks = new List<AudioTrack>();
             isLooping = false;
+            stream_volume = 100;
         }
 
         public void Start()
@@ -103,7 +105,7 @@ namespace Music_user_bot
                     {
                         if (isLooping)
                         {
-                            Tracks.Add(currentSong);
+                            Tracks.Add(new AudioTrack(video.Id));
                         }
                     }
                     catch (Exception)
@@ -135,9 +137,8 @@ namespace Music_user_bot
             }
             else if(string_split.Length == 1)
             {
-                var buffer0 = new string[] { "00" };
+                var buffer0 = new string[] { "00", "00" };
                 var buffer = buffer0.Concat(string_split).ToArray();
-                buffer = buffer0.Concat(string_split).ToArray();
                 result = string.Join(":", buffer);
                 return_value = TimeSpan.Parse(result);
             }
