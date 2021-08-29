@@ -23,5 +23,11 @@
     <Setting Name="APIkey" Type="System.String" Scope="User">
       <Value Profile="(Default)">c11462adeea14bbe81cf8588da74de76</Value>
     </Setting>
+    <Setting Name="TTSlang" Type="System.String" Scope="User">
+      <Value Profile="(Default)">it-IT</Value>
+    </Setting>
+    <Setting Name="TTSvoice" Type="System.String" Scope="User">
+      <Value Profile="(Default)">it-IT-DiegoNeural</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

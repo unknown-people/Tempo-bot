@@ -13,8 +13,8 @@ namespace Music_user_bot.Commands
             AudioTrack currentSong = TrackQueue.currentSong;
             try
             {
-                currentSong.CancellationTokenSource.Cancel();
                 Stop();
+                currentSong.CancellationTokenSource.Cancel();
             }
             catch (IndexOutOfRangeException)
             {

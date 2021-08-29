@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using YoutubeExplode.Search;
 using YoutubeExplode.Common;
 using System.Collections.Generic;
+using YoutubeExplode.Playlists;
 
 namespace Music_user_bot.Commands
 {
@@ -136,12 +137,15 @@ namespace Music_user_bot.Commands
                 else if (!list_video.Running)
                     list_video.Start();
 
-                foreach (var video in playlist)
+                int i = 0;
+                foreach (PlaylistVideoMinimal video in playlist)
                 {
-                    if (video == playlist[0])
+                    if (i == 0)
+                    {
+                        i++;
                         continue;
-                    id = video.Id;
-                    track = new AudioTrack(id);
+                    }
+                    track = new AudioTrack(video);
 
                     list_video.Tracks.Add(track);
                 }

@@ -56,7 +56,7 @@ namespace Music_user_bot
                 return;
             }
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
+            strWorkPath = Path.GetDirectoryName(strExeFilePath);
 
             var random = new string[] { };
             botToken = "";

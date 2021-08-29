@@ -7,6 +7,7 @@ using Discord.Media;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using System.IO;
+using System.Threading;
 
 namespace Music_user_bot.Commands
 {
@@ -37,8 +38,8 @@ namespace Music_user_bot.Commands
             File.Delete(path);
 
             var config = SpeechConfig.FromSubscription(Settings.Default.APIkey, "westeurope");
-            config.SpeechSynthesisLanguage = "it-IT";
-            config.SpeechSynthesisVoiceName = "it-IT-DiegoNeural";
+            config.SpeechSynthesisLanguage = Settings.Default.TTSlang;
+            config.SpeechSynthesisVoiceName = Settings.Default.TTSvoice;
             var audioConfig = AudioConfig.FromWavFileOutput(path);
 
             var synthesizer = new SpeechSynthesizer(config, audioConfig);
@@ -64,6 +65,8 @@ namespace Music_user_bot.Commands
                     Program.SendMessage(Message, "You need to be in a voice channel for me to join you :tired_face:");
                 }
             }
+            while (voiceClient.State < MediaConnectionState.Ready)
+                Thread.Sleep(1);
             voiceClient.Microphone.CopyFrom(result);
 
             audioConfig.Dispose();
