@@ -93,5 +93,17 @@ namespace Music_user_bot {
                 this["Prefix"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string APIkey {
+            get {
+                return ((string)(this["APIkey"]));
+            }
+            set {
+                this["APIkey"] = value;
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿
+﻿using winforCongitiveTexttoSpeech;
 using Discord.Commands;
 using Discord;
 using Discord.Gateway;
@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Music_user_bot.Commands
 {
-    [Command("speak")]
+    [Command("say")]
     class SendTTSCommand : CommandBase
     {
         [Parameter("message to tts")]

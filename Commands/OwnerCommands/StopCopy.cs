@@ -11,9 +11,8 @@ namespace Music_user_bot.Commands
     {
         public override void Execute()
         {
-            if (Message.Author.User.Id != Settings.Default.OwnerId)
+            if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
             {
-                Program.SendMessage(Message, "You must be the owner to use this command");
                 return;
             }
 

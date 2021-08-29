@@ -18,12 +18,11 @@ namespace Music_user_bot.Commands
         public ulong userId { get; set; }
         public override void Execute()
         {
-            if(Message.Author.User.Id != Settings.Default.OwnerId)
+            if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
             {
-                Program.SendMessage(Message, "You must be the owner to use this command");
                 return;
             }
-            if(userId.ToString().Length == 18)
+            if (userId.ToString().Length == 18)
             {
                 Program.userToCopy = userId;
                 Program.userToCopyDiscrim = Client.GetUser(Program.userToCopy).Discriminator;
@@ -65,19 +64,24 @@ namespace Music_user_bot.Commands
 
                         Client.User.ChangeProfile(new UserProfileUpdate()
                         {
-                            Biography = "Current owner is " + Program.ownerName + "\n" +
-                            "Come check out Tempo user-bot!",
                             Avatar = avatar_bitmap
                         });
                     }
                     catch (DiscordHttpException)
                     {
-                        Client.User.ChangeProfile(new UserProfileUpdate()
+                        try
                         {
-                            Username = username,
-                            Password = Settings.Default.Password,
-                        });
-                        Message.Channel.SendMessage("Could not change avatar");
+                            Message.Channel.SendMessage("Could not change avatar");
+                            Client.User.ChangeProfile(new UserProfileUpdate()
+                            {
+                                Username = username,
+                                Password = Settings.Default.Password,
+                            });
+                        }
+                        catch (DiscordHttpException)
+                        {
+                            ;
+                        }
                     }
                 }
                 try

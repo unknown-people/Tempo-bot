@@ -15,9 +15,8 @@ namespace Music_user_bot.Commands
         public VoiceChannel channel { get; set; }
         public override void Execute()
         {
-            if (Message.Author.User.Id != Whitelist.ownerID)
+            if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
             {
-                Program.SendMessage(Message, "You must be the owner to use this command");
                 return;
             }
             if (channelId == 0 || channelId.ToString().Length != 18)

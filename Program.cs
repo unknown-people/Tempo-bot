@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Security.Principal;
-using System.Text.RegularExpressions;
+using winforCongitiveTexttoSpeech;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -26,6 +26,7 @@ namespace Music_user_bot
         public static string strExeFilePath { get; set; }
         public static string strWorkPath { get; set; }
         public static string botToken { get; set; }
+        public static bool isBot { get; set; }
 
         public static bool CanModifyList(DiscordSocketClient client, DiscordMessage message)
         {
@@ -54,7 +55,12 @@ namespace Music_user_bot
             strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
 
             var random = new string[] { };
-            botToken = Settings.Default.Token;
+            botToken = "";
+            if (isBot)
+            {
+                botToken += "Bot ";
+            }
+            botToken += Settings.Default.Token;
             Whitelist.ownerID = Settings.Default.OwnerId;
             DiscordClient clientNew = new DiscordClient(botToken);
             ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
@@ -128,6 +134,8 @@ namespace Music_user_bot
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
             Console.WriteLine("Logged in");
+            if (isBot)
+                return;
             var path = strWorkPath + "\\propic.png";
             path = path.Replace('\\', '/');
             Bitmap bitmap = new Bitmap(path);
@@ -185,6 +193,44 @@ namespace Music_user_bot
                 isAdmin = false;
             }
             return isAdmin;
+        }
+        public static bool isOwner(DiscordMessage Message)
+        {
+            if (Message.Author.User.Id != Whitelist.ownerID)
+            {
+                Program.SendMessage(Message, "You need to be the owner or an administrator to change the whitelist");
+                return false;
+            }
+            else
+                return true;
+        }
+        public static bool BlockBotCommand(DiscordMessage Message)
+        {
+            if (Program.isBot)
+            {
+                Program.SendMessage(Message, "You must use a user token to use this command");
+                return true;
+            }
+            else
+                return false;
+        }
+        public void AuthenticateTTS()
+        {
+            Console.WriteLine("Starting Authtentication");
+            string accessToken;
+            Authentication auth = new Authentication(Settings.Default.APIkey);
+            try
+            {
+                accessToken = auth.GetAccessToken();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed authentication.");
+
+                Console.WriteLine(ex.Message);
+                Console.ReadLine();
+                return;
+            }
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Discord.Media
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"-nostats -loglevel -8 -t {(duration).ToString()} -ss {offset.ToString()} " +
-                $"-i \"{path}\" -filter:a \"volume={volume_string}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                $"-i \"{path}\" -filter:a \"volume={volume_string}\" -fs 192000 -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });
@@ -51,10 +51,10 @@ namespace Discord.Media
         }
         public static byte[] GetAudio(string path, int offset, int duration, int volume)
         {
-            using (var memStream = new MemoryStream())
+            var stream = GetAudioStream(path, offset, duration, volume);
+            using (var br = new BinaryReader(stream))
             {
-                GetAudioStream(path, offset, duration, volume).CopyTo(memStream);
-                return memStream.ToArray();
+                return br.ReadBytes(192000);
             }
         }
 
