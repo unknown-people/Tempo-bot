@@ -256,7 +256,7 @@ namespace Discord.Media
                     {
                         Thread.Sleep(1);
                         ticks++;
-                        if (ticks >= 300)
+                        if (ticks >= 1000)
                             break;
                     }
                     buffer = buffer_next;

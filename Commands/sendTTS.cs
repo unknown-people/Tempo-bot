@@ -19,8 +19,7 @@ namespace Music_user_bot.Commands
 
         public override void Execute()
         {
-
-            if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) { }
+            if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) {}
             else if (list.Running)
             {
                 Program.SendMessage(Message, "You can't use tts commands while playing music!");
