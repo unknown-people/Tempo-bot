@@ -206,7 +206,7 @@ namespace Discord.Media
             }
             
             byte[] buffer = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume);
-            buffer_next = buffer;
+            buffer_next = DiscordVoiceUtils.GetAudio(path, current_time + buffer_duration, buffer_duration, TrackQueue.stream_volume);
 
             bool isBufferReady = false;
             Thread create_buffer_next = new Thread(() =>

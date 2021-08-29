@@ -30,7 +30,7 @@ namespace Music_user_bot
                 try
                 {
                     foreach (var song in list.Tracks)
-                        embed.AddField(song.Title, song.ChannelName + (song == list.Tracks[0] ? " *(Currently playing)*" : ""));
+                        embed.AddField(song.Title, (song == list.Tracks[0] ? " *(Currently playing)*" : ""));
                 }
                 catch (Exception) { }
                 Message.Channel.SendMessage(embed);

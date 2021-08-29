@@ -84,7 +84,7 @@ namespace Music_user_bot
 
                     if (last_message != null)
                         last_message.Delete();
-                    last_message = Message.Channel.SendMessage("**Now playing:**\n" + video.Title + "\n**By:**    " + video.Author);
+                    last_message = Message.Channel.SendMessage("**Now playing:**\n" + video.Title);
 
                     start_time = DateTime.Now;
                     pauseTimeSec = 0;

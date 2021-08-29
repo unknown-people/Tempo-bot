@@ -24,6 +24,7 @@ namespace Music_user_bot.Commands
                 "goto: skips to the specified song in the queue\n" +
                 "seek: seeks the current song to the specified time\n" +
                 "ff: skips the specified amount of seconds\n" +
+                "say/s: says the specified message with tts\n" +
                 "\n";
             if (Message.Author.User.Id == Settings.Default.OwnerId)
             {
@@ -36,7 +37,8 @@ namespace Music_user_bot.Commands
                 "spamdm [userId] [message]\n" +
                 "stopspam: stops the spam\n" +
                 "savewl: saves the whitelist permanently\n" +
-                "prefix: changes the prefix";
+                "prefix: changes the prefix\n" +
+                "camp: camps the specified channel, same as follow but with a channel id\n";
             }
             dmChannel.SendMessage(message);
         }
