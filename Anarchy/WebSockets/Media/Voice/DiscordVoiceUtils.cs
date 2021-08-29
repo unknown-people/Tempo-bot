@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Music_user_bot;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -23,11 +24,32 @@ namespace Discord.Media
 
             return process.StandardOutput.BaseStream;
         }
+        public static Stream GetTTSStream(string path)
+        {
+            if (!File.Exists("ffmpeg.exe"))
+                throw new FileNotFoundException("ffmpeg.exe was not found");
+            float volume = 1.5f;
+            if (TrackQueue.isEarrape)
+                volume *= 100;
+            string volume_string = volume.ToString().Replace(',', '.');
+            var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"-nostats -loglevel -8 -i \"{path}\" -filter:a \"volume={volume_string}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            });
+
+            return process.StandardOutput.BaseStream;
+        }
         public static Stream GetAudioStream(string path, int offset, int duration, int volume = 100)
         {
             if (!File.Exists("ffmpeg.exe"))
                 throw new FileNotFoundException("ffmpeg.exe was not found");
+
             float volume_stream = (float)volume / 100;
+            if (TrackQueue.isEarrape)
+                volume_stream = volume;
             string volume_string = volume_stream.ToString().Replace(',', '.');
             var process = Process.Start(new ProcessStartInfo
             {
@@ -57,34 +79,14 @@ namespace Discord.Media
                 return br.ReadBytes(192000);
             }
         }
-
-        public static byte[] ReadChunk(Stream stream)
+        public static byte[] GetTTS(string path)
         {
-            try
+            using (var memStream = new MemoryStream())
             {
-                using (var memStream = new MemoryStream())
-                {
-                    byte[] buffer = new byte[OpusConverter.FrameBytes];
-                    CopyStreamBytes(stream, memStream, buffer.Length);
-                    return memStream.ToArray();
-                }
-            }
-            catch (Exception)
-            {
-                return new byte[OpusConverter.FrameBytes];
+                GetTTSStream(path).CopyTo(memStream);
+                return memStream.ToArray();
             }
         }
-        public static void CopyStreamBytes(Stream input, Stream output, int length)
-        {
-            byte[] buffer = new byte[length];
-            int read;
-            while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                output.Write(buffer, 0, read);
-                return;
-            }
-        }
-
         [Obsolete("This method is obsolete. Please use GetAudioStream instead", true)]
         public static byte[] ReadFromFile(string path)
         {

@@ -21,7 +21,7 @@ namespace Discord.Media
         private DiscordVoiceClient _client;
 
         private uint _bitrate = 64000;
-        private AudioApplication _audioApp = AudioApplication.Music;
+        private AudioApplication _audioApp = AudioApplication.Mixed;
 
         public static byte[] buffer_next;
         public static string path;
@@ -112,7 +112,7 @@ namespace Discord.Media
 
             return offset + OpusConverter.FrameBytes;
         }
-        public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 0)
+        public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 10)
         {
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
@@ -134,13 +134,9 @@ namespace Discord.Media
                 {
                     offset = Write(buffer, offset);
                 }
-                catch (InvalidOperationException)
+                catch (Exception)
                 {
                     break;
-                }
-                catch (AccessViolationException)
-                {
-                    continue;
                 }
             }
             return 0;

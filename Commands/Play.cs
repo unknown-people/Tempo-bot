@@ -23,6 +23,11 @@ namespace Music_user_bot.Commands
 
         public override void Execute()
         {
+            if (SendTTSCommand.isTTSon)
+            {
+                Program.SendMessage(Message, "You can't play music while tts is playing");
+                return;
+            }
             TrackQueue.Message = Message;
 
             if (Program.toFollow && TrackQueue.followSongId != null)

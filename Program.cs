@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Security.Principal;
-using winforCongitiveTexttoSpeech;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Gateway;
 using Discord.Media;
 using YoutubeExplode;
-
+using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.CognitiveServices.Speech;
+using Microsoft.CognitiveServices.Speech.Audio;
 
 namespace Music_user_bot
 {
@@ -134,6 +138,8 @@ namespace Music_user_bot
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
             Console.WriteLine("Logged in");
+            TrackQueue.isEarrape = false;
+
             if (isBot)
                 return;
             var path = strWorkPath + "\\propic.png";
@@ -162,11 +168,15 @@ namespace Music_user_bot
                 }
                 catch (DiscordHttpException)
                 {
-                    client.User.ChangeProfile(new UserProfileUpdate()
+                    try
                     {
-                        Username = Settings.Default.Username,
-                        Password = Settings.Default.Password,
-                    });
+                        client.User.ChangeProfile(new UserProfileUpdate()
+                        {
+                            Username = Settings.Default.Username,
+                            Password = Settings.Default.Password,
+                        });
+                    }
+                    catch (DiscordHttpException) { }
                 }
             }
             Whitelist.white_list = Settings.Default.WhiteList;
@@ -213,24 +223,6 @@ namespace Music_user_bot
             }
             else
                 return false;
-        }
-        public void AuthenticateTTS()
-        {
-            Console.WriteLine("Starting Authtentication");
-            string accessToken;
-            Authentication auth = new Authentication(Settings.Default.APIkey);
-            try
-            {
-                accessToken = auth.GetAccessToken();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Failed authentication.");
-
-                Console.WriteLine(ex.Message);
-                Console.ReadLine();
-                return;
-            }
         }
     }
 }

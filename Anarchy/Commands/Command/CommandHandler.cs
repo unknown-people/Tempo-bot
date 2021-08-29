@@ -66,6 +66,10 @@ namespace Discord.Commands
                     {
                         buffer_array[0] = Prefix + "queue";
                     }
+                    if (buffer_array[0].Substring(Prefix.Length) == "s")
+                    {
+                        buffer_array[0] = Prefix + "say";
+                    }
                     List<string> parts = buffer_array.ToList();
 
                     if (Commands.TryGetValue(parts[0].Substring(Prefix.Length), out DiscordCommand command))

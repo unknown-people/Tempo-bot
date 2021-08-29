@@ -30,6 +30,7 @@ namespace Music_user_bot
         public Stream _stream { get; set; }
         public static int stream_volume { get; set; }
         public static AudioTrack currentSong { get; set; }
+        public static bool isEarrape { get; set; }
 
         private DiscordSocketClient _client;
         private ulong _guildId;
