@@ -18,6 +18,8 @@ namespace Music_user_bot.Commands
             {
                 return;
             }
+            TrackQueue.Message = Message;
+
             if (userId == 0 || userId.ToString().Length != 18)
             {
                 Program.toFollow = false;

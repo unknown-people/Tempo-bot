@@ -15,6 +15,7 @@ namespace Music_user_bot
 
         public override void Execute()
         {
+            TrackQueue.Message = Message;
             if (!Program.isOwner(Message))
             {
                 return;
