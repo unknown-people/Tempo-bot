@@ -211,7 +211,7 @@ namespace Discord.Media
             bool isBufferReady = false;
             Thread create_buffer_next = new Thread(() =>
             {
-                while(current_time < duration)
+                while(true)
                 {
                     isBufferReady = false;
                     buffer_next = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume);
@@ -268,6 +268,7 @@ namespace Discord.Media
                 }
             }
             while (!cancellationToken.IsCancellationRequested);
+            create_buffer_next.Abort();
             return false;
         }
         public static bool IsNullOrEmpty(byte[] array)
