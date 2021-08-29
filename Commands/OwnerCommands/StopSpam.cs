@@ -9,9 +9,8 @@ namespace Music_user_bot.Commands
         public static bool stopSpam { get; set; }
         public override void Execute()
         {
-            if (SpamDMCommand.isSpamming == false)
+            if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
             {
-                Client.CreateDM(Message.Author.User.Id).SendMessage("Not spamming to anyone yet.");
                 return;
             }
             stopSpam = true;

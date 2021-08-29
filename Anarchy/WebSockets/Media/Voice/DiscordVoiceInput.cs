@@ -212,6 +212,20 @@ namespace Discord.Media
             byte[] buffer = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume);
             buffer_next = buffer;
 
+            bool isBufferReady = false;
+            Thread create_buffer_next = new Thread(() =>
+            {
+                while(current_time < duration)
+                {
+                    isBufferReady = false;
+                    buffer_next = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume);
+                    isBufferReady = true;
+                    while (isBufferReady)
+                        Thread.Sleep(1);
+                }
+            });
+            create_buffer_next.Priority = ThreadPriority.Highest;
+            create_buffer_next.Start();
             do
             {
                 try
@@ -228,8 +242,6 @@ namespace Discord.Media
                     if (current_time > duration)
                         return false;
 
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(CallbackMethod));
-
                     int offset = 0;
 
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
@@ -243,8 +255,16 @@ namespace Discord.Media
                             break;
                         }
                     }
-
+                    var ticks = 0;
+                    while (!isBufferReady)
+                    {
+                        Thread.Sleep(1);
+                        ticks++;
+                        if (ticks >= 300)
+                            break;
+                    }
                     buffer = buffer_next;
+                    isBufferReady = false;
                 }
                 catch (Exception)
                 {
@@ -253,11 +273,6 @@ namespace Discord.Media
             }
             while (!cancellationToken.IsCancellationRequested);
             return false;
-        }
-        public static void CallbackMethod(object obj)
-        {
-            Thread thread = Thread.CurrentThread;
-            buffer_next = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume);
         }
         public static bool IsNullOrEmpty(byte[] array)
         {

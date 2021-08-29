@@ -24,9 +24,8 @@ namespace Music_user_bot
         {
             try
             {
-                if (Message.Author.User.Id != Whitelist.ownerID)
+                if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
                 {
-                    Program.SendMessage(Message, "You need to be the owner or an administrator to change the whitelist");
                     return;
                 }
                 if (IDtoDel.ToString().Length == 18)

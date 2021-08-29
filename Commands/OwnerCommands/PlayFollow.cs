@@ -15,9 +15,8 @@ namespace Music_user_bot
 
         public override void Execute()
         {
-            if (Message.Author.User.Id != Whitelist.ownerID)
+            if (!Program.isOwner(Message))
             {
-                Program.SendMessage(Message, "You must be the owner to use this command");
                 return;
             }
             if (!Program.toFollow)

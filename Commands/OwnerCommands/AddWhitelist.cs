@@ -24,11 +24,11 @@ namespace Music_user_bot.Commands
         {
             try
             {
-                if (Message.Author.User.Id != Whitelist.ownerID)
+                if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
                 {
-                    Program.SendMessage(Message, "You need to be the owner or an administrator to change the whitelist");
                     return;
                 }
+
                 if (IDtoAdd.ToString().Length == 18)
                 {
                     Whitelist.AddToWL(IDtoAdd);

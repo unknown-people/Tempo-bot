@@ -10,9 +10,8 @@ namespace Music_user_bot.Commands
         {
             try
             {
-                if(Message.Author.User.Id != Settings.Default.OwnerId)
+                if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
                 {
-                    Program.SendMessage(Message, "You must be the owner to use this command");
                     return;
                 }
                 Settings.Default.WhiteList = Whitelist.white_list;
