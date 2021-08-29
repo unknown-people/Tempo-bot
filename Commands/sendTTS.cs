@@ -65,7 +65,7 @@ namespace Music_user_bot.Commands
                     Program.SendMessage(Message, "You need to be in a voice channel for me to join you :tired_face:");
                 }
             }
-            while (voiceClient.State < MediaConnectionState.Ready)
+            while (voiceClient.Microphone == null)
                 Thread.Sleep(1);
             voiceClient.Microphone.CopyFrom(result);
 
