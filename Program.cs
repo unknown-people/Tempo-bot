@@ -63,7 +63,13 @@ namespace Music_user_bot
             botToken += Settings.Default.Token;
             Whitelist.ownerID = Settings.Default.OwnerId;
             DiscordClient clientNew = new DiscordClient(botToken);
-            ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + clientNew.GetUser(Whitelist.ownerID).Discriminator;
+            string discriminator = "";
+            for (int i = 0; i < 4 - ((clientNew.GetUser(Whitelist.ownerID).Discriminator)).ToString().Length; i++)
+            {
+                discriminator += "0";
+            }
+            discriminator += clientNew.GetUser(Whitelist.ownerID).Discriminator;
+            ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + discriminator;
 
             DiscordSocketClient client = new DiscordSocketClient(new DiscordSocketConfig()
             {
