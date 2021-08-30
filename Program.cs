@@ -84,6 +84,7 @@ namespace Music_user_bot
             client.CreateCommandHandler(Settings.Default.Prefix);
             client.OnLoggedIn += Client_OnLoggedIn;
             client.OnJoinedVoiceChannel += Client_OnJoinedVoiceChannel;
+            client.OnLeftVoiceChannel += Client_OnLeftVoiceChannel;
             client.Login(botToken);
 
             Whitelist whitelist = new Whitelist();
@@ -133,11 +134,19 @@ namespace Music_user_bot
                 }
             }
         }
+        private static void Client_OnLeftVoiceChannel(DiscordSocketClient client, VoiceDisconnectEventArgs args)
+        {
+            TrackQueue.isPaused = true;
+        }
         private static void Client_OnJoinedVoiceChannel(DiscordSocketClient client, VoiceConnectEventArgs args)
         {
             if (TrackLists.TryGetValue(args.Client.Guild.Id, out var list) && !list.Running)
             {
                 list.Start();
+            }
+            else if (TrackLists.TryGetValue(args.Client.Guild.Id, out list) && list.Running)
+            {
+                TrackQueue.isPaused = false;
             }
         }
         

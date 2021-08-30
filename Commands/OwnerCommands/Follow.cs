@@ -53,6 +53,7 @@ namespace Music_user_bot.Commands
                         var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
                         var targetConnected = Client.GetVoiceStates(userId).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
                         var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
+                        var permissions = Client.GetCachedGuild(Message.Guild.Id).ClientMember.GetPermissions(channel.PermissionOverwrites);
 
                         if (voiceClient.Channel == null)
                         {
@@ -65,6 +66,11 @@ namespace Music_user_bot.Commands
                         {
                             voiceClient.Disconnect();
                             already_searched = false;
+                            continue;
+                        }
+                        if (!permissions.Has(DiscordPermission.ConnectToVC) || !permissions.Has(DiscordPermission.SpeakInVC))
+                        {
+                            Thread.Sleep(100);
                             continue;
                         }
                         while (channel.UserLimit > 0 && Client.GetChannelVoiceStates(channel.Id).Count >= channel.UserLimit)
