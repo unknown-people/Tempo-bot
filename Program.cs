@@ -29,6 +29,7 @@ namespace Music_user_bot
         public static string ownerName { get; set; }
         public static string strExeFilePath { get; set; }
         public static string strWorkPath { get; set; }
+        public static string programFiles { get; set; }
         public static string botToken { get; set; }
         public static bool isBot { get; set; }
 
@@ -57,6 +58,7 @@ namespace Music_user_bot
             }
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             strWorkPath = Path.GetDirectoryName(strExeFilePath);
+            programFiles = Environment.ExpandEnvironmentVariables("%ProgramW6432%");
 
             var random = new string[] { };
             botToken = "";
