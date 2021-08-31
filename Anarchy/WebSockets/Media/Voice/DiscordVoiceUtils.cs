@@ -42,7 +42,7 @@ namespace Discord.Media
 
             return process.StandardOutput.BaseStream;
         }
-        public static Stream GetAudioStream(string path, int offset, int duration, int volume = 100)
+        public static Stream GetAudioStream(string path, float offset, int duration, int volume = 100, float speed = 1.0f)
         {
             if (!File.Exists("ffmpeg.exe"))
                 throw new FileNotFoundException("ffmpeg.exe was not found");
@@ -51,11 +51,12 @@ namespace Discord.Media
             if (TrackQueue.isEarrape)
                 volume_stream = volume;
             string volume_string = volume_stream.ToString().Replace(',', '.');
+
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg.exe",
-                Arguments = $"-nostats -loglevel -8 -t {(duration).ToString()} -ss {offset.ToString()} " +
-                $"-i \"{path}\" -filter:a \"volume={volume_string}\" -fs 192000 -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-nostats -loglevel -8 -t {(duration * speed).ToString().Replace(',', '.')} -ss {offset.ToString().Replace(',', '.')} " +
+                $"-i \"{path}\" -filter:a \"volume={volume_string}\" -ac 2 -f s16le -ar {(int)(48000 / speed)} pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });
@@ -71,12 +72,12 @@ namespace Discord.Media
                 return memStream.ToArray();
             }
         }
-        public static byte[] GetAudio(string path, int offset, int duration, int volume)
+        public static byte[] GetAudio(string path, float offset, int duration, int volume, float speed = 1.0f)
         {
-            var stream = GetAudioStream(path, offset, duration, volume);
+            var stream = GetAudioStream(path, offset, duration, volume, speed);
             using (var br = new BinaryReader(stream))
             {
-                return br.ReadBytes(192000);
+                return br.ReadBytes(192000 * duration);
             }
         }
         public static byte[] GetTTS(string path)

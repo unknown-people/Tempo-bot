@@ -25,8 +25,8 @@ namespace Discord.Media
 
         public static byte[] buffer_next;
         public static string path;
-        public static int current_time;
-        public static int buffer_duration = 1;
+        public static float current_time;
+        public static int buffer_duration = 2;
 
         public uint Bitrate
         {
@@ -194,7 +194,6 @@ namespace Discord.Media
             _nextTick = -1;
 
             path = path_input;
-            current_time = 0;
             if (TrackQueue.pauseTimeSec > 0)
             {
                 current_time = TrackQueue.pauseTimeSec - 1;
@@ -205,8 +204,7 @@ namespace Discord.Media
                 TrackQueue.seekTo = 0;
             }
             
-            byte[] buffer = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume);
-            buffer_next = DiscordVoiceUtils.GetAudio(path, current_time + buffer_duration, buffer_duration, TrackQueue.stream_volume);
+            byte[] buffer = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume, TrackQueue.speed);
 
             bool isBufferReady = false;
             Thread create_buffer_next = new Thread(() =>
@@ -214,14 +212,15 @@ namespace Discord.Media
                 while(true)
                 {
                     isBufferReady = false;
-                    buffer_next = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume);
+                    buffer_next = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume, TrackQueue.speed);
                     isBufferReady = true;
                     while (isBufferReady)
                         Thread.Sleep(1);
                 }
             });
             create_buffer_next.Priority = ThreadPriority.Highest;
-            create_buffer_next.Start();
+
+            bool toBreak = false;
             do
             {
                 try
@@ -231,20 +230,23 @@ namespace Discord.Media
                         create_buffer_next.Abort();
                         return true;
                     }
-                    current_time += buffer_duration;
-                    if (TrackQueue.FFseconds > 0)
-                    {
-                        current_time += TrackQueue.FFseconds;
-                        TrackQueue.FFseconds = 0;
-                    }
+                    current_time += (buffer_duration * TrackQueue.speed);
+                    if (!create_buffer_next.IsAlive)
+                        create_buffer_next.Start();
 
                     if (current_time > duration)
-                        return false;
+                        toBreak = true;
 
                     int offset = 0;
 
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
+                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged)
+                        {
+                            create_buffer_next.Abort();
+                            return true;
+                        }
+
                         try
                         {
                             offset = Write(buffer, offset);
@@ -262,6 +264,8 @@ namespace Discord.Media
                         if (ticks >= 1000)
                             break;
                     }
+                    while (buffer == buffer_next)
+                        Thread.Sleep(1);
                     buffer = buffer_next;
                     isBufferReady = false;
                 }
@@ -270,7 +274,7 @@ namespace Discord.Media
                     continue;
                 }
             }
-            while (!cancellationToken.IsCancellationRequested);
+            while (!cancellationToken.IsCancellationRequested && !toBreak);
             create_buffer_next.Abort();
             return false;
         }

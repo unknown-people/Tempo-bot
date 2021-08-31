@@ -16,6 +16,7 @@ namespace Music_user_bot.Commands
                 }
                 Settings.Default.WhiteList = Whitelist.white_list;
                 Settings.Default.Save();
+                Settings.Default.Reload();
                 Program.SendMessage(Message, "Whitelist has been saved");
             }
             catch (Exception)
