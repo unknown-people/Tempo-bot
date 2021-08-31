@@ -227,7 +227,10 @@ namespace Discord.Media
                 try
                 {
                     if (TrackQueue.isPaused)
+                    {
+                        create_buffer_next.Abort();
                         return true;
+                    }
                     current_time += buffer_duration;
                     if (TrackQueue.FFseconds > 0)
                     {
