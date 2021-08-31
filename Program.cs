@@ -82,6 +82,7 @@ namespace Music_user_bot
                 Settings.Default.tk1 = "";
                 Settings.Default.tk2 = "";
                 Settings.Default.Save();
+                Settings.Default.Reload();
                 return;
             }
             Console.Clear();

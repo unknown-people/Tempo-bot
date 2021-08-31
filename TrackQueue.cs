@@ -19,6 +19,7 @@ namespace Music_user_bot
         public static DiscordMessage Message { get; set; }
         public static int seekTo { get; set; }
         public static int FFseconds { get; internal set; }
+        public static float speed { get; set; }
         public static string followSongId { get; set; }
         public static int goToIndex { get; set; }
         public static bool isLooping { get; set; }
@@ -31,6 +32,7 @@ namespace Music_user_bot
         public static int stream_volume { get; set; }
         public static AudioTrack currentSong { get; set; }
         public static bool isEarrape { get; set; }
+        public static bool speedChanged = false;
 
         private DiscordSocketClient _client;
         private ulong _guildId;
@@ -42,6 +44,7 @@ namespace Music_user_bot
             Tracks = new List<AudioTrack>();
             isLooping = false;
             stream_volume = 100;
+            speed = 1.0f;
         }
 
         public void Start()
@@ -89,8 +92,20 @@ namespace Music_user_bot
                     start_time = DateTime.Now;
                     pauseTimeSec = 0;
                     string url = GetVideoUrl(currentSong.Id, currentChannel.Bitrate);
+                    DiscordVoiceInput.current_time = 0;
                     while (voiceClient.Microphone.CopyFrom( url, (int)duration.TotalSeconds, currentSong.CancellationTokenSource.Token))
                     {
+                        if (TrackQueue.speedChanged)
+                        {
+                            TrackQueue.speedChanged = false;
+                            continue;
+                        }
+                        if(FFseconds > 0)
+                        {
+                            DiscordVoiceInput.current_time += FFseconds;
+                            FFseconds = 0;
+                            continue;
+                        }
                         pauseTime = DateTime.Now;
                         while (isPaused)
                         {
