@@ -73,8 +73,6 @@ namespace Music_user_bot
             }
             else
             {
-                System.Windows.Forms.MessageBox.Show("Wrong credentials!", OnProgramStart.Name);
-                Console.ReadLine();
                 return;
             }
             Console.Clear();
