@@ -14,6 +14,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
+using Auth.GG_Winform_Example;
+using System.Net;
 
 namespace Music_user_bot
 {
@@ -50,12 +52,32 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            OnProgramStart.Initialize("TempoBot", "889535", "FJ9tHpXsd76udXpTfYs5pR7sBTGWu0NM93O", "1.0");
             if (!IsUserAdministrator())
             {
                 Console.WriteLine("You need to run this program as an administrator.");
                 Console.ReadLine();
                 return;
             }
+            Console.Write("Enter your username: ");
+            string username = Console.ReadLine();
+            Console.Write("Enter your password: ");
+            string password = Console.ReadLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Authenticating...");
+            Console.ForegroundColor = ConsoleColor.White;
+            if (API.Login(username, password))
+            {
+                System.Windows.Forms.MessageBox.Show("You have successfully logged in!", OnProgramStart.Name);
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Wrong credentials!", OnProgramStart.Name);
+                Console.ReadLine();
+                return;
+            }
+            Console.Clear();
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             strWorkPath = Path.GetDirectoryName(strExeFilePath);
             programFiles = Environment.ExpandEnvironmentVariables("%ProgramW6432%");
