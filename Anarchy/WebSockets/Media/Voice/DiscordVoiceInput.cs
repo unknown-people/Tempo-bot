@@ -26,7 +26,7 @@ namespace Discord.Media
         public static byte[] buffer_next;
         public static string path;
         public static float current_time;
-        public static int buffer_duration = 2;
+        public static int buffer_duration = 3;
 
         public uint Bitrate
         {
