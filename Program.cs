@@ -60,19 +60,28 @@ namespace Music_user_bot
                 Console.ReadLine();
                 return;
             }
-            Console.Write("Enter your username: ");
-            string username = Console.ReadLine();
-            Console.Write("Enter your password: ");
-            string password = Console.ReadLine();
+            if (Settings.Default.tk1 == "" || Settings.Default.tk1 == null || Settings.Default.tk2 == "" || Settings.Default.tk2 == null)
+            {
+                Console.Write("Enter your username: ");
+                String user = Console.ReadLine();
+                Settings.Default.tk1 = user;
+                Console.Write("Enter your password: ");
+                String psw = Console.ReadLine();
+                Settings.Default.tk2 = psw;
+                Settings.Default.Save();
+            }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Authenticating...");
             Console.ForegroundColor = ConsoleColor.White;
-            if (API.Login(username, password))
+            if (API.Login(Settings.Default.tk1, Settings.Default.tk2))
             {
                 System.Windows.Forms.MessageBox.Show("You have successfully logged in!", OnProgramStart.Name);
             }
             else
             {
+                Settings.Default.tk1 = "";
+                Settings.Default.tk2 = "";
+                Settings.Default.Save();
                 return;
             }
             Console.Clear();
@@ -261,5 +270,6 @@ namespace Music_user_bot
             else
                 return false;
         }
+
     }
 }
