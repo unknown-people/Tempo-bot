@@ -15,6 +15,11 @@ namespace Music_user_bot
 
         public override void Execute()
         {
+            if (!Program.isOwner(Message))
+            {
+                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                return;
+            }
             TrackQueue.Message = Message;
             if (!Program.isOwner(Message))
             {

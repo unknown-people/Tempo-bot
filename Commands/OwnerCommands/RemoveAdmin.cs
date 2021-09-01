@@ -14,8 +14,8 @@ using System;
 
 namespace Music_user_bot
 {
-    [Command("delw")]
-    class DelWhitelist : CommandBase
+    [Command("dela")]
+    class DelAdmin : CommandBase
     {
         [Parameter("User ID")]
         public ulong IDtoDel { get; private set; }
@@ -36,14 +36,14 @@ namespace Music_user_bot
                 }
                 if (IDtoDel.ToString().Length == 18)
                 {
-                    Whitelist.RemoveFromWL(IDtoDel);
-                    Program.SendMessage(Message, "Removed <@" + IDtoDel.ToString() + "> from whitelist");
+                    Admin.RemoveFromAl(IDtoDel);
+                    Program.SendMessage(Message, "Removed <@" + IDtoDel.ToString() + "> from admins");
                 }
-                else Program.SendMessage(Message, "Usage: delw [userID]");
+                else Program.SendMessage(Message, "Usage: dela [userID]");
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Usage: delw [userID]");
+                Program.SendMessage(Message, "Usage: dela [userID]");
             }
         }
     }

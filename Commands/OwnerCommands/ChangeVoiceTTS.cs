@@ -10,7 +10,12 @@ namespace Music_user_bot.Commands
 
         public override void Execute()
         {
-            if(voice == null)
+            if (!Program.isOwner(Message) && !Program.isAdmin(Message))
+            {
+                Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
+                return;
+            }
+            if (voice == null)
             {
                 Program.SendMessage(Message, "Currently supported voices:\n**it-IT** - Diego / Isabella\n" + "**en-US** - Cristopher / Michelle");
                 return;

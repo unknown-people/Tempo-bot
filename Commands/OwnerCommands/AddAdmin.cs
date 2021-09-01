@@ -12,21 +12,21 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System;
 
-namespace Music_user_bot
+namespace Music_user_bot.Commands
 {
-    [Command("delw")]
-    class DelWhitelist : CommandBase
+    [Command("adda")]
+    class AddAdmin : CommandBase
     {
         [Parameter("User ID")]
-        public ulong IDtoDel { get; private set; }
+        public ulong IDtoAdd { get; private set; }
 
         public override void Execute()
         {
             try
             {
-                if (!Program.isOwner(Message) && !Program.isAdmin(Message))
+                if (!Program.isOwner(Message))
                 {
-                    Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
+                    Program.SendMessage(Message, "You need to be the owner to execute this command!");
                     return;
                 }
                 if (Program.BlockBotCommand(Message))
@@ -34,16 +34,17 @@ namespace Music_user_bot
                     Program.SendMessage(Message, "You need to use a user token to execute this command!");
                     return;
                 }
-                if (IDtoDel.ToString().Length == 18)
+
+                if (IDtoAdd.ToString().Length == 18)
                 {
-                    Whitelist.RemoveFromWL(IDtoDel);
-                    Program.SendMessage(Message, "Removed <@" + IDtoDel.ToString() + "> from whitelist");
+                    Admin.AddToAl(IDtoAdd);
+                    Program.SendMessage(Message, "Added <@" + IDtoAdd.ToString() + "> to the Admins");
                 }
-                else Program.SendMessage(Message, "Usage: delw [userID]");
+                else Program.SendMessage(Message, "Usage: adda [userID]");
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Usage: delw [userID]");
+                Program.SendMessage(Message, "Usage: adda [userID]");
             }
         }
     }

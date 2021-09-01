@@ -14,6 +14,7 @@ namespace Music_user_bot.Commands
             {
                 if (!Program.isOwner(Message))
                 {
+                    Program.SendMessage(Message, "You need to be the owner to execute this command!");
                     return;
                 }
                 Settings.Default.Prefix = new_prefix;

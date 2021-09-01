@@ -24,8 +24,14 @@ namespace Music_user_bot.Commands
         {
             try
             {
-                if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
+                if (!Program.isOwner(Message) && !Program.isAdmin(Message) )
                 {
+                    Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
+                    return;
+                }
+                if (Program.BlockBotCommand(Message))
+                {
+                    Program.SendMessage(Message, "You need to use a user token to execute this command!");
                     return;
                 }
 

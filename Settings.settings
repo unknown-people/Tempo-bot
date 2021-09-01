@@ -9,7 +9,7 @@
       <Value Profile="(Default)">ODQ2MTU2NDc2MDgxODk3NTAz.YKra1g.wKcKotOuYIhKdzIN_EDrHN6o3ps</Value>
     </Setting>
     <Setting Name="OwnerId" Type="System.UInt64" Scope="User">
-      <Value Profile="(Default)">765627843614736385</Value>
+      <Value Profile="(Default)">782777113542656011</Value>
     </Setting>
     <Setting Name="Username" Type="System.String" Scope="User">
       <Value Profile="(Default)">[+]Tempo</Value>
@@ -33,6 +33,9 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="tk2" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Admins" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

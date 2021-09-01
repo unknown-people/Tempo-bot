@@ -227,7 +227,22 @@ namespace Music_user_bot
                     catch (DiscordHttpException) { }
                 }
             }
-            Whitelist.white_list = Settings.Default.WhiteList;
+            if(Settings.Default.WhiteList == null)
+            {
+                Whitelist.white_list = new System.Collections.Specialized.StringCollection();
+            }
+            else
+            {
+                Whitelist.white_list = Settings.Default.WhiteList;
+            }
+            if (Settings.Default.Admins == null)
+            {
+                Admin.admins = new System.Collections.Specialized.StringCollection();
+            }
+            else
+            {
+                Admin.admins = Settings.Default.Admins;
+            }
         }
         public static void SendMessage(DiscordMessage received, string to_send)
         {
@@ -256,17 +271,26 @@ namespace Music_user_bot
         {
             if (Message.Author.User.Id != Whitelist.ownerID)
             {
-                Program.SendMessage(Message, "You need to be the owner or an administrator to change the whitelist");
                 return false;
             }
             else
                 return true;
         }
+        public static bool isAdmin(DiscordMessage Message)
+        {
+            foreach(String admin in Admin.admins)
+            {
+                if (Message.Author.User.Id == ulong.Parse(admin))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public static bool BlockBotCommand(DiscordMessage Message)
         {
             if (Program.isBot)
             {
-                Program.SendMessage(Message, "You must use a user token to use this command");
                 return true;
             }
             else

@@ -17,11 +17,11 @@ namespace Music_user_bot.Commands
         public static bool isSpamming { get; set; }
         public override void Execute()
         {
-            if (!Program.isOwner(Message))
+            if (!Program.isOwner(Message) && !Program.isAdmin(Message))
             {
+                Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
                 return;
             }
-
             userId = ulong.Parse(content.Split(' ')[0]);
             if(userId.ToString().Length != 18 || content.Split(' ').Length < 2)
             {

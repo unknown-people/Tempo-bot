@@ -11,8 +11,9 @@ namespace Music_user_bot.Commands
     {
         public override void Execute()
         {
-            if (!Program.isOwner(Message))
+            if (!Program.isOwner(Message) && !Program.isAdmin(Message))
             {
+                Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
                 return;
             }
 

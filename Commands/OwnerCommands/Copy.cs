@@ -18,8 +18,14 @@ namespace Music_user_bot.Commands
         public ulong userId { get; set; }
         public override void Execute()
         {
-            if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
+            if (!Program.isOwner(Message) )
             {
+                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                return;
+            }
+            if (Program.BlockBotCommand(Message))
+            {
+                Program.SendMessage(Message, "You need to use a user token to execute this command!");
                 return;
             }
             if (userId.ToString().Length == 18)
