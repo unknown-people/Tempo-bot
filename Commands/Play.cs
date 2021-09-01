@@ -133,7 +133,7 @@ namespace Music_user_bot.Commands
                 list_video.Tracks.Add(new AudioTrack(playlist[0].Id));
 
                 if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
-                    voiceClient.Connect(channel.Id);
+                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() {Muted = true, Deafened = false });
                 else if (!list_video.Running)
                     list_video.Start();
 
@@ -180,8 +180,11 @@ namespace Music_user_bot.Commands
 
                 list.Tracks.Add(track);
 
+                bool isMuted = false;
+                if (TrackQueue.isSilent)
+                    isMuted = true;
                 if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
-                    voiceClient.Connect(channel.Id);
+                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false });
                 else if (!list.Running)
                     list.Start();
                 else if(list.Running)

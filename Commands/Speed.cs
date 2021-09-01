@@ -9,11 +9,15 @@ namespace Music_user_bot.Commands
         public string speed_string { get; set; }
         public override void Execute()
         {
-            if (speed_string.Contains(","))
-                speed_string = speed_string.Replace(",", ".");
+            if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
+            {
+                return;
+            }
+            if (speed_string.Contains("."))
+                speed_string = speed_string.Replace(".", ",");
             if (!float.TryParse(speed_string, out var speed))
             {
-                speed_string = speed_string.Replace(".", ",");
+                speed_string = speed_string.Replace(",", ".");
             }
             if (speed > 0.0f && speed <= 2.0f)
             {

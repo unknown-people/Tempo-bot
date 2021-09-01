@@ -10,6 +10,11 @@ namespace Music_user_bot.Commands
 
         public override void Execute()
         {
+            if(voice == null)
+            {
+                Program.SendMessage(Message, "Currently supported voices:\n**it-IT** - Diego / Isabella\n" + "**en-US** - Cristopher / Michelle");
+                return;
+            }
             switch (voice.ToLower())
             {
                 case "diego":
@@ -31,10 +36,6 @@ namespace Music_user_bot.Commands
                     Settings.Default.TTSlang = "en-US";
                     Settings.Default.TTSvoice = "en-US-ChristopherNeural";
                     Program.SendMessage(Message, "Current voice set to Christopher - EN");
-                    break;
-                default:
-                    Program.SendMessage(Message, "Currently supported voices:\n**it-IT** - Diego / Isabella\n" +
-                        "**en-US** - Cristopher / Michelle");
                     break;
             }
         }

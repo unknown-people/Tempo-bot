@@ -64,6 +64,8 @@ namespace Discord.Media
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
 
+            if (TrackQueue.isSilent)
+                flags = DiscordSpeakingFlags.Soundshare;
             _client.Connection.Send(DiscordMediaOpcode.Speaking, new DiscordSpeakingRequest()
             {
                 State = flags,
@@ -112,7 +114,7 @@ namespace Discord.Media
 
             return offset + OpusConverter.FrameBytes;
         }
-        public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 10)
+        public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 30)
         {
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
