@@ -52,14 +52,15 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            OnProgramStart.Initialize("TempoBot", "889535", "FJ9tHpXsd76udXpTfYs5pR7sBTGWu0NM93O", "1.0");
+            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //OnProgramStart.Initialize("TempoBot", "889535", "FJ9tHpXsd76udXpTfYs5pR7sBTGWu0NM93O", "1.0");
             if (!IsUserAdministrator())
             {
                 Console.WriteLine("You need to run this program as an administrator.");
                 Console.ReadLine();
                 return;
             }
+            /*
             if (Settings.Default.tk1 == "" || Settings.Default.tk1 == null || Settings.Default.tk2 == "" || Settings.Default.tk2 == null)
             {
                 Console.Write("Enter your username: ");
@@ -86,6 +87,7 @@ namespace Music_user_bot
                 return;
             }
             Console.Clear();
+            */
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             strWorkPath = Path.GetDirectoryName(strExeFilePath);
             programFiles = Environment.ExpandEnvironmentVariables("%ProgramW6432%");

@@ -9,6 +9,7 @@ using System;
 using YoutubeExplode;
 using System.IO;
 using System.Threading;
+using YoutubeExplode.Videos;
 
 namespace Music_user_bot
 {
@@ -31,7 +32,11 @@ namespace Music_user_bot
         public Stream _stream { get; set; }
         public static int stream_volume { get; set; }
         public static AudioTrack currentSong { get; set; }
+        public static Video currentVideo { get; set; }
+        public static bool displayMessage { get; set; }
+        public static bool deleteMessage { get; set; }
         public static bool isEarrape { get; set; }
+        public static bool isSilent { get; set; }
         public static bool speedChanged = false;
 
         private DiscordSocketClient _client;
@@ -45,12 +50,52 @@ namespace Music_user_bot
             isLooping = false;
             stream_volume = 100;
             speed = 1.0f;
+            displayMessage = false;
         }
 
         public void Start()
         {
             Running = true;
-
+            //Not working due to DiscordHTTPException emoji not found
+            /*
+            Thread info_message = new Thread(() =>
+            {
+                while (Running)
+                {
+                    if (displayMessage)
+                    {
+                        last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title);
+                        last_message.AddReaction(":rewind:");
+                        last_message.AddReaction(":arrow_forward:");
+                        last_message.AddReaction(":pause_button:");
+                        last_message.AddReaction(":fast_forward:");
+                        while (displayMessage)
+                        {
+                            var reactions_rewind = last_message.GetReactions(new ReactionQuery() { 
+                                ReactionName = ":rewind:"
+                            });
+                            var reactions_play = last_message.GetReactions(new ReactionQuery()
+                            {
+                                ReactionName = ":arrow_forward:"
+                            });
+                            var reactions_pause = last_message.GetReactions(new ReactionQuery()
+                            {
+                                ReactionName = ":pause_button:"
+                            });
+                            var reactions_ff = last_message.GetReactions(new ReactionQuery()
+                            {
+                                ReactionName = ":fast_forward:"
+                            });
+                        }
+                    }
+                    else
+                        continue;
+                    while (!deleteMessage)
+                        Thread.Sleep(1);
+                    last_message.Delete();
+                }
+            });
+            */
             Thread track_queue = new Thread(async () =>
             {
                 FFseconds = 0;
@@ -77,17 +122,19 @@ namespace Music_user_bot
 
                     var youtube = new YoutubeClient();
 
-                    var video = await youtube.Videos.GetAsync(currentSong.Id);
+                    currentVideo = await youtube.Videos.GetAsync(currentSong.Id);
 
                     TimeSpan duration = TimeSpan.Zero;
-                    if (video.Duration != null)
+                    if (currentVideo.Duration != null)
                     {
-                        duration = (TimeSpan)video.Duration;
+                        duration = (TimeSpan)currentVideo.Duration;
                     }
+
+                    displayMessage = true;
 
                     if (last_message != null)
                         last_message.Delete();
-                    last_message = Message.Channel.SendMessage("**Now playing:**\n" + video.Title);
+                    last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title);
 
                     start_time = DateTime.Now;
                     pauseTimeSec = 0;
@@ -116,12 +163,13 @@ namespace Music_user_bot
                         FFseconds = 0;
                         seekTo = 0;
                     }
-
+                    displayMessage = false;
+                    deleteMessage = true;
                     try
                     {
                         if (isLooping)
                         {
-                            Tracks.Add(new AudioTrack(video.Id));
+                            Tracks.Add(new AudioTrack(currentVideo.Id));
                         }
                     }
                     catch (Exception)
@@ -133,6 +181,7 @@ namespace Music_user_bot
                 }
                 Running = false;
             });
+            //info_message.Start();
             track_queue.Start();
         }
         public static TimeSpan StringToTimeSpan(string input)

@@ -18,8 +18,11 @@ namespace Music_user_bot.Commands
                 var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
                 var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
 
+                bool isMuted = false;
+                if (TrackQueue.isSilent)
+                    isMuted = true;
                 if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
-                    voiceClient.Connect(channel.Id);
+                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false });
             }
             catch (Exception)
             {

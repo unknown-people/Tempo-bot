@@ -52,7 +52,10 @@ namespace Music_user_bot.Commands
                         {
                             if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list))
                                 Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
-                            voiceClient.Connect(channel.Id);
+                            bool isMuted = false;
+                            if (TrackQueue.isSilent)
+                                isMuted = true;
+                            voiceClient.Connect(channel.Id, new Discord.Media.VoiceConnectionProperties { Muted = isMuted, Deafened = false });
                         }
                         if (voiceClient.Channel.Id != channel.Id)
                         {
