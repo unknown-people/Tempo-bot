@@ -18,10 +18,15 @@ namespace Music_user_bot.Commands
                 Program.SendMessage(Message, "You must be in a voice channel to play music");
                 return;
             }
-
-            speed_string = speed_string.Replace(".", ",");
-
-            if (!float.TryParse(speed_string, out var speed))
+            float speed = 0.0f;
+            if (speed_string.Contains("."))
+            {
+                speed = float.Parse(speed_string.Split('.')[1]);
+            }
+            else if (speed_string.Contains(","))
+            {
+                speed = float.Parse(speed_string.Split(',')[1]);
+            }
 
             speed /= 10.0f;
 
