@@ -61,7 +61,6 @@ namespace Music_user_bot
                 Console.ReadLine();
                 return;
             }
-            /*
             if (Settings.Default.tk1 == "" || Settings.Default.tk1 == null || Settings.Default.tk2 == "" || Settings.Default.tk2 == null)
             {
                 Console.Write("Enter your username: ");
@@ -88,7 +87,6 @@ namespace Music_user_bot
                 return;
             }
             Console.Clear();
-            */
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             strWorkPath = Path.GetDirectoryName(strExeFilePath);
             programFiles = Environment.ExpandEnvironmentVariables("%ProgramW6432%");
