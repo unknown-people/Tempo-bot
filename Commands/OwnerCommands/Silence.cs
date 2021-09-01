@@ -11,10 +11,22 @@ namespace Music_user_bot.Commands
     {
         public override void Execute()
         {
+            if (!Program.isOwner(Message))
+            {
+                return;
+            }
+
             TrackQueue.isSilent = !TrackQueue.isSilent;
 
             var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
             var targetConnected = Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
+
+            if (!targetConnected || theirState.Channel == null)
+            {
+                Program.SendMessage(Message, "You must be in a voice channel to play music");
+                return;
+            }
+
             var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
 
             try

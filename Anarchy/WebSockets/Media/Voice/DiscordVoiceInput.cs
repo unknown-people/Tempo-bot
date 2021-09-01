@@ -200,11 +200,6 @@ namespace Discord.Media
             {
                 current_time = TrackQueue.pauseTimeSec - 1;
             }
-            if(TrackQueue.seekTo > 0)
-            {
-                current_time = TrackQueue.seekTo;
-                TrackQueue.seekTo = 0;
-            }
             
             byte[] buffer = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume, TrackQueue.speed);
 
@@ -243,12 +238,11 @@ namespace Discord.Media
 
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
-                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged)
+                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged || TrackQueue.seekTo > 0)
                         {
                             create_buffer_next.Abort();
                             return true;
                         }
-
                         try
                         {
                             offset = Write(buffer, offset);

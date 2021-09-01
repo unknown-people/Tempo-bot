@@ -1,4 +1,5 @@
 ﻿using Discord.Commands;
+using Discord.Gateway;
 
 namespace Music_user_bot.Commands
 {
@@ -9,15 +10,20 @@ namespace Music_user_bot.Commands
         public string speed_string { get; set; }
         public override void Execute()
         {
-            if (!Program.isOwner(Message) || Program.BlockBotCommand(Message))
+            var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
+            var targetConnected = Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
+
+            if (!targetConnected || theirState.Channel == null)
             {
+                Program.SendMessage(Message, "You must be in a voice channel to play music");
                 return;
             }
-            if (!float.TryParse(speed_string, out var speed))
-                speed_string = speed_string.Replace(".", ",");
 
-            if (speed > 2.0f)
-                speed /= 10.0f;
+            speed_string = speed_string.Replace(".", ",");
+
+            if (!float.TryParse(speed_string, out var speed))
+
+            speed /= 10.0f;
 
             if (speed > 0.0f && speed <= 2.0f)
             {

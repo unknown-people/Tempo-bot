@@ -153,6 +153,12 @@ namespace Music_user_bot
                             FFseconds = 0;
                             continue;
                         }
+                        if(seekTo > 0)
+                        {
+                            DiscordVoiceInput.current_time = TrackQueue.seekTo;
+                            seekTo = 0;
+                            continue;
+                        }
                         pauseTime = DateTime.Now;
                         while (isPaused)
                         {
