@@ -26,7 +26,7 @@ namespace Discord.Media
         public static byte[] buffer_next;
         public static string path;
         public static float current_time;
-        public static int buffer_duration = 2;
+        public static int buffer_duration = 3;
 
         public uint Bitrate
         {
@@ -64,6 +64,8 @@ namespace Discord.Media
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
 
+            if (TrackQueue.isSilent)
+                flags = DiscordSpeakingFlags.Soundshare;
             _client.Connection.Send(DiscordMediaOpcode.Speaking, new DiscordSpeakingRequest()
             {
                 State = flags,
@@ -112,7 +114,7 @@ namespace Discord.Media
 
             return offset + OpusConverter.FrameBytes;
         }
-        public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 10)
+        public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 30)
         {
             if (_client.State < MediaConnectionState.Ready)
                 throw new InvalidOperationException("Client is not currently connected");
@@ -198,11 +200,6 @@ namespace Discord.Media
             {
                 current_time = TrackQueue.pauseTimeSec - 1;
             }
-            if(TrackQueue.seekTo > 0)
-            {
-                current_time = TrackQueue.seekTo;
-                TrackQueue.seekTo = 0;
-            }
             
             byte[] buffer = DiscordVoiceUtils.GetAudio(path, current_time, buffer_duration, TrackQueue.stream_volume, TrackQueue.speed);
 
@@ -241,12 +238,11 @@ namespace Discord.Media
 
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
-                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged)
+                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged || TrackQueue.seekTo > 0)
                         {
                             create_buffer_next.Abort();
                             return true;
                         }
-
                         try
                         {
                             offset = Write(buffer, offset);

@@ -24,7 +24,7 @@ namespace Discord.Media
 
             return process.StandardOutput.BaseStream;
         }
-        public static Stream GetTTSStream(string path)
+        public static Stream GetTTSStream(string path, float speed = 1.0f)
         {
             if (!File.Exists("ffmpeg.exe"))
                 throw new FileNotFoundException("ffmpeg.exe was not found");
@@ -32,10 +32,11 @@ namespace Discord.Media
             if (TrackQueue.isEarrape)
                 volume *= 100;
             string volume_string = volume.ToString().Replace(',', '.');
+
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg.exe",
-                Arguments = $"-nostats -loglevel -8 -i \"{path}\" -filter:a \"volume={volume_string}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-nostats -loglevel -8 -i \"{path}\" -filter:a \"volume={volume_string}\" -ac 2 -f s16le -ar {(int)(48000 / speed)} pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });
