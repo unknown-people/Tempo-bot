@@ -10,6 +10,7 @@ using YoutubeExplode.Search;
 using YoutubeExplode.Common;
 using System.Collections.Generic;
 using YoutubeExplode.Playlists;
+using System.Threading;
 
 namespace Music_user_bot.Commands
 {
@@ -183,6 +184,8 @@ namespace Music_user_bot.Commands
                 bool isMuted = false;
                 if (TrackQueue.isSilent)
                     isMuted = true;
+                while (voiceClient.Channel == null)
+                    Thread.Sleep(1);
                 if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
                     voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false });
                 else if (!list.Running)
