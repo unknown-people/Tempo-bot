@@ -52,6 +52,7 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
+            Console.Title = "TempoBot";
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             OnProgramStart.Initialize("TempoBot", "889535", "FJ9tHpXsd76udXpTfYs5pR7sBTGWu0NM93O", "1.0");
             if (!IsUserAdministrator())
