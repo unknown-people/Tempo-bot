@@ -34,6 +34,7 @@ namespace Music_user_bot
         public static int stream_volume { get; set; }
         public static AudioTrack currentSong { get; set; }
         public static Video currentVideo { get; set; }
+        public static TimeSpan currentSongTime { get; set; }
         public static bool displayMessage { get; set; }
         public static bool deleteMessage { get; set; }
         public static bool isEarrape { get; set; }
