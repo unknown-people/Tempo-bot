@@ -26,7 +26,7 @@ namespace Discord.Media
         public static byte[] buffer_next;
         public static string path;
         public static float current_time;
-        public static int buffer_duration = 3;
+        public static int buffer_duration = 5;
 
         public uint Bitrate
         {
@@ -218,10 +218,13 @@ namespace Discord.Media
             create_buffer_next.Priority = ThreadPriority.Highest;
 
             bool toBreak = false;
+
             do
             {
                 try
                 {
+                    TrackQueue.currentSongTime = new TimeSpan((int)current_time * TimeSpan.TicksPerSecond);
+
                     if (TrackQueue.isPaused)
                     {
                         create_buffer_next.Abort();

@@ -29,6 +29,14 @@ namespace Music_user_bot.Commands
             }
 
             speed /= 10.0f;
+            if (speed_string.Contains(".0"))
+            {
+                speed = float.Parse(speed_string.Split('.')[0]);
+            }
+            if (speed_string.Contains(",0"))
+            {
+                speed = float.Parse(speed_string.Split(',')[0]);
+            }
 
             if (speed > 0.0f && speed <= 2.0f)
             {
