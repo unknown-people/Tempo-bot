@@ -10,6 +10,7 @@ using YoutubeExplode;
 using System.IO;
 using System.Threading;
 using YoutubeExplode.Videos;
+using System.Text;
 
 namespace Music_user_bot
 {
@@ -36,7 +37,7 @@ namespace Music_user_bot
         public static bool displayMessage { get; set; }
         public static bool deleteMessage { get; set; }
         public static bool isEarrape { get; set; }
-        public static bool isSilent { get; set; }
+        public static bool isSilent { get; set; } = false;
         public static bool speedChanged = false;
 
         private DiscordSocketClient _client;
@@ -96,6 +97,56 @@ namespace Music_user_bot
                 }
             });
             */
+            Thread info_message = new Thread(() =>
+            {
+                while (Running)
+                {
+                    if (displayMessage)
+                    {
+                        var duration = currentVideo.Duration.Value;
+                        string duration_string = duration.ToString();
+                        last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title + "\n" +
+                            ":white_circle:─────────────────────────────    " + "00:00:00 / "+ duration_string);
+                        var line_base = "──────────────────────────────    ";
+                        int circle_pos = 0;
+                        float tick_time = (float)duration.TotalSeconds / 30;
+
+                        while(DiscordVoiceInput.current_time_tracker < (int)duration.TotalSeconds && !currentSong.CancellationTokenSource.Token.IsCancellationRequested)
+                        {
+                            duration = currentVideo.Duration.Value;
+                            duration_string = duration.ToString();
+
+                            circle_pos = (int)(DiscordVoiceInput.current_time_tracker / tick_time);
+
+                            string before = line_base.Substring(0, circle_pos);
+                            string after = line_base.Remove(line_base.Length - (circle_pos + 1)) + "    ";
+                            var new_message = before + ":white_circle:" + after;
+
+                            var song_time_string = (new TimeSpan(DiscordVoiceInput.current_time_tracker * TimeSpan.TicksPerSecond)).ToString();
+                            if(song_time_string.Split('.').Length > 1)
+                            {
+                                song_time_string = song_time_string.Split('.')[0];
+                            }
+                            
+                            string time_track = song_time_string + " / " + duration_string;
+                            string content = "**Now playing:**\n" + currentVideo.Title + "\n" + new_message + time_track;
+
+                            try
+                            {
+                                if (content.Equals(last_message.Content))
+                                    continue;
+                                last_message.Edit(new MessageEditProperties()
+                                {
+                                    Content = content
+                                });
+                            }
+                            catch { break; }
+                            Thread.Sleep(50);
+                        }
+                    }
+                }
+            });
+
             Thread track_queue = new Thread(async () =>
             {
                 FFseconds = 0;
@@ -123,6 +174,7 @@ namespace Music_user_bot
                     var youtube = new YoutubeClient();
 
                     currentVideo = await youtube.Videos.GetAsync(currentSong.Id);
+                    displayMessage = true;
 
                     TimeSpan duration = TimeSpan.Zero;
                     if (currentVideo.Duration != null)
@@ -130,16 +182,12 @@ namespace Music_user_bot
                         duration = (TimeSpan)currentVideo.Duration;
                     }
 
-                    displayMessage = true;
-
-                    if (last_message != null)
-                        last_message.Delete();
-                    last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title);
-
                     start_time = DateTime.Now;
                     pauseTimeSec = 0;
                     string url = GetVideoUrl(currentSong.Id, currentChannel.Bitrate);
                     DiscordVoiceInput.current_time = 0;
+                    DiscordVoiceInput.current_time_tracker = 0;
+
                     while (voiceClient.Microphone.CopyFrom( url, (int)duration.TotalSeconds, currentSong.CancellationTokenSource.Token))
                     {
                         if (TrackQueue.speedChanged)
@@ -170,7 +218,11 @@ namespace Music_user_bot
                         seekTo = 0;
                     }
                     displayMessage = false;
-                    deleteMessage = true;
+                    try
+                    {
+                        last_message.Delete();
+                    }
+                    catch { }
                     try
                     {
                         if (isLooping)
@@ -187,7 +239,8 @@ namespace Music_user_bot
                 }
                 Running = false;
             });
-            //info_message.Start();
+            info_message.Priority = ThreadPriority.Highest;
+            info_message.Start();
             track_queue.Start();
         }
         public static TimeSpan StringToTimeSpan(string input)

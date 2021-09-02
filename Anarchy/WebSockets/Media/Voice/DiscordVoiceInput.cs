@@ -26,7 +26,8 @@ namespace Discord.Media
         public static byte[] buffer_next;
         public static string path;
         public static float current_time;
-        public static int buffer_duration = 3;
+        public static int current_time_tracker;
+        public static int buffer_duration = 5;
 
         public uint Bitrate
         {
@@ -218,6 +219,7 @@ namespace Discord.Media
             create_buffer_next.Priority = ThreadPriority.Highest;
 
             bool toBreak = false;
+
             do
             {
                 try
@@ -236,12 +238,18 @@ namespace Discord.Media
 
                     int offset = 0;
 
+                    DateTime start = DateTime.Now;
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
                         if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged || TrackQueue.seekTo > 0)
                         {
                             create_buffer_next.Abort();
                             return true;
+                        }
+                        if((DateTime.Now - start).TotalSeconds * TrackQueue.speed > 1.0f)
+                        {
+                            current_time_tracker += 1;
+                            start = DateTime.Now;
                         }
                         try
                         {
