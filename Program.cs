@@ -74,11 +74,7 @@ namespace Music_user_bot
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Authenticating...");
             Console.ForegroundColor = ConsoleColor.White;
-            if (API.Login(Settings.Default.tk1, Settings.Default.tk2))
-            {
-                System.Windows.Forms.MessageBox.Show("You have successfully logged in!", OnProgramStart.Name);
-            }
-            else
+            if (!API.Login(Settings.Default.tk1, Settings.Default.tk2))
             {
                 Settings.Default.tk1 = "";
                 Settings.Default.tk2 = "";

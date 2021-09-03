@@ -194,7 +194,7 @@ namespace Discord
 
         public static async Task<GuildInvite> JoinGuildAsync(this DiscordClient client, string invCode)
         {
-            return (await client.HttpClient.PostAsync($"/invites/{invCode}"))
+            return (await client.HttpClient.PostAsyncJoin($"/invites/{invCode}"))
                                 .Deserialize<GuildInvite>().SetClient(client);
         }
 

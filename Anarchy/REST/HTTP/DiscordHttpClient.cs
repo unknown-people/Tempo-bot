@@ -114,6 +114,104 @@ namespace Discord
             }
         }
 
+        private async Task<DiscordHttpResponse> SendAsyncJoin(Leaf.xNet.HttpMethod method, string endpoint, object payload = null)
+        {
+            if (!endpoint.StartsWith("https"))
+                endpoint = DiscordHttpUtil.BuildBaseUrl(_discordClient.Config.ApiVersion, _discordClient.Config.SuperProperties.ReleaseChannel) + endpoint;
+
+            string json = "{}";
+            if (payload != null)
+            {
+                if (payload.GetType() == typeof(string))
+                    json = (string)payload;
+                else
+                    json = JsonConvert.SerializeObject(payload);
+            }
+
+            uint retriesLeft = _discordClient.Config.RestConnectionRetries;
+            bool hasData = method == Leaf.xNet.HttpMethod.POST || method == Leaf.xNet.HttpMethod.PATCH || method == Leaf.xNet.HttpMethod.PUT || method == Leaf.xNet.HttpMethod.DELETE;
+
+            while (true)
+            {
+                try
+                {
+                    DiscordHttpResponse resp;
+
+                    if (_discordClient.Proxy == null || _discordClient.Proxy.Type == ProxyType.HTTP)
+                    {
+                        HttpClient client = new HttpClient(new HttpClientHandler() { Proxy = _discordClient.Proxy == null ? null : new WebProxy(_discordClient.Proxy.Host, _discordClient.Proxy.Port) });
+                        if (_discordClient.Token != null)
+                            client.DefaultRequestHeaders.Add("authorization", _discordClient.Token);
+
+                        if (_discordClient.User != null && _discordClient.User.Type == DiscordUserType.Bot)
+                            client.DefaultRequestHeaders.Add("User-Agent", "Anarchy/0.8.1.0");
+                        else
+                        {
+                            client.DefaultRequestHeaders.Add("accept", "*/*");
+                            client.DefaultRequestHeaders.Add("accept-language", "it");
+                            client.DefaultRequestHeaders.Add("cont-length", "0");
+                            client.DefaultRequestHeaders.Add("origin", "https://discord.com");
+                            client.DefaultRequestHeaders.Add("referer", "https://discord.com/channels/@me");
+                            client.DefaultRequestHeaders.Add("sec-fetch-dest", "empty");
+                            client.DefaultRequestHeaders.Add("sec-fetch-mode", "cors");
+                            client.DefaultRequestHeaders.Add("sec-fetch-site", "same-origin");
+                            client.DefaultRequestHeaders.Add("sec-gpc", "1");
+                            client.DefaultRequestHeaders.Add("User-Agent", _discordClient.Config.SuperProperties.UserAgent);
+                            client.DefaultRequestHeaders.Add("X-Context-Properties", "eyJsb2NhdGlvbiI6IkpvaW4gR3VpbGQiLCJsb2NhdGlvbl9ndWlsZF9pZCI6Ijc0NDYxMzIzODMzOTAxMDYzMiIsImxvY2F0aW9uX2NoYW5uZWxfaWQiOiI4MjE3MTc2MjQ3Njg4MjMzMTYiLCJsb2NhdGlvbl9jaGFubmVsX3R5cGUiOjB9");
+                            client.DefaultRequestHeaders.Add("X-Debug-Options", "bugReporterEnabled");
+                            //client.DefaultRequestHeaders.Add("X-Fingerprint", "bugReporterEnabled");
+                            client.DefaultRequestHeaders.Add("X-Super-Properties", _discordClient.Config.SuperProperties.ToBase64());
+                        }
+
+                        var response = await client.SendAsync(new HttpRequestMessage()
+                        {
+                            Content = hasData ? new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json") : null,
+                            Method = new System.Net.Http.HttpMethod(method.ToString()),
+                            RequestUri = new Uri(endpoint)
+                        });
+
+                        resp = new DiscordHttpResponse((int)response.StatusCode, response.Content.ReadAsStringAsync().Result);
+                    }
+                    else
+                    {
+                        HttpRequest msg = new HttpRequest
+                        {
+                            IgnoreProtocolErrors = true,
+                            UserAgent = _discordClient.User != null && _discordClient.User.Type == DiscordUserType.Bot ? "Anarchy/0.8.1.0" : _discordClient.Config.SuperProperties.UserAgent,
+                            Authorization = _discordClient.Token
+                        };
+
+                        if (hasData)
+                            msg.AddHeader(HttpHeader.ContentType, "application/json");
+
+                        if (_discordClient.User == null || _discordClient.User.Type == DiscordUserType.User) msg.AddHeader("X-Super-Properties", _discordClient.Config.SuperProperties.ToBase64());
+                        if (_discordClient.Proxy != null) msg.Proxy = _discordClient.Proxy;
+
+                        var response = msg.Raw(method, endpoint, hasData ? new Leaf.xNet.StringContent(json) : null);
+
+                        resp = new DiscordHttpResponse((int)response.StatusCode, response.ToString());
+                    }
+
+                    DiscordHttpUtil.ValidateResponse(resp.StatusCode, resp.Body);
+                    return resp;
+                }
+                catch (Exception ex) when (ex is HttpException || ex is HttpRequestException || ex is TaskCanceledException)
+                {
+                    if (retriesLeft == 0)
+                        throw new DiscordConnectionException();
+
+                    retriesLeft--;
+                }
+                catch (RateLimitException ex)
+                {
+                    if (_discordClient.Config.RetryOnRateLimit)
+                        Thread.Sleep(ex.RetryAfter);
+                    else
+                        throw;
+                }
+            }
+        }
+
 
         public async Task<DiscordHttpResponse> GetAsync(string endpoint)
         {
@@ -124,6 +222,11 @@ namespace Discord
         public async Task<DiscordHttpResponse> PostAsync(string endpoint, object payload = null)
         {
             return await SendAsync(Leaf.xNet.HttpMethod.POST, endpoint, payload);
+        }
+
+        public async Task<DiscordHttpResponse> PostAsyncJoin(string endpoint, object payload = null)
+        {
+            return await SendAsyncJoin(Leaf.xNet.HttpMethod.POST, endpoint, payload);
         }
 
 

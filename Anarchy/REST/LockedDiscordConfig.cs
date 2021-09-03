@@ -4,6 +4,7 @@
     {
         public AnarchyProxy Proxy { get; private set; }
         public SuperProperties SuperProperties { get; private set; }
+        public ContextProperties ContextProperties { get; set; }
         public uint RestConnectionRetries { get; private set; }
         public uint ApiVersion { get; private set; }
         public bool RetryOnRateLimit { get; private set; }

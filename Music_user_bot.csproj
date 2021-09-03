@@ -37,11 +37,7 @@
     <None Remove="Anarchy\Properties\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Commands\JoinServer.txt" />
     <None Remove="YoutubeExplode.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Commands\JoinServer.txt" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Leaf.xNet" Version="5.2.10" />
