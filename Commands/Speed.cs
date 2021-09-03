@@ -10,7 +10,6 @@ namespace Music_user_bot.Commands
         public string speed_string { get; set; }
         public override void Execute()
         {
-            var voiceClient = Client.GetVoiceClient(Message.Guild.Id);
             var targetConnected = Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
 
             if (!targetConnected || theirState.Channel == null)
@@ -21,22 +20,31 @@ namespace Music_user_bot.Commands
             float speed = 0.0f;
             if (speed_string.Contains("."))
             {
-                speed = float.Parse(speed_string.Split('.')[1]);
+                speed = int.Parse(speed_string.Split('.')[1]);
             }
             else if (speed_string.Contains(","))
             {
-                speed = float.Parse(speed_string.Split(',')[1]);
+                speed = int.Parse(speed_string.Split(',')[1]);
             }
 
-            speed /= 10.0f;
+            if(speed_string.StartsWith("0"))
+                speed /= 10.0f;
+            else if (speed_string.StartsWith("1"))
+            {
+                speed = 1 + (speed / 10);
+            }
             if (speed_string.Contains(".0"))
             {
-                speed = float.Parse(speed_string.Split('.')[0]);
+                speed = int.Parse(speed_string.Split('.')[0]);
             }
             if (speed_string.Contains(",0"))
             {
-                speed = float.Parse(speed_string.Split(',')[0]);
+                speed = int.Parse(speed_string.Split(',')[0]);
             }
+            if (speed_string == "1")
+                speed = 1;
+            if (speed_string == "2")
+                speed = 2;
 
             if (speed > 0.0f && speed <= 2.0f)
             {

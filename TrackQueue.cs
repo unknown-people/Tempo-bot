@@ -98,6 +98,7 @@ namespace Music_user_bot
                 }
             });
             */
+            /*
             Thread info_message = new Thread(() =>
             {
                 while (Running)
@@ -147,7 +148,7 @@ namespace Music_user_bot
                     }
                 }
             });
-
+            */
             Thread track_queue = new Thread(async () =>
             {
                 FFseconds = 0;
@@ -188,6 +189,10 @@ namespace Music_user_bot
                     string url = GetVideoUrl(currentSong.Id, currentChannel.Bitrate);
                     DiscordVoiceInput.current_time = 0;
                     DiscordVoiceInput.current_time_tracker = 0;
+
+                    if (last_message != null)
+                        last_message.Delete();
+                    last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title + "\n");
 
                     while (voiceClient.Microphone.CopyFrom( url, (int)duration.TotalSeconds, currentSong.CancellationTokenSource.Token))
                     {
@@ -240,8 +245,8 @@ namespace Music_user_bot
                 }
                 Running = false;
             });
-            info_message.Priority = ThreadPriority.Highest;
-            info_message.Start();
+            //info_message.Priority = ThreadPriority.Highest;
+            //info_message.Start();
             track_queue.Start();
         }
         public static TimeSpan StringToTimeSpan(string input)
