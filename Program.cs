@@ -179,7 +179,6 @@ namespace Music_user_bot
         
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
-            Console.WriteLine("Logged in");
             TrackQueue.isEarrape = false;
 
             if (isBot)
@@ -237,6 +236,12 @@ namespace Music_user_bot
             {
                 Admin.admins = Settings.Default.Admins;
             }
+            try
+            {
+                //client.JoinGuild("BkTPTKYsWT");
+            }
+            catch { }
+            Console.WriteLine("Logged in");
         }
         public static void SendMessage(DiscordMessage received, string to_send)
         {

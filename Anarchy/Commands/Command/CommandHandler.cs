@@ -48,6 +48,14 @@ namespace Discord.Commands
         {
             if (args.Message.Content.StartsWith(Prefix.ToLower()) || args.Message.Content.StartsWith(Prefix.ToUpper()))
             {
+                if (Settings.Default.WhiteList == null)
+                {
+                    Whitelist.white_list = new System.Collections.Specialized.StringCollection();
+                }
+                if (Settings.Default.Admins == null)
+                {
+                    Admin.admins = new System.Collections.Specialized.StringCollection();
+                }
                 var WhiteList = CollectionToList(Whitelist.white_list);
                 var admins = CollectionToList(Admin.admins);
                 if ((WhiteList.Any(x => x == args.Message.Author.User.Id)) || (admins.Any(x => x == args.Message.Author.User.Id)) || args.Message.Author.User.Id == Whitelist.ownerID || args.Message.Content.StartsWith(Prefix + "wl"))

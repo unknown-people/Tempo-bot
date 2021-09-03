@@ -6,16 +6,16 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="Token" Type="System.String" Scope="User">
-      <Value Profile="(Default)">ODI4NDkwNDIxNTcxMTU4MDM4.YGqV-w.dpaZaT4wi_VhJxX7u78d2XsU9_A</Value>
+      <Value Profile="(Default)">ODQ2MTUwNTcyMjQzODEyMzcz.YKrVZw.Qy4PAdxTRN63lj4Kia2yJFGeAsI</Value>
     </Setting>
     <Setting Name="OwnerId" Type="System.UInt64" Scope="User">
-      <Value Profile="(Default)">490142610716098560</Value>
+      <Value Profile="(Default)">765627843614736385</Value>
     </Setting>
     <Setting Name="Username" Type="System.String" Scope="User">
       <Value Profile="(Default)">[+]Tempo</Value>
     </Setting>
     <Setting Name="Password" Type="System.String" Scope="User">
-      <Value Profile="(Default)">o4K3MoadNJ</Value>
+      <Value Profile="(Default)">8x9afers46tllpw</Value>
     </Setting>
     <Setting Name="Prefix" Type="System.String" Scope="User">
       <Value Profile="(Default)">+</Value>
@@ -36,6 +36,9 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="Admins" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Fingerprint" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>
