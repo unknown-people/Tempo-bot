@@ -22,8 +22,7 @@ namespace Music_user_bot.Commands
                     var invite_code = Regex.Replace(invite, "https://discord.gg/.*", string.Empty, RegexOptions.IgnoreCase);
                     invite_code = Regex.Replace(invite, "discord.gg/.*", string.Empty, RegexOptions.IgnoreCase);
 
-                    DiscordPuppeteer.Start();
-                    var inviteNew = DiscordPuppeteer.JoinGuild(Client, invite_code);
+                    var inviteNew = Client.JoinGuild(invite_code);
                     
                     if (inviteNew.Guild.Name != null)
                     {
