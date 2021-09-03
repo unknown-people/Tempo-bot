@@ -89,12 +89,10 @@ namespace Discord
             return JsonConvert.DeserializeObject<SuperProperties>(Encoding.UTF8.GetString(Convert.FromBase64String(base64)));
         }
 
-
         public string ToBase64()
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)));
         }
-
 
         public override string ToString()
         {

@@ -7,6 +7,7 @@ using System.Net.Http;
 using Leaf.xNet;
 using System.Net;
 using System.Threading.Tasks;
+using Music_user_bot;
 
 namespace Discord
 {
@@ -14,13 +15,27 @@ namespace Discord
     {
         private readonly DiscordClient _discordClient;
         public string BaseUrl => DiscordHttpUtil.BuildBaseUrl(_discordClient.Config.ApiVersion, _discordClient.Config.SuperProperties.ReleaseChannel);
-
-
+        public string _fingerprint { get; set; }
         public DiscordHttpClient(DiscordClient discordClient)
         {
             _discordClient = discordClient;
+            if(!(Settings.Default.Fingerprint != null && Settings.Default.Fingerprint != ""))
+                Settings.Default.Fingerprint = GetFingerprint().GetAwaiter().GetResult();
+            _fingerprint = Settings.Default.Fingerprint;
         }
+        public async Task<string> GetFingerprint()
+        {
+            HttpClient client = new HttpClient();
+            var response_fingerprint = await client.SendAsync(new HttpRequestMessage()
+            {
+                Method = new System.Net.Http.HttpMethod("GET"),
+                RequestUri = new Uri("https://discord.com/api/v9/experiments")
+            });
+            var resp_fingerprint = new DiscordHttpResponse((int)response_fingerprint.StatusCode, response_fingerprint.Content.ReadAsStringAsync().Result);
+            var fingerprint = resp_fingerprint.Body.Value<String>("fingerprint");
 
+            return fingerprint;
+        }
 
         /// <summary>
         /// Sends an HTTP request and checks for errors
@@ -117,8 +132,11 @@ namespace Discord
         private async Task<DiscordHttpResponse> SendAsyncJoin(Leaf.xNet.HttpMethod method, string endpoint, object payload = null)
         {
             if (!endpoint.StartsWith("https"))
-                endpoint = DiscordHttpUtil.BuildBaseUrl(_discordClient.Config.ApiVersion, _discordClient.Config.SuperProperties.ReleaseChannel) + endpoint;
-
+                endpoint = DiscordHttpUtil.BuildBaseUrl(_discordClient.Config.ApiVersion, _discordClient.Config.SuperProperties.ReleaseChannel) + endpoint; 
+            string inv_code = "https://discord.com/api/v9/invites/";
+            if (endpoint.Contains("/invites/"))
+                inv_code = endpoint.Substring(inv_code.Length);
+            
             string json = "{}";
             if (payload != null)
             {
@@ -140,16 +158,16 @@ namespace Discord
                     if (_discordClient.Proxy == null || _discordClient.Proxy.Type == ProxyType.HTTP)
                     {
                         HttpClient client = new HttpClient(new HttpClientHandler() { Proxy = _discordClient.Proxy == null ? null : new WebProxy(_discordClient.Proxy.Host, _discordClient.Proxy.Port) });
+                        var context = ContextProperties.GetContextProperties(inv_code).GetAwaiter().GetResult();
+
                         if (_discordClient.Token != null)
                             client.DefaultRequestHeaders.Add("authorization", _discordClient.Token);
-
                         if (_discordClient.User != null && _discordClient.User.Type == DiscordUserType.Bot)
                             client.DefaultRequestHeaders.Add("User-Agent", "Anarchy/0.8.1.0");
                         else
                         {
                             client.DefaultRequestHeaders.Add("accept", "*/*");
                             client.DefaultRequestHeaders.Add("accept-language", "it");
-                            client.DefaultRequestHeaders.Add("cont-length", "0");
                             client.DefaultRequestHeaders.Add("origin", "https://discord.com");
                             client.DefaultRequestHeaders.Add("referer", "https://discord.com/channels/@me");
                             client.DefaultRequestHeaders.Add("sec-fetch-dest", "empty");
@@ -157,9 +175,9 @@ namespace Discord
                             client.DefaultRequestHeaders.Add("sec-fetch-site", "same-origin");
                             client.DefaultRequestHeaders.Add("sec-gpc", "1");
                             client.DefaultRequestHeaders.Add("User-Agent", _discordClient.Config.SuperProperties.UserAgent);
-                            client.DefaultRequestHeaders.Add("X-Context-Properties", "eyJsb2NhdGlvbiI6IkpvaW4gR3VpbGQiLCJsb2NhdGlvbl9ndWlsZF9pZCI6Ijc0NDYxMzIzODMzOTAxMDYzMiIsImxvY2F0aW9uX2NoYW5uZWxfaWQiOiI4MjE3MTc2MjQ3Njg4MjMzMTYiLCJsb2NhdGlvbl9jaGFubmVsX3R5cGUiOjB9");
+                            client.DefaultRequestHeaders.Add("X-Context-Properties", context);
                             client.DefaultRequestHeaders.Add("X-Debug-Options", "bugReporterEnabled");
-                            //client.DefaultRequestHeaders.Add("X-Fingerprint", "bugReporterEnabled");
+                            client.DefaultRequestHeaders.Add("X-Fingerprint", _fingerprint);
                             client.DefaultRequestHeaders.Add("X-Super-Properties", _discordClient.Config.SuperProperties.ToBase64());
                         }
 
@@ -169,6 +187,7 @@ namespace Discord
                             Method = new System.Net.Http.HttpMethod(method.ToString()),
                             RequestUri = new Uri(endpoint)
                         });
+                        client.DefaultRequestHeaders.Clear();
 
                         resp = new DiscordHttpResponse((int)response.StatusCode, response.Content.ReadAsStringAsync().Result);
                     }
@@ -246,5 +265,12 @@ namespace Discord
         {
             return await SendAsync(Leaf.xNet.HttpMethod.PATCH, endpoint, payload);
         }
+    }
+    public class Fingerprint
+    {
+        [JsonProperty("assignments")]
+        public Array assignments { get; set; }
+        [JsonProperty("fingerprint")]
+        public string fingerprint { get; set; }
     }
 }

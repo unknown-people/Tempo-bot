@@ -19,8 +19,7 @@ namespace Music_user_bot.Commands
             {
                 try
                 {
-                    var invite_code = Regex.Replace(invite, "https://discord.gg/.*", string.Empty, RegexOptions.IgnoreCase);
-                    invite_code = Regex.Replace(invite, "discord.gg/.*", string.Empty, RegexOptions.IgnoreCase);
+                    var invite_code = Regex.Replace(invite, "https://discord.gg/", string.Empty, RegexOptions.IgnoreCase);
 
                     var inviteNew = Client.JoinGuild(invite_code);
                     
