@@ -45,7 +45,7 @@ namespace Discord
         public string Device { get; set; } = "";
 
         [JsonProperty("system_locale")]
-        public string SystemLocale { get; set; } = "da-DK";
+        public string SystemLocale { get; set; } = "it-IT";
 
         [JsonProperty("browser_user_agent")]
         public string UserAgent { get; set; } = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36";
