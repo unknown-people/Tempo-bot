@@ -1,7 +1,6 @@
 ﻿using System;
 using Discord.Commands;
 using Discord;
-
 using Discord.Media;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
@@ -19,19 +18,9 @@ namespace Music_user_bot.Commands
             {
                 try
                 {
-                    var invite_code = Regex.Replace(invite, "https://discord.gg/.*", string.Empty, RegexOptions.IgnoreCase);
-                    invite_code = Regex.Replace(invite, "discord.gg/.*", string.Empty, RegexOptions.IgnoreCase);
-
-                    var inviteNew = Client.JoinGuild(invite_code);
+                    var invite_code = Regex.Replace(invite, "https://discord.gg/", string.Empty, RegexOptions.IgnoreCase);
+                    DiscordHttpClient.JoinGuild(Client.Token, invite_code, Message);
                     
-                    if (inviteNew.Guild.Name != null)
-                    {
-                        Program.SendMessage(Message, "Joined guild");
-                    }
-                    else
-                    {
-                        throw new IndexOutOfRangeException();
-                    }
                 }
                 catch(Exception) {
                     Program.SendMessage(Message, "Couldn't join guild.\n\nUsage: " + CommandHandler.Prefix + "joinserver [invite/code]");
@@ -42,5 +31,6 @@ namespace Music_user_bot.Commands
                 Program.SendMessage(Message, "You must be the owner to join guilds");
             }
         }
+
     }
 }
