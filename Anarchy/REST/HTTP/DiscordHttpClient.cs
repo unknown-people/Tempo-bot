@@ -65,7 +65,7 @@ namespace Discord
                             client.DefaultRequestHeaders.Add("X-Super-Properties", _discordClient.Config.SuperProperties.ToBase64());
                         }
 
-                        var response = await client.SendAsync(new HttpRequestMessage() 
+                        var response = await client.SendAsync(new HttpRequestMessage()
                         { 
                             Content = hasData ? new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json") : null, 
                             Method = new System.Net.Http.HttpMethod(method.ToString()), 

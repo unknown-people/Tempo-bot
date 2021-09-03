@@ -3,10 +3,10 @@ using Discord;
 
 namespace Music_user_bot.Commands
 {
-    [Command("stopspam")]
-    class StopSpamCommand : CommandBase
+    [Command("stopspamdm")]
+    class StopSpamDmCommand : CommandBase
     {
-        public static bool stopSpam { get; set; }
+        public static bool stopSpamDm { get; set; }
         public override void Execute()
         {
             if (!Program.isOwner(Message) && !Program.isAdmin(Message))
@@ -14,10 +14,10 @@ namespace Music_user_bot.Commands
                 Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
                 return;
             }
-            stopSpam = true;
-            if (stopSpam)
+            stopSpamDm = true;
+            if(stopSpamDm)
             {
-                Client.CreateDM(Message.Author.User.Id).SendMessage("Stopped spamming");
+                Client.CreateDM(Message.Author.User.Id).SendMessage("Stopped spamming dm");
             }
         }
     }

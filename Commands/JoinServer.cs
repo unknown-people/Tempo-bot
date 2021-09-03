@@ -1,7 +1,7 @@
 ﻿using System;
 using Discord.Commands;
 using Discord;
-using Discord.Gateway;
+
 using Discord.Media;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
@@ -21,7 +21,10 @@ namespace Music_user_bot.Commands
                 {
                     var invite_code = Regex.Replace(invite, "https://discord.gg/.*", string.Empty, RegexOptions.IgnoreCase);
                     invite_code = Regex.Replace(invite, "discord.gg/.*", string.Empty, RegexOptions.IgnoreCase);
-                    var inviteNew = Join(invite_code);
+
+                    DiscordPuppeteer.Start();
+                    var inviteNew = DiscordPuppeteer.JoinGuild(Client, invite_code);
+                    
                     if (inviteNew.Guild.Name != null)
                     {
                         Program.SendMessage(Message, "Joined guild");
@@ -39,14 +42,6 @@ namespace Music_user_bot.Commands
             {
                 Program.SendMessage(Message, "You must be the owner to join guilds");
             }
-        }
-        public async Task<GuildInvite> JoinAsync(string Code)
-        {
-            return await Client.JoinGuildAsync(Code);
-        }
-        public GuildInvite Join(string Code)
-        {
-            return JoinAsync(Code).GetAwaiter().GetResult();
         }
     }
 }
