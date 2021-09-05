@@ -133,7 +133,7 @@ namespace Discord.Commands
                 {
                     try
                     {
-                        args.Message.Channel.SendMessage("You must be in the whitelist to use me :(\nCheck the current whitelist with " + Prefix + "wl");
+                        args.Message.Channel.SendMessage("You must be in the whitelist to use me :sob:\nCheck the current admin list with " + Prefix + "info");
                     }
                     catch(DiscordHttpException) { }
                     return;

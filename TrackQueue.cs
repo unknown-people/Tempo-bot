@@ -55,7 +55,7 @@ namespace Music_user_bot
             displayMessage = false;
         }
 
-        public void Start()
+        public async void Start()
         {
             Running = true;
             //Not working due to DiscordHTTPException emoji not found
@@ -149,6 +149,7 @@ namespace Music_user_bot
                 }
             });
             */
+
             Thread track_queue = new Thread(async () =>
             {
                 FFseconds = 0;
@@ -186,7 +187,7 @@ namespace Music_user_bot
 
                     start_time = DateTime.Now;
                     pauseTimeSec = 0;
-                    string url = GetVideoUrl(currentSong.Id, currentChannel.Bitrate);
+                    string url = GetAudioUrl(currentSong.Id, currentChannel.Bitrate);
                     DiscordVoiceInput.current_time = 0;
                     DiscordVoiceInput.current_time_tracker = 0;
 
@@ -288,13 +289,30 @@ namespace Music_user_bot
             }
             return false;
         }
-
-        private string GetVideoUrl(string videoId, uint channelBitrate)
+        private string GetAudioUrl(string videoId, uint channelBitrate)
         {
             var manifest = Program.YouTubeClient.Videos.Streams.GetManifestAsync(videoId).Result;
 
             AudioOnlyStreamInfo bestStream = null;
             foreach (var stream in manifest.GetAudioOnlyStreams().OrderBy(s => s.Bitrate))
+            {
+                if (bestStream == null || stream.Bitrate > bestStream.Bitrate)
+                {
+                    bestStream = stream;
+
+                    if (stream.Bitrate.BitsPerSecond > channelBitrate)
+                        break;
+                }
+            }
+
+            return bestStream.Url;
+        }
+        private string GetVideoUrl(string videoId, uint channelBitrate)
+        {
+            var manifest = Program.YouTubeClient.Videos.Streams.GetManifestAsync(videoId).Result;
+
+            MuxedStreamInfo bestStream = null;
+            foreach (var stream in manifest.GetMuxedStreams().OrderBy(s => s.Bitrate))
             {
                 if (bestStream == null || stream.Bitrate > bestStream.Bitrate)
                 {

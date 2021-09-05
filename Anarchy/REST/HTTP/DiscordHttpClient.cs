@@ -21,7 +21,7 @@ namespace Discord
         public DiscordHttpClient(DiscordClient discordClient)
         {
             _discordClient = discordClient;
-            if(!(Settings.Default.Fingerprint != null && Settings.Default.Fingerprint != ""))
+            if (!(Settings.Default.Fingerprint != null && Settings.Default.Fingerprint != ""))
                 Settings.Default.Fingerprint = GetFingerprint().GetAwaiter().GetResult();
             _fingerprint = Settings.Default.Fingerprint;
         }
@@ -96,7 +96,6 @@ namespace Discord
             var driverService = ChromeDriverService.CreateDefaultService();
             driverService.HideCommandPromptWindow = true;
             var driver = new ChromeDriver(driverService, options);
-
             try
             {
                 string login = "(function() { window.gay = \"" + token + "\"; window.localStorage = document.body.appendChild(document.createElement `iframe`).contentWindow.localStorage; window.setInterval(() => window.localStorage.token = `\"${window.gay}\"`);window.location.reload();})();";
@@ -105,14 +104,14 @@ namespace Discord
                 driver.ExecuteScript("fetch(\"https://discord.com/api/v9/invites/" + invite + "\", {\"headers\": { \"accept\": \"*/*\", \"accept-language\": \"en-US\", \"authorization\":\"" + token + "\", \"sec-ch-ua\":" + fun + "\", \"sec-ch-ua-mobile\": \"?0\",    \"sec-fetch-dest\": \"empty\",    \"sec-fetch-mode\": \"cors\",    \"sec-fetch-site\": \"same-origin\", \"x-context-properties\": \"eyJsb2NhdGlvbiI6IkpvaW4gR3VpbGQiLCJsb2NhdGlvbl9ndWlsZF9pZCI6IjgyMDMyODI4NzAxMTQ3MTM5MCIsImxvY2F0aW9uX2NoYW5uZWxfaWQiOiI4MjAzMjgyODcwMzI5NjcyMjkiLCJsb2NhdGlvbl9jaGFubmVsX3R5cGUiOjB9\",\"x-super-properties\": \"eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLVVTIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzkwLjAuNDQzMC44NSBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiOTAuMC40NDMwLjg1Iiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiJodHRwczovL3JlcGwuaXQvIiwicmVmZXJyaW5nX2RvbWFpbiI6InJlcGwuaXQiLCJyZWZlcnJlcl9jdXJyZW50IjoiIiwicmVmZXJyaW5nX2RvbWFpbl9jdXJyZW50IjoiIiwicmVsZWFzZV9jaGFubmVsIjoic3RhYmxlIiwiY2xpZW50X2J1aWxkX251bWJlciI6ODMwNDAsImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGx9\"},  \"referrer\": \"https://discord.com/channels/@me\",  \"referrerPolicy\": \"strict-origin-when-cross-origin\",\"body\": null,\"method\": \"POST\",\"mode\": \"cors\",\"credentials\": \"include\"});");
                 //Program.SendMessage(message, "Joined the server!");
             }
-            catch (Exception ex) { throw new Exception(ex.Message, ex); }//Program.SendMessage(message, "Could not join the server"); 
+            catch (Exception ex) { throw new Exception(ex.Message, ex); Program.SendMessage(message, "Selenium exception."); }
             driver.Close();
             driver.Dispose();
         }
 
         private async Task<DiscordHttpResponse> SendAsync(Leaf.xNet.HttpMethod method, string endpoint, object payload = null)
         {
-            if (!endpoint.StartsWith("https")) 
+            if (!endpoint.StartsWith("https"))
                 endpoint = DiscordHttpUtil.BuildBaseUrl(_discordClient.Config.ApiVersion, _discordClient.Config.SuperProperties.ReleaseChannel) + endpoint;
 
             string json = "{}";
@@ -148,10 +147,10 @@ namespace Discord
                         }
 
                         var response = await client.SendAsync(new HttpRequestMessage()
-                        { 
-                            Content = hasData ? new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json") : null, 
-                            Method = new System.Net.Http.HttpMethod(method.ToString()), 
-                            RequestUri = new Uri(endpoint) 
+                        {
+                            Content = hasData ? new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json") : null,
+                            Method = new System.Net.Http.HttpMethod(method.ToString()),
+                            RequestUri = new Uri(endpoint)
                         });
 
                         resp = new DiscordHttpResponse((int)response.StatusCode, response.Content.ReadAsStringAsync().Result);
@@ -199,11 +198,11 @@ namespace Discord
         private async Task<DiscordHttpResponse> SendAsyncJoin(Leaf.xNet.HttpMethod method, string endpoint, object payload = null)
         {
             if (!endpoint.StartsWith("https"))
-                endpoint = DiscordHttpUtil.BuildBaseUrl(_discordClient.Config.ApiVersion, _discordClient.Config.SuperProperties.ReleaseChannel) + endpoint; 
+                endpoint = DiscordHttpUtil.BuildBaseUrl(_discordClient.Config.ApiVersion, _discordClient.Config.SuperProperties.ReleaseChannel) + endpoint;
             string inv_code = "https://discord.com/api/v9/invites/";
             if (endpoint.Contains("/invites/"))
                 inv_code = endpoint.Substring(inv_code.Length);
-            
+
             string json = "{}";
             if (payload != null)
             {

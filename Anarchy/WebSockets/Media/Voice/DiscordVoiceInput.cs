@@ -115,6 +115,45 @@ namespace Discord.Media
 
             return offset + OpusConverter.FrameBytes;
         }
+        public int WriteVideo(byte[] buffer, int offset)
+        {
+            if (_client.State < MediaConnectionState.Ready)
+                throw new InvalidOperationException("Client is not currently connected");
+
+            lock (_voiceLock)
+            {
+                if (_nextTick == -1)
+                    _nextTick = Environment.TickCount;
+                else
+                {
+                    long distance = _nextTick - Environment.TickCount;
+
+                    if (distance > 0)
+                        Thread.Sleep((int)distance);
+                }
+
+                byte[] opusFrame = new byte[OpusConverter.FrameBytes];
+                int frameSize = OpusConverter.FrameBytes;
+
+                frameSize = _encoder.EncodeFrame(buffer, offset, opusFrame, 0);
+
+                byte[] packet = new RTPPacketHeader()
+                {
+                    Type = DiscordMediaConnection.SupportedCodecs["H264"].PayloadType,
+                    Sequence = _sequence,
+                    Timestamp = _timestamp,
+                    SSRC = _client.Connection.SSRC.Video
+                }.Write(_client.Connection.SecretKey, opusFrame, 0, frameSize);
+
+                _client.Connection.UdpClient.Send(packet, packet.Length);
+
+                _nextTick += OpusConverter.TimeBetweenFrames;
+                _sequence++;
+                _timestamp += OpusConverter.FrameSamplesPerChannel;
+            }
+
+            return offset + OpusConverter.FrameBytes;
+        }
         public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 30)
         {
             if (_client.State < MediaConnectionState.Ready)
@@ -254,6 +293,99 @@ namespace Discord.Media
                         try
                         {
                             offset = Write(buffer, offset);
+                        }
+                        catch (Exception)
+                        {
+                            break;
+                        }
+                    }
+                    var ticks = 0;
+                    while (!isBufferReady)
+                    {
+                        Thread.Sleep(1);
+                        ticks++;
+                        if (ticks >= 1000)
+                            break;
+                    }
+                    while (buffer == buffer_next)
+                        Thread.Sleep(1);
+                    buffer = buffer_next;
+                    isBufferReady = false;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            while (!cancellationToken.IsCancellationRequested && !toBreak);
+            create_buffer_next.Abort();
+            return false;
+        }
+        public bool CopyFromVideo(string path_input, int duration, CancellationToken cancellationToken = default)
+        {
+            if (_client.State < MediaConnectionState.Ready)
+                throw new InvalidOperationException("Client is not currently connected");
+
+            _nextTick = -1;
+
+            path = path_input;
+            if (TrackQueue.pauseTimeSec > 0)
+            {
+                current_time = TrackQueue.pauseTimeSec - 1;
+            }
+
+            byte[] buffer = DiscordVoiceUtils.GetVideo(path, current_time, buffer_duration, TrackQueue.stream_volume, TrackQueue.speed);
+
+            bool isBufferReady = false;
+            Thread create_buffer_next = new Thread(() =>
+            {
+                while (true)
+                {
+                    isBufferReady = false;
+                    buffer_next = DiscordVoiceUtils.GetVideo(path, current_time, buffer_duration, TrackQueue.stream_volume, TrackQueue.speed);
+                    isBufferReady = true;
+                    while (isBufferReady)
+                        Thread.Sleep(1);
+                }
+            });
+            create_buffer_next.Priority = ThreadPriority.Highest;
+
+            bool toBreak = false;
+
+            do
+            {
+                try
+                {
+                    if (TrackQueue.isPaused)
+                    {
+                        create_buffer_next.Abort();
+                        return true;
+                    }
+                    current_time += (buffer_duration * TrackQueue.speed);
+                    if (!create_buffer_next.IsAlive)
+                        create_buffer_next.Start();
+
+                    if (current_time > duration)
+                        toBreak = true;
+
+                    int offset = 0;
+
+                    DateTime start = DateTime.Now;
+                    while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
+                    {
+                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged || TrackQueue.seekTo > 0)
+                        {
+                            create_buffer_next.Abort();
+                            return true;
+                        }
+                        if ((DateTime.Now - start).TotalSeconds * TrackQueue.speed > 1.0f)
+                        {
+                            current_time_tracker += 1;
+                            start = DateTime.Now;
+                        }
+                        try
+                        {
+                            offset = WriteVideo(buffer, offset);
                         }
                         catch (Exception)
                         {

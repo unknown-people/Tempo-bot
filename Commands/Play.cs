@@ -186,10 +186,10 @@ namespace Music_user_bot.Commands
                     isMuted = true;
 
                 if (voiceClient.Channel == null)
-                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false });
+                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false , Video = true});
 
                 if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
-                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false });
+                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false , Video = true});
                 else if (!list.Running)
                     list.Start();
                 else if(list.Running)

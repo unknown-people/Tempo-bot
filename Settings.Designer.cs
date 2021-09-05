@@ -36,7 +36,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ODQ2MTUwNTcyMjQzODEyMzcz.YKrVZw.Qy4PAdxTRN63lj4Kia2yJFGeAsI")]
+        [global::System.Configuration.DefaultSettingValueAttribute("ODQ2MTU2NjMwNDU4NzYxMjQ3.YKrbEQ.bLvCwIU5ZoCqbNyOnIWb1Qh_XNI")]
         public string Token {
             get {
                 return ((string)(this["Token"]));
@@ -60,7 +60,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[+]Tempo")]
+        [global::System.Configuration.DefaultSettingValueAttribute("[-]Tempo")]
         public string Username {
             get {
                 return ((string)(this["Username"]));
@@ -72,7 +72,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8x9afers46tllpw")]
+        [global::System.Configuration.DefaultSettingValueAttribute("pl3fy71c97i")]
         public string Password {
             get {
                 return ((string)(this["Password"]));
@@ -84,7 +84,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("+")]
+        [global::System.Configuration.DefaultSettingValueAttribute("-")]
         public string Prefix {
             get {
                 return ((string)(this["Prefix"]));

@@ -73,6 +73,36 @@ namespace Discord.Media
                 return memStream.ToArray();
             }
         }
+        public static Stream GetVideoStream(string path, float offset, int duration, int volume = 100, float speed = 1.0f)
+        {
+            if (!File.Exists("ffmpeg.exe"))
+                throw new FileNotFoundException("ffmpeg.exe was not found");
+
+            float volume_stream = (float)volume / 100;
+            if (TrackQueue.isEarrape)
+                volume_stream = volume;
+            string volume_string = volume_stream.ToString().Replace(',', '.');
+            var argument = @"-nostats -loglevel -8 " +
+                $"-i " + '"' + path + '"' + " -ac 2 -acodec copy -b:v 64k -r 30 -c:v copy -f h264 pipe:1";
+            var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = argument,
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            });
+            process.PriorityClass = ProcessPriorityClass.RealTime;
+            process.PriorityBoostEnabled = true;
+            return process.StandardOutput.BaseStream;
+        }
+        public static byte[] GetVideo(string path, float offset, int duration, int volume, float speed = 1.0f)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                GetVideoStream(path, offset, duration, volume, speed).CopyTo(memStream);
+                return memStream.ToArray();
+            }
+        }
         public static byte[] GetAudio(string path, float offset, int duration, int volume, float speed = 1.0f)
         {
             var stream = GetAudioStream(path, offset, duration, volume, speed);
