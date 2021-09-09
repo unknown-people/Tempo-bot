@@ -9,11 +9,13 @@ using Discord.Gateway;
 using Discord.Media;
 using YoutubeExplode;
 using System.IO;
-using System.Text;
+using System.ServiceProcess;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Auth.GG_Winform_Example;
 using System.Net;
+using System.ServiceProcess;
+using System.Diagnostics;
 
 namespace Music_user_bot
 {
@@ -80,16 +82,145 @@ namespace Music_user_bot
                 Settings.Default.Reload();
                 return;
             }
-            Console.Clear();
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             strWorkPath = Path.GetDirectoryName(strExeFilePath);
+            if (!IsServiceInstalled("UpdaterTempo"))
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "sc.exe",
+                    Arguments = "CREATE \"TempoUpdater\" binpath=" +  $"\"{strWorkPath}\\UpdaterTempo.exe\"",
+                });
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "sc.exe",
+                    Arguments = "config TempoUpdater start= auto"
+                });
+            }
+
+            while (true)
+            {
+                try
+                {
+                    ServiceController sc = new ServiceController("TempoUpdater");
+                    switch (sc.Status)
+                    {
+                        case ServiceControllerStatus.Stopped:
+                            sc.Start();
+                            break;
+                        case ServiceControllerStatus.Paused:
+                            sc.Continue();
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                catch(InvalidOperationException)
+                {
+                    continue;
+                }
+            }
+
+            Console.Clear();
+
             programFiles = Environment.ExpandEnvironmentVariables("%ProgramW6432%");
 
             var random = new string[] { };
             botToken = "";
-            if (isBot)
+
+            bool ask_settings = true;
+            try
+            {
+                if (args[0] == "-na")
+                {
+                    ask_settings = false;
+                }
+            }
+            catch (IndexOutOfRangeException) { }
+
+            while (ask_settings)
+            {
+                if (Settings.Default.Token == null || Settings.Default.Token == "")
+                {
+                    Console.WriteLine("Is it a user bot or a normal discord bot? [1 = user, 2 = bot]\n");
+                    var to_switch = int.Parse(Console.ReadLine());
+                    switch (to_switch)
+                    {
+                        case 1:
+                            isBot = false;
+                            break;
+                        case 2:
+                            isBot = true;
+                            break;
+                        default:
+                            Console.WriteLine("Please select 1 or 2");
+                            return;
+                    }
+                    Settings.Default.isBot = isBot;
+                    Console.Clear();
+
+                    Console.WriteLine("Insert your token here:");
+                    Settings.Default.Token = Console.ReadLine();
+                    Console.Clear();
+
+                    Console.WriteLine("Insert your user Id");
+                    if (ulong.TryParse(Console.ReadLine(), out var ownerId))
+                    {
+                        Settings.Default.OwnerId = ownerId;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please use a valid user Id");
+                        Console.ReadLine();
+                        return;
+                    }
+                    Console.Clear();
+                    if (!isBot)
+                    {
+                        Console.WriteLine("Please insert your account's password");
+                        Settings.Default.Password = Console.ReadLine();
+                        Console.Clear();
+                    }
+                    Settings.Default.Save();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Would you like to use the same settings as the last time? [1 = yes, 2 = no]");
+                    switch (int.Parse(Console.ReadLine()))
+                    {
+                        case 1:
+                            ask_settings = false;
+                            break;
+                        case 2:
+                            Settings.Default.Token = "";
+                            break;
+                        default:
+                            Console.WriteLine("Please select a valid answer! Press any key to continue...");
+                            Console.ReadLine();
+                            Console.Clear();
+                            break;
+                    }
+                }
+            }
+
+            if (Settings.Default.isBot)
             {
                 botToken += "Bot ";
+                if(Settings.Default.Dj_role == 0)
+                {
+                    Console.WriteLine("Please insert a role id to use for the dj role :)\nYou can change that later on!");
+                    if(ulong.TryParse(Console.ReadLine(), out var Dj_role))
+                    {
+                        Settings.Default.Dj_role = Dj_role;
+                        Settings.Default.Save();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please use a valid role id");
+                    }
+                }
             }
             botToken += Settings.Default.Token;
             Whitelist.ownerID = Settings.Default.OwnerId;
@@ -181,8 +312,21 @@ namespace Music_user_bot
         {
             TrackQueue.isEarrape = false;
 
-            if (isBot)
+            if (Settings.Default.isBot)
+            {
+                Console.WriteLine("Logged in");
+                var activity = new ActivityProperties();
+                activity.Type = ActivityType.Listening;
+                activity.Name = Settings.Default.Prefix + "help";
+
+                client.UpdatePresence(new PresenceProperties()
+                {
+                    Status = UserStatus.DoNotDisturb,
+                    Activity = activity
+                });
+
                 return;
+            }
             var path = strWorkPath + "\\propic.png";
             path = path.Replace('\\', '/');
             Bitmap bitmap = new Bitmap(path);
@@ -295,6 +439,18 @@ namespace Music_user_bot
             else
                 return false;
         }
+        public static bool IsServiceInstalled(string serviceName)
+        {
+            // get list of Windows services
+            ServiceController[] services = ServiceController.GetServices();
 
+            // try to find service name
+            foreach (ServiceController service in services)
+            {
+                if (service.ServiceName == serviceName)
+                    return true;
+            }
+            return false;
+        }
     }
 }

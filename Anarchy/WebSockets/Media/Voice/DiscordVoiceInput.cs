@@ -118,7 +118,8 @@ namespace Discord.Media
         public int WriteVideo(byte[] buffer, int offset)
         {
             if (_client.State < MediaConnectionState.Ready)
-                throw new InvalidOperationException("Client is not currently connected");
+                return 0;
+            int frameSize = OpusConverter.FrameBytes;
 
             lock (_voiceLock)
             {
@@ -132,18 +133,17 @@ namespace Discord.Media
                         Thread.Sleep((int)distance);
                 }
 
-                byte[] opusFrame = new byte[OpusConverter.FrameBytes];
-                int frameSize = OpusConverter.FrameBytes;
+                byte[] opusFrame = new byte[frameSize];
 
-                frameSize = _encoder.EncodeFrame(buffer, offset, opusFrame, 0);
-
+                Array.Copy(buffer, offset, opusFrame, 0, frameSize);
+                
                 byte[] packet = new RTPPacketHeader()
                 {
                     Type = DiscordMediaConnection.SupportedCodecs["H264"].PayloadType,
                     Sequence = _sequence,
                     Timestamp = _timestamp,
                     SSRC = _client.Connection.SSRC.Video
-                }.Write(_client.Connection.SecretKey, opusFrame, 0, frameSize);
+                }.Write(_client.Connection.SecretKey, opusFrame, 0, opusFrame.Length);
 
                 _client.Connection.UdpClient.Send(packet, packet.Length);
 
@@ -152,7 +152,7 @@ namespace Discord.Media
                 _timestamp += OpusConverter.FrameSamplesPerChannel;
             }
 
-            return offset + OpusConverter.FrameBytes;
+            return offset + frameSize;
         }
         public int CopyFrom(byte[] buffer, int offset = 0, CancellationToken cancellationToken = default, int streamDuration = 30)
         {
@@ -280,7 +280,7 @@ namespace Discord.Media
                     DateTime start = DateTime.Now;
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
-                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged || TrackQueue.seekTo > 0)
+                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged || TrackQueue.seekTo > 0 || TrackQueue.earrapeChanged)
                         {
                             create_buffer_next.Abort();
                             return true;

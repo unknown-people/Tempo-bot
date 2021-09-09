@@ -30,7 +30,8 @@ namespace Discord.Gateway
             }
             catch (KeyNotFoundException)
             {
-                throw new DiscordHttpException(new DiscordHttpError(DiscordError.UnknownGuild, "Guild was not found in the cache"));
+                //throw new DiscordHttpException(new DiscordHttpError(DiscordError.UnknownGuild, "Guild was not found in the cache"));
+                return null;
             }
         }
 

@@ -40,6 +40,7 @@ namespace Music_user_bot
         public static bool isEarrape { get; set; }
         public static bool isSilent { get; set; } = false;
         public static bool speedChanged = false;
+        public static bool earrapeChanged = false;
 
         private DiscordSocketClient _client;
         private ulong _guildId;
@@ -191,8 +192,12 @@ namespace Music_user_bot
                     DiscordVoiceInput.current_time = 0;
                     DiscordVoiceInput.current_time_tracker = 0;
 
-                    if (last_message != null)
-                        last_message.Delete();
+                    try
+                    {
+                        if (last_message != null)
+                            last_message.Delete();
+                    }
+                    catch (Exception) { }
                     last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title + "\n");
 
                     while (voiceClient.Microphone.CopyFrom( url, (int)duration.TotalSeconds, currentSong.CancellationTokenSource.Token))
@@ -212,6 +217,11 @@ namespace Music_user_bot
                         {
                             DiscordVoiceInput.current_time = TrackQueue.seekTo;
                             seekTo = 0;
+                            continue;
+                        }
+                        if (earrapeChanged)
+                        {
+                            earrapeChanged = false;
                             continue;
                         }
                         pauseTime = DateTime.Now;
@@ -311,8 +321,8 @@ namespace Music_user_bot
         {
             var manifest = Program.YouTubeClient.Videos.Streams.GetManifestAsync(videoId).Result;
 
-            MuxedStreamInfo bestStream = null;
-            foreach (var stream in manifest.GetMuxedStreams().OrderBy(s => s.Bitrate))
+            VideoOnlyStreamInfo bestStream = null;
+            foreach (var stream in manifest.GetVideoOnlyStreams().OrderBy(s => s.Bitrate))
             {
                 if (bestStream == null || stream.Bitrate > bestStream.Bitrate)
                 {

@@ -1,4 +1,5 @@
 ﻿using Leaf.xNet;
+using Music_user_bot;
 using Newtonsoft.Json;
 using System;
 using WebSocketSharp;
@@ -33,7 +34,14 @@ namespace Discord.WebSockets
 
         public void Connect()
         {
-            _socket.Connect();
+            try
+            {
+                _socket.Connect();
+            }
+            catch
+            {
+                Settings.Default.Token = null;
+            }
         }
 
         public void Close(ushort error, string reason)

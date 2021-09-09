@@ -36,7 +36,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ODQ2MTU2NjMwNDU4NzYxMjQ3.YKrbEQ.bLvCwIU5ZoCqbNyOnIWb1Qh_XNI")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Token {
             get {
                 return ((string)(this["Token"]));
@@ -48,7 +48,6 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("765627843614736385")]
         public ulong OwnerId {
             get {
                 return ((ulong)(this["OwnerId"]));
@@ -60,7 +59,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[-]Tempo")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Username {
             get {
                 return ((string)(this["Username"]));
@@ -72,7 +71,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("pl3fy71c97i")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Password {
             get {
                 return ((string)(this["Password"]));
@@ -84,7 +83,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Prefix {
             get {
                 return ((string)(this["Prefix"]));
@@ -174,6 +173,30 @@ namespace Music_user_bot {
             }
             set {
                 this["Fingerprint"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public ulong Dj_role {
+            get {
+                return ((ulong)(this["Dj_role"]));
+            }
+            set {
+                this["Dj_role"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool isBot {
+            get {
+                return ((bool)(this["isBot"]));
+            }
+            set {
+                this["isBot"] = value;
             }
         }
     }

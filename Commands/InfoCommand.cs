@@ -19,6 +19,11 @@ namespace Music_user_bot
     {
         public override void Execute()
         {
+            if (Program.BlockBotCommand(Message))
+            {
+                Message.Channel.SendMessage("You need to use a user token for this command to work properly");
+                return;
+            }
             string white_list = "Current whitelist:\n";
 
             DiscordClient client = new DiscordClient(Program.botToken);

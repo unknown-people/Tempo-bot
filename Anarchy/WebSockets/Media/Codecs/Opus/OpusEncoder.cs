@@ -74,5 +74,22 @@ namespace Discord.Media
             CheckError((OpusError)result);
             return result;
         }
+        public unsafe int EncodeFrameVideo(byte[] input, int inputOffset, byte[] output, int outputOffset)
+        {
+            int result = 0;
+            fixed (byte* inPtr = input)
+            fixed (byte* outPtr = output)
+                try
+                {
+                    if (outPtr != null && inPtr != null)
+                        result = Encode(_ptr, inPtr + inputOffset, FrameSamplesPerChannel, outPtr + outputOffset, output.Length - outputOffset);
+                }
+                catch (AccessViolationException)
+                {
+                    ;
+                }
+            CheckError((OpusError)result);
+            return result;
+        }
     }
 }

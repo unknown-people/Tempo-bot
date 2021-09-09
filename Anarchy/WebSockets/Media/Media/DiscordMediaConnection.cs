@@ -29,7 +29,9 @@ namespace Discord.Media
         internal static readonly Dictionary<string, MediaCodec> SupportedCodecs = new Dictionary<string, MediaCodec>()
         {
             { "opus", new MediaCodec() { Name = "opus", Type = CodecType.Audio, PayloadType = 120, Priority = 1000 } },
-            { "H264", new VideoMediaCodec() { Name = "H264", Type = CodecType.Video, PayloadType = 101, Priority = 1000, RtxPayloadType = 102 } }
+            { "H264", new VideoMediaCodec() { Name = "H264", Type = CodecType.Video, PayloadType = 101, Priority = 1000, RtxPayloadType = 102 } },
+            { "V8", new VideoMediaCodec() { Name = "V8", Type = CodecType.Video, PayloadType = 103, Priority = 2000, RtxPayloadType = 104 } },
+            {"V9", new VideoMediaCodec() {Name = "V9", Type = CodecType.Video, PayloadType = 105, Priority = 3000, RtxPayloadType = 106} }
         };
 
         public MediaConnectionState State { get; private set; }
@@ -47,7 +49,7 @@ namespace Discord.Media
 
         private readonly DiscordSocketClient _parentClient;
 
-        public DiscordMediaConnection(DiscordSocketClient parentClient, ulong serverId, DiscordMediaServer server) : base("wss://" + server.Endpoint + "?v=4") 
+        public DiscordMediaConnection(DiscordSocketClient parentClient, ulong serverId, DiscordMediaServer server) : base("wss://" + server.Endpoint + "?v=5") 
         {
             _parentClient = parentClient;
 

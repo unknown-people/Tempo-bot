@@ -1,4 +1,6 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
+using Discord.Gateway;
 using System;
 
 namespace Music_user_bot.Commands
@@ -18,7 +20,19 @@ namespace Music_user_bot.Commands
                     return;
                 }
                 Settings.Default.Prefix = new_prefix;
+                
                 CommandHandler.Prefix = new_prefix;
+
+                var activity = new ActivityProperties();
+                activity.Type = ActivityType.Listening;
+                activity.Name = Settings.Default.Prefix + "help";
+
+                Client.UpdatePresence(new PresenceProperties()
+                {
+                    Status = UserStatus.DoNotDisturb,
+                    Activity = activity
+                });
+
                 Program.SendMessage(Message, "prefix has been changed to: " + new_prefix);
             }
             catch (Exception)

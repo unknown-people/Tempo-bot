@@ -13,12 +13,9 @@ namespace Music_user_bot.Commands
                 Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
                 return;
             }
-            if (Program.BlockBotCommand(Message))
-            {
-                Program.SendMessage(Message, "You need to use a user token to execute this command!");
-                return;
-            }
+
             TrackQueue.isEarrape = !TrackQueue.isEarrape;
+            TrackQueue.earrapeChanged = true;
             if (TrackQueue.isEarrape)
             {
                 Program.SendMessage(Message, "You are now in earrape mode");

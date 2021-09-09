@@ -48,17 +48,35 @@ namespace Discord.Commands
         {
             if (args.Message.Content.StartsWith(Prefix.ToLower()) || args.Message.Content.StartsWith(Prefix.ToUpper()))
             {
-                if (Settings.Default.WhiteList == null)
+                bool can_interact = false;
+                if (!Program.isBot)
                 {
-                    Whitelist.white_list = new System.Collections.Specialized.StringCollection();
+                    if (Settings.Default.WhiteList == null)
+                    {
+                        Whitelist.white_list = new System.Collections.Specialized.StringCollection();
+                    }
+                    if (Settings.Default.Admins == null)
+                    {
+                        Admin.admins = new System.Collections.Specialized.StringCollection();
+                    }
+                    var WhiteList = CollectionToList(Whitelist.white_list);
+                    var admins = CollectionToList(Admin.admins);
+                    can_interact = (WhiteList.Any(x => x == args.Message.Author.User.Id)) || (admins.Any(x => x == args.Message.Author.User.Id));
                 }
-                if (Settings.Default.Admins == null)
+                else
                 {
-                    Admin.admins = new System.Collections.Specialized.StringCollection();
+                    var roles = args.Message.Guild.GetMember(args.Message.Author.User.Id).Roles;
+                    foreach (var role in roles)
+                    {
+                        if(Settings.Default.Dj_role == role)
+                        {
+                            can_interact = true;
+                            break;
+                        }
+                    }
                 }
-                var WhiteList = CollectionToList(Whitelist.white_list);
-                var admins = CollectionToList(Admin.admins);
-                if ((WhiteList.Any(x => x == args.Message.Author.User.Id)) || (admins.Any(x => x == args.Message.Author.User.Id)) || args.Message.Author.User.Id == Whitelist.ownerID || args.Message.Content.StartsWith(Prefix + "wl"))
+
+                if ( can_interact || args.Message.Author.User.Id == Whitelist.ownerID || args.Message.Content.StartsWith(Prefix + "wl"))
                 {
                     var buffer_array = args.Message.Content.Split(' ');
                     if(buffer_array[0].Substring(Prefix.Length) == "p")
@@ -133,9 +151,12 @@ namespace Discord.Commands
                 {
                     try
                     {
-                        args.Message.Channel.SendMessage("You must be in the whitelist to use me :sob:\nCheck the current admin list with " + Prefix + "info");
+                        if(!Program.isBot)
+                            args.Message.Channel.SendMessage("You must be in the whitelist to use me :sob:\nCheck the current admin list with " + Prefix + "info");
+                        else
+                            args.Message.Channel.SendMessage("You must have the dj role to use me :sob:\n");
                     }
-                    catch(DiscordHttpException) { }
+                    catch (DiscordHttpException) { }
                     return;
                 }
             }

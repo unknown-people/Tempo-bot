@@ -60,7 +60,7 @@ namespace Discord.Media
             Connection.OnReady += (c) =>
             {
                 Microphone = new DiscordVoiceInput(this);
-
+                
                 Connection.SetSSRC(Connection.SSRC.Audio);
                 _client.TriggerVCConnect(this);
             };
