@@ -1,13 +1,10 @@
 ﻿using System;
 using Discord.Commands;
 using Discord;
-
-using Discord.Media;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 namespace Music_user_bot.Commands
 {
@@ -18,28 +15,39 @@ namespace Music_user_bot.Commands
         public string invite { get; set; }
         public override void Execute()
         {
-            if (Message.Author.User.Id == Whitelist.ownerID)
+            if (!Program.isOwner(Message))
             {
-                try
-                {
-                    var invite_code = Regex.Replace(invite, "https://discord.gg/", string.Empty, RegexOptions.IgnoreCase);
-
-                    DiscordHttpClient.JoinGuild(Client.Token, invite_code , Message);
-
-                    var guildId = ulong.Parse(GetInviteGuildAsync(invite_code).GetAwaiter().GetResult());
-
-                    if (IsInGuild(Client, guildId))
-                        Program.SendMessage(Message, "Succesfully joined the guild");
-                    else
-                        throw new DiscordHttpException(new DiscordHttpError());
-                }
-                catch(Exception) {
-                    Program.SendMessage(Message, "Couldn't join guild.\n\nUsage: " + CommandHandler.Prefix + "joinserver [invite/code]");
-                }
+                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                return;
             }
-            else
+            if (Program.BlockBotCommand(Message))
             {
-                Program.SendMessage(Message, "You must be the owner to join guilds");
+                Program.SendMessage(Message, "You need to use a user token to execute this command!");
+                return;
+            }
+            try
+            {
+                var invite_code = Regex.Replace(invite, "https://discord.gg/", string.Empty, RegexOptions.IgnoreCase);
+
+                var guildId = ulong.Parse(GetInviteGuildAsync(invite_code).GetAwaiter().GetResult());
+
+                if (IsInGuild(Client, guildId))
+                    Program.SendMessage(Message, "You're already in the guild");
+                else
+                    throw new DiscordHttpException(new DiscordHttpError());
+
+
+                DiscordHttpClient.JoinGuild(Client.Token, invite_code, Message);
+
+
+                if (IsInGuild(Client, guildId))
+                    Program.SendMessage(Message, "Succesfully joined the guild");
+                else
+                    throw new DiscordHttpException(new DiscordHttpError());
+            }
+            catch (Exception)
+            {
+                Program.SendMessage(Message, "Couldn't join guild.\n\nUsage: " + CommandHandler.Prefix + "joinserver [invite/code]");
             }
         }
         public async Task<string> GetInviteGuildAsync(string inv_code)

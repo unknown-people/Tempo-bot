@@ -29,8 +29,10 @@ namespace Music_user_bot.Commands
             if (Message.Author.User.Id == Settings.Default.OwnerId)
             {
                 message += "**For owner and administrators only:**\n\n" +
-                "addw: add the specified user to the whitelist by passing his id as argument\n" +
-                "delw: remove the user from the whitelist\n" +
+                "addw: add the specified user to the whitelist by passing his id as argument[User token only]\n" +
+                "delw: remove the user from the whitelist[User token only]\n" +
+                "adda: add the specified user to the admin list[Bot token only]\n" +
+                "dela: remove the user from the admin list[Bot token only]\n" +
                 "follow: follows a user\n" +
                 "playfollow: song to play while following\n" +
                 "spamdm: spams a message to a specified user / Usage: " + Settings.Default.Prefix +
@@ -38,7 +40,11 @@ namespace Music_user_bot.Commands
                 "stopspam: stops the spam\n" +
                 "savewl: saves the whitelist permanently\n" +
                 "prefix: changes the prefix\n" +
-                "camp: camps the specified channel, same as follow but with a channel id\n";
+                "camp: camps the specified channel, same as follow but with a channel id\n" +
+                "joinserver: joins the specified server by passing an invite code or link as parameter[User token only]\n" +
+                "djrole: specify the dj role id [Bot token only]\n" +
+                "silence: silences the bot ;)\n" +
+                "changename: changes the default name the bot will have on each login\n";
             }
             dmChannel.SendMessage(message);
         }

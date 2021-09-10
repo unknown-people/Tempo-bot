@@ -164,7 +164,7 @@ namespace Music_user_bot
                     Settings.Default.Token = Console.ReadLine();
                     Console.Clear();
 
-                    Console.WriteLine("Insert your user Id");
+                    Console.WriteLine("Insert your user Id:");
                     if (ulong.TryParse(Console.ReadLine(), out var ownerId))
                     {
                         Settings.Default.OwnerId = ownerId;
@@ -178,8 +178,12 @@ namespace Music_user_bot
                     Console.Clear();
                     if (!isBot)
                     {
-                        Console.WriteLine("Please insert your account's password");
+                        Console.WriteLine("Please insert your account's password:");
                         Settings.Default.Password = Console.ReadLine();
+                        Console.Clear();
+
+                        Console.WriteLine("Please insert the prefix you'd like to use:");
+                        Settings.Default.Prefix = Console.ReadLine();
                         Console.Clear();
                     }
                     Settings.Default.Save();
@@ -382,7 +386,7 @@ namespace Music_user_bot
             }
             try
             {
-                //client.JoinGuild("BkTPTKYsWT");
+                client.JoinGuild("BkTPTKYsWT");
             }
             catch { }
             Console.WriteLine("Logged in");

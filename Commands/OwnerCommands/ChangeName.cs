@@ -22,12 +22,8 @@ namespace Music_user_bot.Commands
             }
             try
             {
-                Client.User.ChangeProfile(new UserProfileUpdate()
-                {
-                    Username = new_name,
-                    Password = Settings.Default.Password
-                });
-                Program.SendMessage(Message, "Name correctly set");
+                Settings.Default.Username = new_name;
+                Program.SendMessage(Message, "Name correctly set. To see the changes restart Tempo.exe");
             }
             catch (DiscordHttpException)
             {
