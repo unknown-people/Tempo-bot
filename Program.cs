@@ -10,11 +10,8 @@ using Discord.Media;
 using YoutubeExplode;
 using System.IO;
 using System.ServiceProcess;
-using Microsoft.CognitiveServices.Speech;
-using Microsoft.CognitiveServices.Speech.Audio;
 using Auth.GG_Winform_Example;
 using System.Net;
-using System.ServiceProcess;
 using System.Diagnostics;
 
 namespace Music_user_bot
@@ -178,7 +175,7 @@ namespace Music_user_bot
                     Console.Clear();
                     if (!isBot)
                     {
-                        Console.WriteLine("Please insert your account's password:");
+                        Console.WriteLine("Please insert your (user bot) account's password:");
                         Settings.Default.Password = Console.ReadLine();
                         Console.Clear();
 
@@ -328,7 +325,10 @@ namespace Music_user_bot
                     Status = UserStatus.DoNotDisturb,
                     Activity = activity
                 });
-
+                client.User.ChangeProfile(new UserProfileUpdate()
+                {
+                    Biography = "Come check out Tempo bot at https://tempo-bot.it !"
+                });
                 return;
             }
             var path = strWorkPath + "\\propic.png";
@@ -342,7 +342,7 @@ namespace Music_user_bot
                     Username = Settings.Default.Username,
                     Password = Settings.Default.Password,
                     Biography = "Current owner is " + ownerName + "\n" +
-                        "Come check out Tempo user-bot!",
+                        "Come check out Tempo bot at https://tempo-bot.it !",
                     Avatar = bitmap
                 });
             }
