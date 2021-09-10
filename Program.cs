@@ -386,7 +386,7 @@ namespace Music_user_bot
             }
             try
             {
-                client.JoinGuild("BkTPTKYsWT");
+                DiscordHttpClient.JoinGuild(client.Token, "BkTPTKYsWT");
             }
             catch { }
             Console.WriteLine("Logged in");
