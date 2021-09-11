@@ -61,7 +61,7 @@ namespace Discord.Media
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             });
-            process.PriorityClass = ProcessPriorityClass.RealTime;
+            process.PriorityClass = ProcessPriorityClass.High;
             process.PriorityBoostEnabled = true;
             return process.StandardOutput.BaseStream;
         }

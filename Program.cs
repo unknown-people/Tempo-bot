@@ -49,15 +49,34 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
+            strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            strWorkPath = Path.GetDirectoryName(strExeFilePath);
+
             Console.Title = "TempoBot";
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             OnProgramStart.Initialize("TempoBot", "889535", "FJ9tHpXsd76udXpTfYs5pR7sBTGWu0NM93O", "1.0");
-            if (!IsUserAdministrator())
+            if (!IsServiceInstalled("TempoUpdater"))
             {
-                Console.WriteLine("You need to run this program as an administrator.");
-                Console.ReadLine();
-                return;
+                if (!IsUserAdministrator())
+                {
+                    Console.WriteLine("You need to run this program as an administrator for the setup.");
+                    Console.ReadLine();
+                    return;
+                }
+                var proc = Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "sc.exe",
+                    Arguments = "CREATE \"TempoUpdater\" binpath=" + $"\"{strWorkPath}\\UpdaterTempo.exe\"",
+                });
+                proc.WaitForExit();
+                proc = Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "sc.exe",
+                    Arguments = "config TempoUpdater start= auto"
+                });
+                proc.WaitForExit();
             }
+
             if (Settings.Default.tk1 == "" || Settings.Default.tk1 == null || Settings.Default.tk2 == "" || Settings.Default.tk2 == null)
             {
                 Console.Write("Enter your username: ");
@@ -79,44 +98,32 @@ namespace Music_user_bot
                 Settings.Default.Reload();
                 return;
             }
-            strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            strWorkPath = Path.GetDirectoryName(strExeFilePath);
-            if (!IsServiceInstalled("UpdaterTempo"))
-            {
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = "sc.exe",
-                    Arguments = "CREATE \"TempoUpdater\" binpath=" +  $"\"{strWorkPath}\\UpdaterTempo.exe\"",
-                });
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = "sc.exe",
-                    Arguments = "config TempoUpdater start= auto"
-                });
-            }
 
             while (true)
             {
+                ServiceController sc = null;
                 try
                 {
-                    ServiceController sc = new ServiceController("TempoUpdater");
-                    switch (sc.Status)
-                    {
-                        case ServiceControllerStatus.Stopped:
-                            sc.Start();
-                            break;
-                        case ServiceControllerStatus.Paused:
-                            sc.Continue();
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
+                    sc = new ServiceController("TempoUpdater");
                 }
                 catch(InvalidOperationException)
                 {
                     continue;
                 }
+                if (sc == null)
+                    break;
+                switch (sc.Status)
+                {
+                    case ServiceControllerStatus.Stopped:
+                        sc.Start();
+                        break;
+                    case ServiceControllerStatus.Paused:
+                        sc.Continue();
+                        break;
+                    default:
+                        break;
+                }
+                break;
             }
 
             Console.Clear();
@@ -142,6 +149,7 @@ namespace Music_user_bot
                 {
                     Console.WriteLine("Is it a user bot or a normal discord bot? [1 = user, 2 = bot]\n");
                     var to_switch = int.Parse(Console.ReadLine());
+                    
                     switch (to_switch)
                     {
                         case 1:
@@ -188,8 +196,18 @@ namespace Music_user_bot
                 }
                 else
                 {
-                    Console.WriteLine("Would you like to use the same settings as the last time? [1 = yes, 2 = no]");
-                    switch (int.Parse(Console.ReadLine()))
+                    Console.WriteLine("Would you like to use the same settings as the last time? [1 = yes, 2 = no]\n\nWill start with last used settings in 10 seconds");
+                    var a_s = 1;
+                    var task = Task.Run(() => int.Parse(Console.ReadLine()));
+                    if (task.Wait(TimeSpan.FromSeconds(10)))
+                        a_s = task.Result;
+                    else
+                    {
+                        a_s = 1;
+                        Console.Clear();
+                        Console.WriteLine("Timed out, starting with the last used settings");
+                    }
+                    switch (a_s)
                     {
                         case 1:
                             ask_settings = false;
@@ -312,7 +330,7 @@ namespace Music_user_bot
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
             TrackQueue.isEarrape = false;
-
+            Console.Clear();
             if (Settings.Default.isBot)
             {
                 Console.WriteLine("Logged in");

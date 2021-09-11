@@ -856,7 +856,7 @@ namespace Auth.GG_Winform_Example
             DateTime dt1 = DateTime.Parse(date); //time sent
             DateTime dt2 = DateTime.Now; //time received
             TimeSpan d3 = dt1 - dt2;
-            if (Convert.ToInt32(d3.Seconds.ToString().Replace("-", "")) >= 5 || Convert.ToInt32(d3.Minutes.ToString().Replace("-", "")) >= 1)
+            if (Convert.ToInt32(d3.Seconds.ToString().Replace("-", "")) >= 30 || Convert.ToInt32(d3.Minutes.ToString().Replace("-", "")) >= 1)
             {
                 Constants.Breached = true;
                 return true;
