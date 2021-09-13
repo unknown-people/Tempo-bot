@@ -8,10 +8,10 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>Tempo</AssemblyName>
-    <AssemblyVersion>1.0.0.6</AssemblyVersion>
+    <AssemblyVersion>1.0.0.7</AssemblyVersion>
     <Copyright>Unknown People</Copyright>
     <Version>1.0.0</Version>
-    <FileVersion>1.0.0.6</FileVersion>
+    <FileVersion>1.0.0.7</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

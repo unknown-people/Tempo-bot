@@ -88,7 +88,7 @@ namespace Music_user_bot.Commands
             {
                 Url = Url.Replace("https://open.spotify.com/track/", "");
                 Url = Url.Split('?')[0];
-                Url = Spotify.GetTrack(Url);
+                Url = Spotify.GetTrack(Url) + " lyrics";
             }
             if (Url.Contains("spotify.com/playlist"))
             {
@@ -135,7 +135,7 @@ namespace Music_user_bot.Commands
 
             if (spoti_playlist != null)
             {
-                Proxy proxy = Proxy.GetFirstWorkingProxy();
+                Proxy proxy = Proxy.GetFirstWorkingProxy("https://www.youtube.com");
                 var httpClient = new HttpClient();
                 HttpClientHandler handler;
                 if (proxy != null)
@@ -153,7 +153,7 @@ namespace Music_user_bot.Commands
                 {
                     list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
                 }
-                VideoSearchResult video = youtube.Search.GetVideo(spoti_playlist[0]);
+                VideoSearchResult video = youtube.Search.GetVideo(spoti_playlist[0] + " lyrics");
                 list.Tracks.Add(new AudioTrack(video.Id));
 
                 if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel == null || voiceClient.Channel.Id != channel.Id)
@@ -179,7 +179,7 @@ namespace Music_user_bot.Commands
                     {
                         try
                         {
-                            video = youtube.Search.GetVideo(spoti_playlist[i]);
+                            video = youtube.Search.GetVideo(spoti_playlist[i] + " lyrics");
 
                             track = new AudioTrack(video);
 
@@ -189,7 +189,7 @@ namespace Music_user_bot.Commands
                         }
                         catch
                         {
-                            proxy = Proxy.GetFirstWorkingProxy();
+                            proxy = Proxy.GetFirstWorkingProxy("https://www.youtube.com");
                             httpClient = new HttpClient();
                             if (proxy != null)
                             {
@@ -229,7 +229,7 @@ namespace Music_user_bot.Commands
 
                 list_video.Tracks.Add(new AudioTrack(playlist[0].Id));
 
-                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
+                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel == null || voiceClient.Channel.Id != channel.Id)
                     voiceClient.Connect(channel.Id, new VoiceConnectionProperties() {Muted = true, Deafened = false });
                 else if (!list_video.Running)
                     list_video.Start();
@@ -289,10 +289,7 @@ namespace Music_user_bot.Commands
                 if (TrackQueue.isSilent)
                     isMuted = true;
 
-                if (voiceClient.Channel == null)
-                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false});
-
-                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
+                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel == null || voiceClient.Channel.Id != channel.Id)
                     voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false});
                 else if (!list.Running)
                     list.Start();

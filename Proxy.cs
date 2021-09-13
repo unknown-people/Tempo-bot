@@ -15,8 +15,13 @@ namespace Music_user_bot
         public string _ip { get; private set; }
         public string _port { get; private set; }
         public static List<Proxy> working_proxies { get; set; }
+        public static List<Proxy> ssl_working_proxies { get; set; }
+
         public static string proxies_file_path { get; set; }
+        public static string ssl_proxies_file_path { get; set; }
+
         public const string proxies_txt = "http_proxies.txt";
+        public const string ssl_proxies_txt = "https_proxies.txt";
         public Proxy(string ip, string port)
         {
             _ip = ip;
@@ -51,7 +56,7 @@ namespace Music_user_bot
 
             request.Proxy = new WebProxy(proxy._ip, int.Parse(proxy._port));
             request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36";
-            request.Timeout = 2000;
+            request.Timeout = 500;
 
             try
             {
@@ -63,7 +68,7 @@ namespace Music_user_bot
             }
             return true;
         }
-        public static void GetProxies()
+        public static void GetProxies(string url)
         {
             if (working_proxies == null)
                 working_proxies = new List<Proxy>() { };
@@ -71,7 +76,7 @@ namespace Music_user_bot
             {
                 Directory.CreateDirectory(Program.strWorkPath + @"\proxies");
             }
-            proxies_file_path = Program.strWorkPath + @"\proxies\" + proxies_txt;
+            proxies_file_path = Program.strWorkPath + @"\proxies\" + url.Replace("https://", "") + "." + proxies_txt ;
 
             while (true)
             {
@@ -85,17 +90,44 @@ namespace Music_user_bot
 
             using (var client = new WebClient())
             {
-                client.DownloadFile("https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=2000&country=all&ssl=all&anonymity=all&simplified=true", proxies_file_path);
+                client.DownloadFile("https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=500&country=all&ssl=all&anonymity=all&simplified=true", proxies_file_path);
             }
-            FilterProxies(proxies_file_path);
+            FilterProxies(proxies_file_path, url);
         }
-        public static void FilterProxies()
+        public static void GetSSLProxies(string url)
+        {
+            if (ssl_working_proxies == null)
+                ssl_working_proxies = new List<Proxy>() { };
+            if (!Directory.Exists(Program.strWorkPath + @"\proxies"))
+            {
+                Directory.CreateDirectory(Program.strWorkPath + @"\proxies");
+            }
+            
+            ssl_proxies_file_path = Program.strWorkPath + @"\proxies\" + url.Replace("https://", "") + "." + ssl_proxies_txt ;
+
+            while (true)
+            {
+                try
+                {
+                    File.Delete(ssl_proxies_file_path);
+                    break;
+                }
+                catch { Thread.Sleep(100); }
+            }
+
+            using (var client = new WebClient())
+            {
+                client.DownloadFile("https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=500&country=all&ssl=yes&anonymity=all&simplified=true", ssl_proxies_file_path);
+            }
+            FilterSSLProxies(ssl_proxies_file_path, url);
+        }
+        public static void FilterProxies(string url)
         {
             int i = 0;
             var buffer_proxies = working_proxies;
             foreach(Proxy proxy in working_proxies)
             {
-                if (!TestProxy("https://www.youtube.com/", proxy))
+                if (!TestProxy(url, proxy))
                 {
                     buffer_proxies.RemoveAt(i);
                 }
@@ -103,29 +135,93 @@ namespace Music_user_bot
             }
             working_proxies = buffer_proxies;
         }
-        public static void FilterProxies(string file_path)
+        public static void FilterSSLProxies(string url)
+        {
+            int i = 0;
+            var buffer_proxies = ssl_working_proxies;
+            foreach (Proxy proxy in ssl_working_proxies)
+            {
+                if (!TestProxy(url, proxy))
+                {
+                    buffer_proxies.RemoveAt(i);
+                }
+                i++;
+            }
+            ssl_working_proxies = buffer_proxies;
+        }
+        public static void FilterProxies(string file_path, string url)
         {
             using (var sr = new StreamReader(file_path))
             {
-                string proxy_string = sr.ReadLine();
-                Proxy proxy = new Proxy(proxy_string.Split(':')[0], proxy_string.Split(':')[1]);
-                if (TestProxy("https://www.youtube.com/", proxy))
+                while (true)
                 {
-                    working_proxies.Add(proxy);
+                    try
+                    {
+                        string proxy_string = sr.ReadLine();
+                        if (proxy_string == null)
+                        {
+                            return;
+                        }
+                        Proxy proxy = new Proxy(proxy_string.Split(':')[0], proxy_string.Split(':')[1]);
+                        if (TestProxy(url, proxy))
+                        {
+                            working_proxies.Add(proxy);
+                            if (working_proxies.Count >= 5)
+                                return;
+                        }
+                    }
+                    catch { break; }
                 }
             }
         }
-        public static Proxy GetFirstWorkingProxy()
+        public static void FilterSSLProxies(string file_path, string url)
+        {
+            using (var sr = new StreamReader(file_path))
+            {
+                while (true)
+                {
+                    try
+                    {
+                        string proxy_string = sr.ReadLine();
+                        if (proxy_string == null)
+                        {
+                            return;
+                        }
+                        Proxy proxy = new Proxy(proxy_string.Split(':')[0], proxy_string.Split(':')[1]);
+                        if (TestProxy(url, proxy))
+                        {
+                            ssl_working_proxies.Add(proxy);
+                            if (working_proxies.Count >= 5)
+                                return;
+                        }
+                    }
+                    catch { break; }
+                }
+            }
+        }
+        public static Proxy GetFirstWorkingProxy(string url)
         {
             foreach(Proxy proxy in working_proxies)
             {
-                if (TestProxy("https://www.youtube.com/", proxy))
+                if (TestProxy(url, proxy))
                 {
-                    Task.Run(FilterProxies);
+                    Task.Run(() => FilterProxies(url));
                     return proxy;
                 }
             }
-            Task.Run(FilterProxies);
+            Task.Run(() => GetProxies(url));
+            return null;
+        }
+        public static Proxy GetFirstWorkingSSLProxy(string url)
+        {
+            foreach (Proxy proxy in ssl_working_proxies)
+            {
+                if (TestProxy(url, proxy))
+                {
+                    return proxy;
+                }
+            }
+            Task.Run(() => GetSSLProxies(url));
             return null;
         }
     }

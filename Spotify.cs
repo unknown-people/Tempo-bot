@@ -30,6 +30,8 @@ namespace Music_user_bot
         }
         public static string GetTrack(string track_id)
         {
+            if (spotify == null)
+                Login().GetAwaiter().GetResult();
             var tracks = spotify.Tracks;
             var track = tracks.Get(track_id).GetAwaiter().GetResult();
             var youtube_query = track.Artists[0].Name + " - " + track.Name;

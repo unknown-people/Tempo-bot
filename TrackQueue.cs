@@ -44,6 +44,7 @@ namespace Music_user_bot
         public static bool earrapeChanged = false;
         public static bool isStopping { get; set; }
         public static bool isAddingTracks { get; set; }
+        public static bool isVolumeChanged { get; internal set; }
 
         private DiscordSocketClient _client;
         private ulong _guildId;
@@ -184,7 +185,7 @@ namespace Music_user_bot
 
                     VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
 
-                    Proxy proxy = Proxy.GetFirstWorkingProxy();
+                    Proxy proxy = Proxy.GetFirstWorkingProxy("https://www.youtube.com");
                     var httpClient = new HttpClient();
                     HttpClientHandler handler;
                     if (proxy != null)
@@ -243,6 +244,11 @@ namespace Music_user_bot
                         if (earrapeChanged)
                         {
                             earrapeChanged = false;
+                            continue;
+                        }
+                        if (isVolumeChanged)
+                        {
+                            isVolumeChanged = false;
                             continue;
                         }
                         pauseTime = DateTime.Now;

@@ -280,7 +280,7 @@ namespace Discord.Media
                     DateTime start = DateTime.Now;
                     while (offset < buffer.Length && !cancellationToken.IsCancellationRequested)
                     {
-                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged || TrackQueue.seekTo > 0 || TrackQueue.earrapeChanged)
+                        if (TrackQueue.isPaused || TrackQueue.FFseconds > 0 || TrackQueue.speedChanged || TrackQueue.seekTo > 0 || TrackQueue.earrapeChanged || TrackQueue.isVolumeChanged)
                         {
                             create_buffer_next.Abort();
                             return true;

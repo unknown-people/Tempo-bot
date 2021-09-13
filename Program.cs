@@ -327,24 +327,14 @@ namespace Music_user_bot
                 TrackQueue.isPaused = false;
             }
         }
-
-        private static void OnElapsedTimeSpotify(object source, ElapsedEventArgs e)
-        {
-            Task.Run(Spotify.Login);
-        }
         private static void OnElapsedTimeProxies(object source, ElapsedEventArgs e)
         {
-            Task.Run(Proxy.GetProxies);
+            Task.Run(() => Proxy.GetProxies("https://www.youtube.com"));
         }
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
             Task.Run(Spotify.Login);
-            Task.Run(Proxy.GetProxies);
-
-            System.Timers.Timer timer_sp_login = new System.Timers.Timer();
-            timer_sp_login.Elapsed += new ElapsedEventHandler(OnElapsedTimeSpotify);
-            timer_sp_login.Interval = 60 * 60 * 1000;
-            timer_sp_login.Enabled = true;
+            Task.Run(() => Proxy.GetProxies("https://www.youtube.com"));
 
             System.Timers.Timer timer_fetch_proxies = new System.Timers.Timer();
             timer_fetch_proxies.Elapsed += new ElapsedEventHandler(OnElapsedTimeProxies);

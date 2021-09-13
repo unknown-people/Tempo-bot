@@ -24,8 +24,14 @@ namespace Music_user_bot
                 var embed = new EmbedMaker() { Title = "Current queue" };
                 try
                 {
+                    int index = 0;
                     foreach (var song in list.Tracks)
+                    {
+                        if (index >= 30)
+                            break;
                         embed.AddField(song.Title, (song == list.Tracks[0] ? " *(Currently playing)*" : ""));
+                        index++;
+                    }
                 }
                 catch (Exception) { }
                 Message.Channel.SendMessage(embed);
@@ -36,6 +42,8 @@ namespace Music_user_bot
                 int index = 1;
                 foreach(var song in list.Tracks)
                 {
+                    if (index >= 30)
+                        break;
                     message += "**[" + index + "]**" + song.Title + ";\n";
                     index += 1;
                 }

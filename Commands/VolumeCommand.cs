@@ -12,6 +12,7 @@ namespace Music_user_bot.Commands
             if(volume > 0 && volume <= 200)
             {
                 TrackQueue.stream_volume = volume;
+                TrackQueue.isVolumeChanged = true;
                 Program.SendMessage(Message, "Current volume is now set to " + volume.ToString() + "%");
             }
             else
