@@ -17,13 +17,8 @@ namespace Music_user_bot
 
             if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
 
-            foreach (var entry in channel.PermissionOverwrites)
-            {
-                if (entry.AffectedId == Message.Author.User.Id)
-                {
-                    canSendEmbed = entry.GetPermissionState(DiscordPermission.EmbedLinks) == OverwrittenPermissionState.Allow;
-                }
-            }
+            canSendEmbed = CanSendEmbed(channel);
+
             if (canSendEmbed)
             {
                 var embed = new EmbedMaker() { Title = "Current queue" };

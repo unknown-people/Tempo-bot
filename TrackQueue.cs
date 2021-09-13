@@ -11,6 +11,7 @@ using System.IO;
 using System.Threading;
 using YoutubeExplode.Videos;
 using System.Text;
+using System.Net.Http;
 
 namespace Music_user_bot
 {
@@ -41,6 +42,8 @@ namespace Music_user_bot
         public static bool isSilent { get; set; } = false;
         public static bool speedChanged = false;
         public static bool earrapeChanged = false;
+        public static bool isStopping { get; set; }
+        public static bool isAddingTracks { get; set; }
 
         private DiscordSocketClient _client;
         private ulong _guildId;
@@ -162,6 +165,12 @@ namespace Music_user_bot
 
                 while (voiceClient.State == MediaConnectionState.Ready && Tracks.Count > 0)
                 {
+                    if (isStopping)
+                    {
+                        Tracks = new List<AudioTrack>();
+                        isStopping = false;
+                        continue;
+                    }
                     if (Program.TrackLists.TryGetValue(_guildId, out var list) && goToIndex > 0)
                     {
                         for (int i = 0; i < goToIndex - 2; i++)
@@ -175,7 +184,19 @@ namespace Music_user_bot
 
                     VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
 
-                    var youtube = new YoutubeClient();
+                    Proxy proxy = Proxy.GetFirstWorkingProxy();
+                    var httpClient = new HttpClient();
+                    HttpClientHandler handler;
+                    if (proxy != null)
+                    {
+                        handler = new HttpClientHandler()
+                        {
+                            Proxy = new System.Net.WebProxy("http://" + proxy._ip + ":" + proxy._port),
+                            UseProxy = true
+                        };
+                        httpClient = new HttpClient(handler);
+                    }
+                    var youtube = new YoutubeClient(httpClient);
 
                     currentVideo = await youtube.Videos.GetAsync(currentSong.Id);
                     displayMessage = true;

@@ -21,7 +21,7 @@ namespace Music_user_bot.Commands
                 bool isMuted = false;
                 if (TrackQueue.isSilent)
                     isMuted = true;
-                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel.Id != channel.Id)
+                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel == null || voiceClient.Channel.Id != channel.Id)
                     voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false });
             }
             catch (Exception)

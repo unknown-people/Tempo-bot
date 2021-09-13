@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using YoutubeExplode.Playlists;
+using YoutubeExplode.Search;
 using YoutubeExplode.Videos;
 
 namespace Music_user_bot
@@ -21,6 +22,14 @@ namespace Music_user_bot
             CancellationTokenSource = new CancellationTokenSource();
         }
         public AudioTrack(PlaylistVideoMinimal video)
+        {
+            Id = video.Id;
+
+            Title = video.Title;
+
+            CancellationTokenSource = new CancellationTokenSource();
+        }
+        public AudioTrack(VideoSearchResult video)
         {
             Id = video.Id;
 

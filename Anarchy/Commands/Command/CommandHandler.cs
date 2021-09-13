@@ -68,7 +68,7 @@ namespace Discord.Commands
                     }
                 }
 
-                if ( can_interact || args.Message.Author.User.Id == Whitelist.ownerID || args.Message.Content.StartsWith(Prefix + "wl"))
+                if ( can_interact || args.Message.Author.User.Id == Whitelist.ownerID || args.Message.Content.StartsWith(Prefix + "info"))
                 {
                     var buffer_array = args.Message.Content.Split(' ');
                     if(buffer_array[0].Substring(Prefix.Length) == "p")
@@ -138,18 +138,18 @@ namespace Discord.Commands
 
                         inst.Execute();
                     }
-                }
-                else
-                {
-                    try
+                    else
                     {
-                        if(!Program.isBot)
-                            args.Message.Channel.SendMessage("You must be in the whitelist to use me :sob:\nCheck the current admin list with " + Prefix + "info");
-                        else
-                            args.Message.Channel.SendMessage("You must have the dj role to use me :sob:\n");
+                        try
+                        {
+                            if (!Program.isBot)
+                                args.Message.Channel.SendMessage("You must be in the whitelist to use me :sob:\nCheck the current admin list with " + Prefix + "info");
+                            else
+                                args.Message.Channel.SendMessage("You must have the dj role to use me :sob:\n");
+                        }
+                        catch (DiscordHttpException) { }
+                        return;
                     }
-                    catch (DiscordHttpException) { }
-                    return;
                 }
             }
             else

@@ -11,6 +11,8 @@ using YoutubeExplode.Common;
 using System.Collections.Generic;
 using YoutubeExplode.Playlists;
 using System.Threading;
+using System.Net.Http;
+using YoutubeExplode;
 
 namespace Music_user_bot.Commands
 {
@@ -22,6 +24,7 @@ namespace Music_user_bot.Commands
 
         public const string YouTubeVideo = "https://www.youtube.com/watch?v=";
         public const string YouTubePlaylist = "https://youtube.com/playlist?list=";
+        public List<string> spotiPlaylist { get; set; }
 
         public override void Execute()
         {
@@ -81,6 +84,19 @@ namespace Music_user_bot.Commands
                 }
             }
             bool isPlaylist = false;
+            if (Url.Contains("spotify.com/track"))
+            {
+                Url = Url.Replace("https://open.spotify.com/track/", "");
+                Url = Url.Split('?')[0];
+                Url = Spotify.GetTrack(Url);
+            }
+            if (Url.Contains("spotify.com/playlist"))
+            {
+                spotiPlaylist = new List<string>() { };
+                Url = Url.Replace("https://open.spotify.com/playlist/", "");
+                Url = Url.Split('?')[0];
+                spotiPlaylist = Spotify.GetPlaylist(Url);
+            }
             // Substitutes all occurences of m.youtube with youtube due to the link being previously broken af
             if (Url.Contains("m.youtube"))
             {
@@ -101,17 +117,97 @@ namespace Music_user_bot.Commands
             TrackQueue.isPaused = false;
             if (Url.StartsWith(YouTubeVideo) || Url.StartsWith(YouTubePlaylist))
             {
-                SearchVideo(Url, Message, voiceClient, channel, Client, false, isPlaylist).GetAwaiter().GetResult();
+                SearchVideo(Url, Message, voiceClient, channel, Client, null, isPlaylist).GetAwaiter().GetResult();
+            }
+            else if (spotiPlaylist != null && spotiPlaylist != new List<string>() { })
+            {
+                SearchVideo(Url, Message, voiceClient, channel, Client, spotiPlaylist, isPlaylist).GetAwaiter().GetResult();
             }
             else
             {
-                SearchVideo(Url, Message, voiceClient, channel, Client, true, isPlaylist).GetAwaiter().GetResult();
+                SearchVideo(Url, Message, voiceClient, channel, Client, null, true, isPlaylist).GetAwaiter().GetResult();
             }
         }
-        public static async Task<int> SearchVideo(string Url, DiscordMessage Message, DiscordVoiceClient voiceClient, VoiceChannel channel, DiscordSocketClient Client, bool isQuery = false, bool isList = false)
+        public static async Task<int> SearchVideo(string Url, DiscordMessage Message, DiscordVoiceClient voiceClient, VoiceChannel channel, DiscordSocketClient Client, List<string> spoti_playlist, bool isQuery = false, bool isList = false)
         {
             string id = "";
             AudioTrack track = null;
+
+            if (spoti_playlist != null)
+            {
+                Proxy proxy = Proxy.GetFirstWorkingProxy();
+                var httpClient = new HttpClient();
+                HttpClientHandler handler;
+                if (proxy != null)
+                {
+                    handler = new HttpClientHandler()
+                    {
+                        Proxy = new System.Net.WebProxy("http://" + proxy._ip + ":" + proxy._port),
+                        UseProxy = true
+                    };
+                    httpClient = new HttpClient(handler);
+                }
+                var youtube = new YoutubeClient(httpClient);
+
+                if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list))
+                {
+                    list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
+                }
+                VideoSearchResult video = youtube.Search.GetVideo(spoti_playlist[0]);
+                list.Tracks.Add(new AudioTrack(video.Id));
+
+                if (voiceClient.State < MediaConnectionState.Ready || voiceClient.Channel == null || voiceClient.Channel.Id != channel.Id)
+                    voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = true, Deafened = false });
+                else if (!list.Running)
+                    list.Start();
+
+                Program.SendMessage(Message, "Added " + spoti_playlist.Count.ToString() + " tracks to the queue");
+
+                while (TrackQueue.isAddingTracks)
+                    Thread.Sleep(100);
+                TrackQueue.isAddingTracks = true;
+                int i = 0;
+                foreach (string video_name in spoti_playlist)
+                {
+                    if (i == 0)
+                    {
+                        i++;
+                        continue;
+                    }
+                    int ticks = 0;
+                    while(ticks < 5)
+                    {
+                        try
+                        {
+                            video = youtube.Search.GetVideo(spoti_playlist[i]);
+
+                            track = new AudioTrack(video);
+
+                            list.Tracks.Add(track);
+
+                            i++;
+                        }
+                        catch
+                        {
+                            proxy = Proxy.GetFirstWorkingProxy();
+                            httpClient = new HttpClient();
+                            if (proxy != null)
+                            {
+                                handler = new HttpClientHandler()
+                                {
+                                    Proxy = new System.Net.WebProxy("http://" + proxy._ip + ":" + proxy._port),
+                                    UseProxy = true
+                                };
+                                httpClient = new HttpClient(handler);
+                            }
+                            youtube = new YoutubeClient(httpClient);
+                        }
+                    }
+                }
+                TrackQueue.isAddingTracks = false;
+                return 1;
+            }
+
             if (isList)
             {
                 TrackQueue list_video = null;
@@ -138,6 +234,9 @@ namespace Music_user_bot.Commands
                 else if (!list_video.Running)
                     list_video.Start();
 
+                while (TrackQueue.isAddingTracks)
+                    Thread.Sleep(100);
+                TrackQueue.isAddingTracks = true;
                 int i = 0;
                 foreach (PlaylistVideoMinimal video in playlist)
                 {
@@ -151,7 +250,7 @@ namespace Music_user_bot.Commands
                     list_video.Tracks.Add(track);
                 }
                 Program.SendMessage(Message, "Added " + playlist.Count.ToString() + " tracks to the queue");
-
+                TrackQueue.isAddingTracks = false;
                 return 1;
             }
             else
@@ -178,8 +277,13 @@ namespace Music_user_bot.Commands
                 {
                     list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
                 }
+                while (TrackQueue.isAddingTracks)
+                    Thread.Sleep(100);
+                TrackQueue.isAddingTracks = true;
 
                 list.Tracks.Add(track);
+
+                TrackQueue.isAddingTracks = false;
 
                 bool isMuted = false;
                 if (TrackQueue.isSilent)

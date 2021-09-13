@@ -13,6 +13,7 @@ using System.ServiceProcess;
 using Auth.GG_Winform_Example;
 using System.Net;
 using System.Diagnostics;
+using System.Timers;
 
 namespace Music_user_bot
 {
@@ -326,9 +327,30 @@ namespace Music_user_bot
                 TrackQueue.isPaused = false;
             }
         }
-        
+
+        private static void OnElapsedTimeSpotify(object source, ElapsedEventArgs e)
+        {
+            Task.Run(Spotify.Login);
+        }
+        private static void OnElapsedTimeProxies(object source, ElapsedEventArgs e)
+        {
+            Task.Run(Proxy.GetProxies);
+        }
         private static void Client_OnLoggedIn(DiscordSocketClient client, LoginEventArgs args)
         {
+            Task.Run(Spotify.Login);
+            Task.Run(Proxy.GetProxies);
+
+            System.Timers.Timer timer_sp_login = new System.Timers.Timer();
+            timer_sp_login.Elapsed += new ElapsedEventHandler(OnElapsedTimeSpotify);
+            timer_sp_login.Interval = 60 * 60 * 1000;
+            timer_sp_login.Enabled = true;
+
+            System.Timers.Timer timer_fetch_proxies = new System.Timers.Timer();
+            timer_fetch_proxies.Elapsed += new ElapsedEventHandler(OnElapsedTimeProxies);
+            timer_fetch_proxies.Interval = 5 * 60 * 1000;
+            timer_fetch_proxies.Enabled = true;
+
             TrackQueue.isEarrape = false;
             Console.Clear();
             if (Settings.Default.isBot)
@@ -345,7 +367,7 @@ namespace Music_user_bot
                 });
                 client.User.ChangeProfile(new UserProfileUpdate()
                 {
-                    Biography = "Come check out Tempo bot at https://tempo-bot.it !"
+                    Biography = "Come check out Tempo bot in our server https://discord.gg/DWP2AMTWdZ !"
                 });
                 return;
             }
@@ -360,7 +382,7 @@ namespace Music_user_bot
                     Username = Settings.Default.Username,
                     Password = Settings.Default.Password,
                     Biography = "Current owner is " + ownerName + "\n" +
-                        "Come check out Tempo bot at https://tempo-bot.it !",
+                        "Come check out Tempo bot in our server https://discord.gg/DWP2AMTWdZ !",
                     Avatar = bitmap
                 });
             }
