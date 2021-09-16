@@ -17,8 +17,15 @@ namespace Discord
         {
             if (properties.ReplyTo != null) properties.ReplyTo.ChannelId = channelId;
 
-            return (await client.HttpClient.PostAsync($"/channels/{channelId}/messages", properties))
-                                 .Deserialize<DiscordMessage>().SetClient(client);
+            try
+            {
+                return (await client.HttpClient.PostAsync($"/channels/{channelId}/messages", properties))
+                                     .Deserialize<DiscordMessage>().SetClient(client);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static DiscordMessage SendMessage(this DiscordClient client, ulong channelId, MessageProperties properties)

@@ -16,18 +16,23 @@ namespace Discord.Commands
         {
             Client = client;
             Message = message;
-            foreach(var role in Client.GetCachedGuild(Message.Guild.Id).Roles)
+            if (admin_roles == null)
+                admin_roles = new List<ulong>() { };
+            if (isAdminDict == null)
+                isAdminDict = new Dictionary<ulong, bool>() { };
+
+            foreach (var role in Client.GetGuild(Message.Guild.Id).Roles)
             {
-                if (role.Permissions == DiscordPermission.Administrator)
+                if ((role.Permissions & DiscordPermission.Administrator) == DiscordPermission.Administrator)
                 {
                     admin_roles.Add(role.Id);
                 }
             }
         }
-        public bool CanSendEmbed(DiscordVoiceState theirState)
+        public bool CanSendEmbed()
         {
-            var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
-
+            var channel = (TextChannel)Client.GetChannel(Message.Channel.Id);
+            
             if (channel.PermissionOverwrites.Count == 0)
                 return true;
 
@@ -69,36 +74,33 @@ namespace Discord.Commands
                         }
                     }
                 }
-
                 isAdminDict[Message.Guild.Id] = false;
                 return false;
             }
         }
         public void SendMessageAsync(string to_send)
         {
-            Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
-
             try
             {
-                if (CanSendEmbed(theirState))
+                if (CanSendEmbed())
                 {
-                    var embed = new EmbedMaker() { Title = Client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = Client.User.Avatar.Url };
-                    embed.AddField("", to_send);
-                    Task.Run(() => Message.Channel.SendMessageAsync(embed));
+                    var embed = new EmbedMaker() { Title = Client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = Client.User.Avatar.Url, Description = to_send };
+                    Task.Run(() => Message.Channel.SendMessage(embed));
                 }
+                return;
             }
             catch
             {
                 CommandBase.isAdminDict[Message.Guild.Id] = false;
 
-                if (CanSendEmbed(theirState))
+                if (CanSendEmbed())
                 {
-                    var embed = new EmbedMaker() { Title = Client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = Client.User.Avatar.Url };
-                    embed.AddField("", to_send);
-                    Task.Run(() => Message.Channel.SendMessageAsync(embed));
+                    var embed = new EmbedMaker() { Title = Client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = Client.User.Avatar.Url, Description = to_send };
+                    embed.AddField(to_send, "");
+                    Task.Run(() => Message.Channel.SendMessage(embed));
                 }
             }
-            Task.Run(() => Message.Channel.SendMessageAsync(to_send));
+            Task.Run(() => Message.Channel.SendMessage(to_send));
         }
         public abstract void Execute();
         public virtual void HandleError(string parameterName, string providedValue, Exception exception) { }

@@ -11,11 +11,9 @@ namespace Music_user_bot
         public bool canSendEmbed { get; set; }
         public override void Execute()
         {
-            var targetConnected = Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
-
             if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
 
-            canSendEmbed = CanSendEmbed(theirState);
+            canSendEmbed = CanSendEmbed();
 
             if (canSendEmbed)
             {

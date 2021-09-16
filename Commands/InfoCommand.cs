@@ -21,7 +21,7 @@ namespace Music_user_bot
         {
             if (Program.BlockBotCommand(Message))
             {
-                Message.Channel.SendMessage("You need to use a user token for this command to work properly");
+                SendMessageAsync("You need to use a user token for this command to work properly");
                 return;
             }
             string white_list = "Current whitelist:\n";
@@ -41,9 +41,9 @@ namespace Music_user_bot
                 white_list += user_name + "\n";
             }
             if (white_list == "**Current whitelist:**\n")
-                Message.Channel.SendMessage("**Current whitelist is empty**");
+                SendMessageAsync("**Current whitelist is empty**");
             else
-                Message.Channel.SendMessage(white_list);
+                SendMessageAsync(white_list);
 
             string admin_list = "Current admins:\n";
 
@@ -60,9 +60,9 @@ namespace Music_user_bot
                 white_list += user_name + "\n";
             }
             if (admin_list == "**Current admins:**\n")
-                Message.Channel.SendMessage("**Current admin list is empty**");
+                SendMessageAsync("**Current admin list is empty**");
             else
-                Message.Channel.SendMessage(admin_list);
+                SendMessageAsync(admin_list);
         }
     }
 }

@@ -165,7 +165,7 @@ namespace Discord.Commands
                 {
                     try
                     {
-                        if (!Program.isBot)
+                        if (!Settings.Default.isBot)
                             args.Message.Channel.SendMessage("You must be in the whitelist to use me :sob:\nCheck the current admin list with " + Prefix + "info");
                         else
                             args.Message.Channel.SendMessage("You must have the dj role to use me :sob:\n");

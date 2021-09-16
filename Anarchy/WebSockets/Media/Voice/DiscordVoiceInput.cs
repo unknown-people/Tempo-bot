@@ -83,34 +83,38 @@ namespace Discord.Media
 
             lock (_voiceLock)
             {
-                if (_nextTick == -1)
-                    _nextTick = Environment.TickCount;
-                else
+                try
                 {
-                    long distance = _nextTick - Environment.TickCount;
+                    if (_nextTick == -1)
+                        _nextTick = Environment.TickCount;
+                    else
+                    {
+                        long distance = _nextTick - Environment.TickCount;
 
-                    if (distance > 0)
-                        Thread.Sleep((int)distance);
+                        if (distance > 0)
+                            Thread.Sleep((int)distance);
+                    }
+
+                    byte[] opusFrame = new byte[OpusConverter.FrameBytes];
+                    int frameSize = OpusConverter.FrameBytes;
+
+                    frameSize = _encoder.EncodeFrame(buffer, offset, opusFrame, 0);
+
+                    byte[] packet = new RTPPacketHeader()
+                    {
+                        Type = DiscordMediaConnection.SupportedCodecs["opus"].PayloadType,
+                        Sequence = _sequence,
+                        Timestamp = _timestamp,
+                        SSRC = _client.Connection.SSRC.Audio
+                    }.Write(_client.Connection.SecretKey, opusFrame, 0, frameSize);
+
+                    _client.Connection.UdpClient.Send(packet, packet.Length);
+
+                    _nextTick += OpusConverter.TimeBetweenFrames;
+                    _sequence++;
+                    _timestamp += OpusConverter.FrameSamplesPerChannel;
                 }
-
-                byte[] opusFrame = new byte[OpusConverter.FrameBytes];
-                int frameSize = OpusConverter.FrameBytes;
-
-                frameSize = _encoder.EncodeFrame(buffer, offset, opusFrame, 0);
-
-                byte[] packet = new RTPPacketHeader()
-                {
-                    Type = DiscordMediaConnection.SupportedCodecs["opus"].PayloadType,
-                    Sequence = _sequence,
-                    Timestamp = _timestamp,
-                    SSRC = _client.Connection.SSRC.Audio
-                }.Write(_client.Connection.SecretKey, opusFrame, 0, frameSize);
-
-                _client.Connection.UdpClient.Send(packet, packet.Length);
-
-                _nextTick += OpusConverter.TimeBetweenFrames;
-                _sequence++;
-                _timestamp += OpusConverter.FrameSamplesPerChannel;
+                catch { return offset; }
             }
 
             return offset + OpusConverter.FrameBytes;

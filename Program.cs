@@ -14,6 +14,7 @@ using Auth.GG_Winform_Example;
 using System.Net;
 using System.Diagnostics;
 using System.Timers;
+using System.Xml;
 
 namespace Music_user_bot
 {
@@ -141,6 +142,7 @@ namespace Music_user_bot
                 if (args[0] == "-na")
                 {
                     ask_settings = false;
+                    Settings.Default.Upgrade();
                 }
             }
             catch (IndexOutOfRangeException) { }
