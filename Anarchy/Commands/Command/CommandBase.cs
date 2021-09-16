@@ -96,7 +96,6 @@ namespace Discord.Commands
                 if (CanSendEmbed())
                 {
                     var embed = new EmbedMaker() { Title = Client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = Client.User.Avatar.Url, Description = to_send };
-                    embed.AddField(to_send, "");
                     Task.Run(() => Message.Channel.SendMessage(embed));
                 }
             }
