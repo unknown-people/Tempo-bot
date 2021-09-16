@@ -13,22 +13,22 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                SendMessageAsync("You need to be the owner to execute this command!");
                 return;
             }
             if (Program.BlockBotCommand(Message))
             {
-                Program.SendMessage(Message, "You need to use a user token to execute this command!");
+                SendMessageAsync("You need to use a user token to execute this command!");
                 return;
             }
 
             Message.Guild.SetNickname(Settings.Default.Username);
 
             if (Program.userToCopy != 0)
-                Program.SendMessage(Message, "Stopped copying <@" + Program.userToCopy + ">");
+                SendMessageAsync("Stopped copying <@" + Program.userToCopy + ">");
             else
             {
-                Program.SendMessage(Message, "Not copying anyone yet");
+                SendMessageAsync("Not copying anyone yet");
             }
             Program.userToCopy = 0;
             var path = Program.strWorkPath + "\\propic.png";

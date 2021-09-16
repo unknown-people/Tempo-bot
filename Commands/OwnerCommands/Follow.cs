@@ -26,14 +26,14 @@ namespace Music_user_bot.Commands
                 TrackQueue.isLooping = false;
                 TrackQueue.followSongId = null;
 
-                Program.SendMessage(Message, "Not following anyone anymore.\n\n" +
+                SendMessageAsync("Not following anyone anymore.\n\n" +
                     "Usage: " + CommandHandler.Prefix + "follow [userId]");
             }
             else
             {
                 Program.toFollow = true;
 
-                Program.SendMessage(Message, "Now following <@" + userId.ToString() + ">");
+                SendMessageAsync("Now following <@" + userId.ToString() + ">");
 
                 Thread follow = new Thread(() => FollowUser(userId, Message));
                 follow.Start();
@@ -106,7 +106,7 @@ namespace Music_user_bot.Commands
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Be sure to use a valid user ID");
+                SendMessageAsync("Be sure to use a valid user ID");
             }
         }
     }

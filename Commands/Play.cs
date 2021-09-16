@@ -117,7 +117,10 @@ namespace Music_user_bot.Commands
             TrackQueue.isPaused = false;
             if (Url.StartsWith(YouTubeVideo) || Url.StartsWith(YouTubePlaylist))
             {
-                SearchVideo(Url, Message, voiceClient, channel, Client, null, isPlaylist).GetAwaiter().GetResult();
+                int result = SearchVideo(Url, Message, voiceClient, channel, Client, null, isPlaylist).GetAwaiter().GetResult();
+                if(Program.TrackLists.TryGetValue(Message.Guild.Id, out var list))
+                    if (result == 0)
+                        SendMessageAsync("Track " + list.Tracks[list.Tracks.Count - 1].Title + " has been added to the queue");
             }
             else if (spotiPlaylist != null && spotiPlaylist != new List<string>() { })
             {
@@ -125,7 +128,10 @@ namespace Music_user_bot.Commands
             }
             else
             {
-                SearchVideo(Url, Message, voiceClient, channel, Client, null, true, isPlaylist).GetAwaiter().GetResult();
+                int result = SearchVideo(Url, Message, voiceClient, channel, Client, null, true, isPlaylist).GetAwaiter().GetResult();
+                if (Program.TrackLists.TryGetValue(Message.Guild.Id, out var list))
+                    if (result == 0)
+                        SendMessageAsync("Track " + list.Tracks[list.Tracks.Count - 1].Title + " has been added to the queue");
             }
         }
         public static async Task<int> SearchVideo(string Url, DiscordMessage Message, DiscordVoiceClient voiceClient, VoiceChannel channel, DiscordSocketClient Client, List<string> spoti_playlist, bool isQuery = false, bool isList = false)
@@ -166,20 +172,16 @@ namespace Music_user_bot.Commands
                 while (TrackQueue.isAddingTracks)
                     Thread.Sleep(100);
                 TrackQueue.isAddingTracks = true;
-                int i = 0;
+                spoti_playlist.RemoveAt(0);
+                int i = 1;
                 foreach (string video_name in spoti_playlist)
                 {
-                    if (i == 0)
-                    {
-                        i++;
-                        continue;
-                    }
                     int ticks = 0;
-                    while(ticks < 5)
+                    while(ticks < 2)
                     {
                         try
                         {
-                            video = youtube.Search.GetVideo(spoti_playlist[i] + " lyrics");
+                            video = youtube.Search.GetVideo(spoti_playlist[i - 1] + " lyrics");
 
                             track = new AudioTrack(video);
 
@@ -201,6 +203,21 @@ namespace Music_user_bot.Commands
                                 httpClient = new HttpClient(handler);
                             }
                             youtube = new YoutubeClient(httpClient);
+
+                            try
+                            {
+                                video = youtube.Search.GetVideo(spoti_playlist[i - 1] + " lyrics");
+                            }
+                            catch
+                            {
+                                ticks++;
+                                continue;
+                            }
+                            track = new AudioTrack(video);
+
+                            list.Tracks.Add(track);
+
+                            i++;
                         }
                     }
                 }
@@ -293,8 +310,6 @@ namespace Music_user_bot.Commands
                     voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = isMuted, Deafened = false});
                 else if (!list.Running)
                     list.Start();
-                else if(list.Running)
-                    Program.SendMessage(Message, $"Song \"{track.Title}\" has been added to the queue");
 
                 return 0;
             }

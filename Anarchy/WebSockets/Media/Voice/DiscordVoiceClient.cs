@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Discord.Media
@@ -156,7 +157,8 @@ namespace Discord.Media
 
             _decoder = new OpusDecoder();
 
-            if (_client.User.Type == DiscordUserType.User) KillPreviousConnection();
+            if(!_client.Token.StartsWith("Bot "))
+                if (_client.User.Type == DiscordUserType.User) KillPreviousConnection();
 
             var state = new VoiceStateProperties() { ChannelId = channelId, GuildId = _guildId };
 
@@ -168,6 +170,8 @@ namespace Discord.Media
             }
 
             _channelId = channelId;
+            if (_client.User == null)
+                Thread.Sleep(1);
             _client.ChangeVoiceState(state);
         }
 

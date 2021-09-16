@@ -10,12 +10,12 @@ namespace Music_user_bot.Commands
         {
             if (TrackQueue.isPaused)
             {
-                Program.SendMessage(Message, "Current track is already paused");
+                SendMessageAsync("Current track is already paused");
             }
             else
             {
                 TrackQueue.isPaused = true;
-                Program.SendMessage(Message, "Paused current track");
+                SendMessageAsync("Paused current track");
             }
         }
     }

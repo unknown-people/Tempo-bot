@@ -20,12 +20,12 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message) )
             {
-                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                SendMessageAsync("You need to be the owner to execute this command!");
                 return;
             }
             if (Program.BlockBotCommand(Message))
             {
-                Program.SendMessage(Message, "You need to use a user token to execute this command!");
+                SendMessageAsync("You need to use a user token to execute this command!");
                 return;
             }
             if (userId.ToString().Length == 18)
@@ -96,9 +96,9 @@ namespace Music_user_bot.Commands
                 }
                 catch (DiscordHttpException)
                 {
-                    Program.SendMessage(Message, "Could not change guild username");
+                    SendMessageAsync("Could not change guild username");
                 }
-                Program.SendMessage(Message, "Now copying <@" + Program.userToCopy + ">");
+                SendMessageAsync("Now copying <@" + Program.userToCopy + ">");
             }
         }
 

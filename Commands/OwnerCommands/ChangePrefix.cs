@@ -16,7 +16,7 @@ namespace Music_user_bot.Commands
             {
                 if (!Program.isOwner(Message))
                 {
-                    Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                    SendMessageAsync("You need to be the owner to execute this command!");
                     return;
                 }
                 Settings.Default.Prefix = new_prefix;
@@ -33,11 +33,11 @@ namespace Music_user_bot.Commands
                     Activity = activity
                 });
 
-                Program.SendMessage(Message, "prefix has been changed to: " + new_prefix);
+                SendMessageAsync("prefix has been changed to: " + new_prefix);
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Couldn't save new prefix. Try again");
+                SendMessageAsync("Couldn't save new prefix. Try again");
             }
         }
     }

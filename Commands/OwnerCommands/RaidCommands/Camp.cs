@@ -17,21 +17,21 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                SendMessageAsync("You need to be the owner to execute this command!");
                 return;
             }
             if (channelId == 0 || channelId.ToString().Length != 18)
             {
                 Program.isCamping = false;
 
-                Program.SendMessage(Message, "Not camping any channel anymore.\n\n" +
+                SendMessageAsync("Not camping any channel anymore.\n\n" +
                     "Usage: " + CommandHandler.Prefix + "camp [channelId]");
             }
             else
             {
                 Program.isCamping = true;
                 channel = (VoiceChannel)Client.GetChannel(channelId);
-                Program.SendMessage(Message, "Now following camping " + channel.Name);
+                SendMessageAsync("Now following camping " + channel.Name);
 
                 Thread camp = new Thread(() => CampChannel(Message));
                 camp.Priority = ThreadPriority.Lowest;
@@ -78,7 +78,7 @@ namespace Music_user_bot.Commands
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Be sure to use a valid channel ID");
+                SendMessageAsync("Be sure to use a valid channel ID");
             }
         }
     }

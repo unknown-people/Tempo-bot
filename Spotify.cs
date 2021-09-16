@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using SpotifyAPI;
 using SpotifyAPI.Web;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Music_user_bot
 {

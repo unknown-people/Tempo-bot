@@ -13,11 +13,11 @@ namespace Music_user_bot.Commands
             {
                 TrackQueue.stream_volume = volume;
                 TrackQueue.isVolumeChanged = true;
-                Program.SendMessage(Message, "Current volume is now set to " + volume.ToString() + "%");
+                SendMessageAsync("Current volume is now set to " + volume.ToString() + "%");
             }
             else
             {
-                Program.SendMessage(Message, "Please insert a value between 1 and 200");
+                SendMessageAsync("Please insert a value between 1 and 200");
             }
         }
     }

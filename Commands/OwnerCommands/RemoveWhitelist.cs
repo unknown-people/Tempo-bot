@@ -26,24 +26,24 @@ namespace Music_user_bot
             {
                 if (!Program.isOwner(Message) && !Program.isAdmin(Message))
                 {
-                    Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
+                    SendMessageAsync("You need to be the owner or an administrator to execute this command!");
                     return;
                 }
                 if (Program.BlockBotCommand(Message))
                 {
-                    Program.SendMessage(Message, "You need to use a user token to execute this command!");
+                    SendMessageAsync("You need to use a user token to execute this command!");
                     return;
                 }
                 if (IDtoDel.ToString().Length == 18)
                 {
                     Whitelist.RemoveFromWL(IDtoDel);
-                    Program.SendMessage(Message, "Removed <@" + IDtoDel.ToString() + "> from whitelist");
+                    SendMessageAsync("Removed <@" + IDtoDel.ToString() + "> from whitelist");
                 }
-                else Program.SendMessage(Message, "Usage: delw [userID]");
+                else SendMessageAsync("Usage: delw [userID]");
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Usage: delw [userID]");
+                SendMessageAsync("Usage: delw [userID]");
             }
         }
     }

@@ -137,10 +137,12 @@ namespace Discord
                     if (_discordClient.Proxy == null || _discordClient.Proxy.Type == ProxyType.HTTP)
                     {
                         HttpClient client = new HttpClient(new HttpClientHandler() { Proxy = _discordClient.Proxy == null ? null : new WebProxy(_discordClient.Proxy.Host, _discordClient.Proxy.Port) });
+                        var token = _discordClient.Token;
+
                         if (_discordClient.Token != null)
                             client.DefaultRequestHeaders.Add("Authorization", _discordClient.Token);
 
-                        if (_discordClient.User != null && _discordClient.User.Type == DiscordUserType.Bot)
+                        if (_discordClient.Token.StartsWith("Bot ") || (_discordClient.User != null && _discordClient.User.Type == DiscordUserType.Bot))
                             client.DefaultRequestHeaders.Add("User-Agent", "Anarchy/0.8.1.0");
                         else
                         {

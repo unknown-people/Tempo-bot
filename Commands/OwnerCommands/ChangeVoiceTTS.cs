@@ -12,12 +12,12 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message) && !Program.isAdmin(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
+                SendMessageAsync("You need to be the owner or an administrator to execute this command!");
                 return;
             }
             if (voice == null)
             {
-                Program.SendMessage(Message, "Currently supported voices:\n**it-IT** - Diego / Isabella\n" + "**en-US** - Cristopher / Michelle");
+                SendMessageAsync("Currently supported voices:\n**it-IT** - Diego / Isabella\n" + "**en-US** - Cristopher / Michelle");
                 return;
             }
             switch (voice.ToLower())
@@ -25,22 +25,22 @@ namespace Music_user_bot.Commands
                 case "diego":
                     Settings.Default.TTSlang = "it-IT";
                     Settings.Default.TTSvoice = "it-IT-DiegoNeural";
-                    Program.SendMessage(Message, "Current voice set to Diego - IT");
+                    SendMessageAsync("Current voice set to Diego - IT");
                     break;
                 case "isabella":
                     Settings.Default.TTSlang = "it-IT";
                     Settings.Default.TTSvoice = "it-IT-IsabellaNeural";
-                    Program.SendMessage(Message, "Current voice set to Isabella - IT");
+                    SendMessageAsync("Current voice set to Isabella - IT");
                     break;
                 case "michelle":
                     Settings.Default.TTSlang = "en-US";
                     Settings.Default.TTSvoice = "en-US-MichelleNeural";
-                    Program.SendMessage(Message, "Current voice set to Michelle - EN");
+                    SendMessageAsync("Current voice set to Michelle - EN");
                     break;
                 case "christopher":
                     Settings.Default.TTSlang = "en-US";
                     Settings.Default.TTSvoice = "en-US-ChristopherNeural";
-                    Program.SendMessage(Message, "Current voice set to Christopher - EN");
+                    SendMessageAsync("Current voice set to Christopher - EN");
                     break;
             }
         }

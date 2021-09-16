@@ -13,23 +13,25 @@ namespace Music_user_bot
         {
             var targetConnected = Client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
 
-            var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
-
             if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
 
-            canSendEmbed = CanSendEmbed(channel);
+            canSendEmbed = CanSendEmbed(theirState);
 
             if (canSendEmbed)
             {
-                var embed = new EmbedMaker() { Title = "Current queue" };
+                var embed = new EmbedMaker() { Title = Client.User.Username, Color = System.Drawing.Color.IndianRed, ThumbnailUrl = "http://unknown-people.it/icon_tempo.png" };
                 try
                 {
                     int index = 0;
+                    if(list.Tracks.Count == 0)
+                    {
+                        embed.AddField("Current queue:", "Current queue is empty.\nUse " + Settings.Default.Prefix + "play(or p) [TITLE/URL] to play a song!");
+                    }
                     foreach (var song in list.Tracks)
                     {
-                        if (index >= 30)
+                        if (index >= 20)
                             break;
-                        embed.AddField(song.Title, (song == list.Tracks[0] ? " *(Currently playing)*" : ""));
+                        embed.AddField($"[{index + 1}]", song.Title);
                         index++;
                     }
                 }
@@ -49,7 +51,7 @@ namespace Music_user_bot
                 }
                 if (message == "**Current queue:**\n")
                     message = "**Current queue is empty**";
-                Program.SendMessage(Message, message);
+                SendMessageAsync(message);
             }
         }
     }

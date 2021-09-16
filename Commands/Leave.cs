@@ -20,15 +20,15 @@ namespace Music_user_bot.Commands
                 if (voiceClient.Channel.Id == channel.Id)
                 {
                     voiceClient.Disconnect();
-                    Program.SendMessage(Message, "Disconnected from channel");
+                    SendMessageAsync("Disconnected from channel");
                 }
                 else
                 {
-                    Program.SendMessage(Message, "You need to be in the same channel as me to disconnect me");
+                    SendMessageAsync("You need to be in the same channel as me to disconnect me");
                 }
             }
             catch (Exception) {
-                Program.SendMessage(Message, "I'm not connected to any voice channel");
+                SendMessageAsync("I'm not connected to any voice channel");
             }
         }
     }

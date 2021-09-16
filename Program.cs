@@ -22,6 +22,7 @@ namespace Music_user_bot
         public static YoutubeClient YouTubeClient { get; private set; } = new YoutubeClient();
 
         public static Dictionary<ulong, TrackQueue> TrackLists = new Dictionary<ulong, TrackQueue>();
+        public static DiscordSocketClient mainClient { get; set; }
         public static bool toFollow { get; set; }
         public static bool isCamping { get; set; }
         public static ulong userToCopy { get; set; }
@@ -187,11 +188,12 @@ namespace Music_user_bot
                         Console.WriteLine("Please insert your (user bot) account's password:");
                         Settings.Default.Password = Console.ReadLine();
                         Console.Clear();
-
-                        Console.WriteLine("Please insert the prefix you'd like to use:");
-                        Settings.Default.Prefix = Console.ReadLine();
-                        Console.Clear();
                     }
+
+                    Console.WriteLine("Please insert the prefix you'd like to use:");
+                    Settings.Default.Prefix = Console.ReadLine();
+                    Console.Clear();
+
                     Settings.Default.Save();
                     break;
                 }
@@ -244,19 +246,27 @@ namespace Music_user_bot
             }
             botToken += Settings.Default.Token;
             Whitelist.ownerID = Settings.Default.OwnerId;
-            DiscordClient clientNew = new DiscordClient(botToken);
-            string discriminator = "";
-            for (int i = 0; i < 4 - ((clientNew.GetUser(Whitelist.ownerID).Discriminator)).ToString().Length; i++)
+            if (!Settings.Default.isBot)
             {
-                discriminator += "0";
-            }
-            discriminator += clientNew.GetUser(Whitelist.ownerID).Discriminator;
-            ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + discriminator;
+                DiscordClient clientNew = new DiscordClient(botToken);
 
+                string discriminator = "";
+                for (int i = 0; i < 4 - ((clientNew.GetUser(Whitelist.ownerID).Discriminator)).ToString().Length; i++)
+                {
+                    discriminator += "0";
+                }
+                discriminator += clientNew.GetUser(Whitelist.ownerID).Discriminator;
+                ownerName = clientNew.GetUser(Whitelist.ownerID).Username + "#" + discriminator;
+            }
+
+            uint apiVersion = 9;
+            if (Settings.Default.isBot)
+                apiVersion = 8;
             DiscordSocketClient client = new DiscordSocketClient(new DiscordSocketConfig()
             {
                 HandleIncomingMediaData = false,
-                Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates
+                Intents = DiscordGatewayIntent.Guilds | DiscordGatewayIntent.GuildMessages | DiscordGatewayIntent.GuildVoiceStates,
+                ApiVersion = apiVersion
             });
 
             client.CreateCommandHandler(Settings.Default.Prefix);
@@ -266,16 +276,7 @@ namespace Music_user_bot
             client.Login(botToken);
 
             Whitelist whitelist = new Whitelist();
-            /*
-            while (true)
-            {
-                if (NoMuteCommand.noMute)
-                {
-                    NoMute(client);
-                }
-                Thread.Sleep(100);
-            }
-            */
+            
             Thread.Sleep(-1);
         }
 
@@ -472,6 +473,24 @@ namespace Music_user_bot
             }
             else
                 return false;
+        }
+        public static bool CanSendEmbed(DiscordVoiceState theirState, DiscordMessage message)
+        {
+            var channel = (VoiceChannel)mainClient.GetChannel(theirState.Channel.Id);
+
+            if (channel.PermissionOverwrites.Count == 0)
+                return true;
+
+            foreach (var entry in channel.PermissionOverwrites)
+            {
+                if (entry.AffectedId == message.Author.User.Id)
+                {
+                    var result = entry.GetPermissionState(DiscordPermission.EmbedLinks) == OverwrittenPermissionState.Allow;
+                    if (result)
+                        return true;
+                }
+            }
+            return false;
         }
         public static bool IsServiceInstalled(string serviceName)
         {

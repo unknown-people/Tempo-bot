@@ -10,11 +10,11 @@ namespace Music_user_bot.Commands
             if (TrackQueue.isPaused)
             {
                 TrackQueue.isPaused = false;
-                Program.SendMessage(Message, "Track resumed");
+                SendMessageAsync("Track resumed");
             }
             else
             {
-                Program.SendMessage(Message, "Track is already playing");
+                SendMessageAsync("Track is already playing");
             }
         }
     }

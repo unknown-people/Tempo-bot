@@ -7,6 +7,10 @@ using System.Text.RegularExpressions;
 using Music_user_bot;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using System.Net;
+using System.IO;
 
 namespace Discord.Commands
 {
@@ -87,6 +91,24 @@ namespace Discord.Commands
                     {
                         buffer_array[0] = Prefix + "say";
                     }
+                    if (buffer_array[0].Substring(Prefix.Length) == "random")
+                    {
+                        buffer_array = new string[2];
+                        buffer_array[0] = Prefix + "play";
+                        buffer_array[1] = GetRandomSong();
+                    }
+                    if (buffer_array[0].Substring(Prefix.Length) == "genre")
+                    {
+                        buffer_array[0] = Prefix + "play";
+                        string genre = buffer_array[1];
+                        try
+                        {
+                            genre = buffer_array[2];
+                        }
+                        catch (IndexOutOfRangeException) { }
+                        genre = GetRandomSong(buffer_array[1]);
+
+                    }
                     List<string> parts = buffer_array.ToList();
 
                     if (Commands.TryGetValue(parts[0].Substring(Prefix.Length), out DiscordCommand command))
@@ -138,18 +160,18 @@ namespace Discord.Commands
 
                         inst.Execute();
                     }
-                    else
+                }
+                else
+                {
+                    try
                     {
-                        try
-                        {
-                            if (!Program.isBot)
-                                args.Message.Channel.SendMessage("You must be in the whitelist to use me :sob:\nCheck the current admin list with " + Prefix + "info");
-                            else
-                                args.Message.Channel.SendMessage("You must have the dj role to use me :sob:\n");
-                        }
-                        catch (DiscordHttpException) { }
-                        return;
+                        if (!Program.isBot)
+                            args.Message.Channel.SendMessage("You must be in the whitelist to use me :sob:\nCheck the current admin list with " + Prefix + "info");
+                        else
+                            args.Message.Channel.SendMessage("You must have the dj role to use me :sob:\n");
                     }
+                    catch (DiscordHttpException) { }
+                    return;
                 }
             }
             else
@@ -254,5 +276,31 @@ namespace Discord.Commands
                 attr = null;
                 return false;
             }
+        private static string GetRandomSong()
+        {
+            string request_url = "https://music.catostudios.nl/api/music/";
+            WebRequest request = WebRequest.Create(request_url);
+            var response = request.GetResponse();
+            var resp_stream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(resp_stream);
+
+            JObject obj = JObject.Parse(reader.ReadToEnd());
+            string url = obj.Value<string>("url");
+
+            return url;
+        }
+        private static string GetRandomSong(string genre_in)
+        {
+            string request_url = "https://music.catostudios.nl/api/music/genre/" + genre_in;
+            WebRequest request = WebRequest.Create(request_url);
+            var response = request.GetResponse();
+            var resp_stream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(resp_stream);
+
+            JObject obj = JObject.Parse(reader.ReadToEnd());
+            string url = obj.Value<string>("url");
+
+            return url;
+        }
     }
 }

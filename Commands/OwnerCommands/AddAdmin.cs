@@ -26,25 +26,25 @@ namespace Music_user_bot.Commands
             {
                 if (!Program.isOwner(Message))
                 {
-                    Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                    SendMessageAsync("You need to be the owner to execute this command!");
                     return;
                 }
                 if (Program.BlockBotCommand(Message))
                 {
-                    Program.SendMessage(Message, "You need to use a user token to execute this command!");
+                    SendMessageAsync("You need to use a user token to execute this command!");
                     return;
                 }
 
                 if (IDtoAdd.ToString().Length == 18)
                 {
                     Admin.AddToAl(IDtoAdd);
-                    Program.SendMessage(Message, "Added <@" + IDtoAdd.ToString() + "> to the Admins");
+                    SendMessageAsync("Added <@" + IDtoAdd.ToString() + "> to the Admins");
                 }
-                else Program.SendMessage(Message, "Usage: adda [userID]");
+                else SendMessageAsync("Usage: adda [userID]");
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Usage: adda [userID]");
+                SendMessageAsync("Usage: adda [userID]");
             }
         }
     }

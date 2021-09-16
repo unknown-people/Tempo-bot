@@ -14,12 +14,12 @@ namespace Music_user_bot
             if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
             if (song_index >= list.Tracks.Count)
             {
-                Program.SendMessage(Message, "Specified index is not in the current queue");
+                SendMessageAsync("Specified index is not in the current queue");
             }
             else
             {
                 list.Tracks.RemoveAt(song_index - 1);
-                Program.SendMessage(Message, "Removed song: **[" + (song_index).ToString() + "]**" + list.Tracks[song_index - 1].Title);
+                SendMessageAsync("Removed song: **[" + (song_index).ToString() + "]**" + list.Tracks[song_index - 1].Title);
             }
         }
     }

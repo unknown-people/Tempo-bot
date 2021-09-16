@@ -13,7 +13,7 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message) && !Program.isAdmin(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
+                SendMessageAsync("You need to be the owner or an administrator to execute this command!");
                 return;
             }
 
@@ -24,7 +24,7 @@ namespace Music_user_bot.Commands
 
             if (!targetConnected || theirState.Channel == null)
             {
-                Program.SendMessage(Message, "You must be in a voice channel to play music");
+                SendMessageAsync("You must be in a voice channel to play music");
                 return;
             }
 
@@ -34,14 +34,14 @@ namespace Music_user_bot.Commands
             {
                 if (TrackQueue.isSilent)
                 {
-                    Program.SendMessage(Message, "You are now in silent mode ;)");
+                    SendMessageAsync("You are now in silent mode ;)");
 
                     voiceClient.Disconnect();
                     voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = true, Deafened = false });
                 }
                 else
                 {
-                    Program.SendMessage(Message, "Silent mode stopped");
+                    SendMessageAsync("Silent mode stopped");
 
                     voiceClient.Disconnect();
                     voiceClient.Connect(channel.Id, new VoiceConnectionProperties() { Muted = false, Deafened = false });

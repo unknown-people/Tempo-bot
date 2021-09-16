@@ -26,7 +26,7 @@ namespace Music_user_bot.Commands
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "You need to be in a voice channel for me to join you :tired_face:");
+                SendMessageAsync("You need to be in a voice channel for me to join you :tired_face:");
             }
         }
     }

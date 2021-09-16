@@ -10,7 +10,7 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message) && !Program.isAdmin(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
+                SendMessageAsync("You need to be the owner or an administrator to execute this command!");
                 return;
             }
 
@@ -18,11 +18,11 @@ namespace Music_user_bot.Commands
             TrackQueue.earrapeChanged = true;
             if (TrackQueue.isEarrape)
             {
-                Program.SendMessage(Message, "You are now in earrape mode");
+                SendMessageAsync("You are now in earrape mode");
             }
             else
             {
-                Program.SendMessage(Message, "Earrape mode stopped");
+                SendMessageAsync("Earrape mode stopped");
             }
         }
     }

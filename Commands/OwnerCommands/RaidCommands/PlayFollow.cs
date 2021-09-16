@@ -17,7 +17,7 @@ namespace Music_user_bot
         {
             if (!Program.isOwner(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                SendMessageAsync("You need to be the owner to execute this command!");
                 return;
             }
             TrackQueue.Message = Message;
@@ -27,7 +27,7 @@ namespace Music_user_bot
             }
             if (!Program.toFollow)
             {
-                Program.SendMessage(Message, "You need to be following someone to use this command");
+                SendMessageAsync("You need to be following someone to use this command");
                 return;
             }
             if (Url.Contains("m.youtube"))
@@ -61,10 +61,10 @@ namespace Music_user_bot
 
                 if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
                 list.Tracks.Add(track);
-                Program.SendMessage(Message, "Now playing " + track.Title);
+                SendMessageAsync("Now playing " + track.Title);
             }
             catch (Exception) {
-                Program.SendMessage(Message, "Couldn't play the selected track");
+                SendMessageAsync("Couldn't play the selected track");
             }
         }
     }

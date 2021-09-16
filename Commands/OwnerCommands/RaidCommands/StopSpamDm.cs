@@ -11,7 +11,7 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message) && !Program.isAdmin(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner or an administrator to execute this command!");
+                SendMessageAsync("You need to be the owner or an administrator to execute this command!");
                 return;
             }
             stopSpamDm = true;

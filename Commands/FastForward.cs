@@ -18,7 +18,7 @@ namespace Music_user_bot.Commands
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Insert a valid timestamp. Ex: 0:30, 1:30:20, 47");
+                SendMessageAsync("Insert a valid timestamp. Ex: 0:30, 1:30:20, 47");
             }            
             TrackQueue.FFseconds = (int)time_stamp.TotalSeconds;
             var message = Message.Channel.SendMessage("Skipped " + TrackQueue.FFseconds.ToString() + " seconds");

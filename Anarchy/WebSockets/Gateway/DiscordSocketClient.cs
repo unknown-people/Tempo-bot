@@ -449,6 +449,15 @@ namespace Discord.Gateway
                                 if (Config.Cache && member.User.Id == User.Id)
                                 {
                                     SocketGuild guild = this.GetCachedGuild(member.GuildId);
+                                    if (guild == null)
+                                    {
+                                        if(member.JoinedAt != null)
+                                        {
+                                            ClientMembers[member.GuildId] = member;
+                                            break;
+                                        }
+                                    }
+                                        
 
                                     // Discord doesn't send us the user's JoinedAt on updates
                                     member.JoinedAt = guild.ClientMember.JoinedAt;

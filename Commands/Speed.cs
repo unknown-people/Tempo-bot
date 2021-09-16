@@ -14,7 +14,7 @@ namespace Music_user_bot.Commands
 
             if (!targetConnected || theirState.Channel == null)
             {
-                Program.SendMessage(Message, "You must be in a voice channel to play music");
+                SendMessageAsync("You must be in a voice channel to play music");
                 return;
             }
             float speed = 0.0f;
@@ -50,11 +50,11 @@ namespace Music_user_bot.Commands
             {
                 TrackQueue.speed = speed;
                 TrackQueue.speedChanged = true;
-                Program.SendMessage(Message, "Playback speed is now " + TrackQueue.speed.ToString().Replace(",", ".") + "x");
+                SendMessageAsync("Playback speed is now " + TrackQueue.speed.ToString().Replace(",", ".") + "x");
             }
             else
             {
-                Program.SendMessage(Message, "You must use a value between 0 and 2.0");
+                SendMessageAsync("You must use a value between 0 and 2.0");
             }
         }
     }

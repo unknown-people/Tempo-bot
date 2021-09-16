@@ -17,12 +17,12 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                SendMessageAsync("You need to be the owner to execute this command!");
                 return;
             }
             if (Program.BlockBotCommand(Message))
             {
-                Program.SendMessage(Message, "You need to use a user token to execute this command!");
+                SendMessageAsync("You need to use a user token to execute this command!");
                 return;
             }
             try
@@ -32,7 +32,7 @@ namespace Music_user_bot.Commands
                 var guildId = ulong.Parse(GetInviteGuildAsync(invite_code).GetAwaiter().GetResult());
 
                 if (IsInGuild(Client, guildId))
-                    Program.SendMessage(Message, "You're already in the guild");
+                    SendMessageAsync("You're already in the guild");
                 else
                     throw new DiscordHttpException(new DiscordHttpError());
 
@@ -41,13 +41,13 @@ namespace Music_user_bot.Commands
 
 
                 if (IsInGuild(Client, guildId))
-                    Program.SendMessage(Message, "Succesfully joined the guild");
+                    SendMessageAsync("Succesfully joined the guild");
                 else
                     throw new DiscordHttpException(new DiscordHttpError());
             }
             catch (Exception)
             {
-                Program.SendMessage(Message, "Couldn't join guild.\n\nUsage: " + CommandHandler.Prefix + "joinserver [invite/code]");
+                SendMessageAsync("Couldn't join guild.\n\nUsage: " + CommandHandler.Prefix + "joinserver [invite/code]");
             }
         }
         public async Task<string> GetInviteGuildAsync(string inv_code)

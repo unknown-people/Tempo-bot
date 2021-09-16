@@ -51,26 +51,26 @@ namespace Music_user_bot
                     if (inviteLink.StartsWith("https://discord.gg"))
                     {
                         noMute = true;
-                        Program.SendMessage(Message, "nomute set to true");
+                        SendMessageAsync("nomute set to true");
                     }
                     else
                     {
-                        Program.SendMessage(Message, "The link is not valid");
+                        SendMessageAsync("The link is not valid");
                     }
                 }
                 catch (IndexOutOfRangeException)
                 {
-                    Program.SendMessage(Message, "Usage: &nomute on [invite-link]");
+                    SendMessageAsync("Usage: &nomute on [invite-link]");
                 }
             }
             else if (noMuteString == "off")
             {
                 noMute = false;
-                Program.SendMessage(Message, "nomute set to false");
+                SendMessageAsync("nomute set to false");
             }
             else
             {
-                Program.SendMessage(Message, "You must choose between 'on [invite]' or 'off'");
+                SendMessageAsync("You must choose between 'on [invite]' or 'off'");
             }
         }
     }

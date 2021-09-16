@@ -12,22 +12,22 @@ namespace Music_user_bot.Commands
         {
             if (!Program.isOwner(Message))
             {
-                Program.SendMessage(Message, "You need to be the owner to execute this command!");
+                SendMessageAsync("You need to be the owner to execute this command!");
                 return;
             }
             if (Program.BlockBotCommand(Message))
             {
-                Program.SendMessage(Message, "You need to use a user token to execute this command!");
+                SendMessageAsync("You need to use a user token to execute this command!");
                 return;
             }
             try
             {
                 Settings.Default.Username = new_name;
-                Program.SendMessage(Message, "Name correctly set. To see the changes restart Tempo.exe");
+                SendMessageAsync("Name correctly set. To see the changes restart Tempo.exe");
             }
             catch (DiscordHttpException)
             {
-                Program.SendMessage(Message, "Couldn't set name, try restarting the program and check the password, or you may have been rate limited, so please try again later");
+                SendMessageAsync("Couldn't set name, try restarting the program and check the password, or you may have been rate limited, so please try again later");
             }
         }
     }

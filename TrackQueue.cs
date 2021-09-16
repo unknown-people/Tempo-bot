@@ -12,6 +12,7 @@ using System.Threading;
 using YoutubeExplode.Videos;
 using System.Text;
 using System.Net.Http;
+using Discord.Commands;
 
 namespace Music_user_bot
 {
@@ -185,21 +186,31 @@ namespace Music_user_bot
 
                     VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
 
-                    Proxy proxy = Proxy.GetFirstWorkingProxy("https://www.youtube.com");
+                    Proxy proxy = null;
                     var httpClient = new HttpClient();
                     HttpClientHandler handler;
-                    if (proxy != null)
-                    {
-                        handler = new HttpClientHandler()
-                        {
-                            Proxy = new System.Net.WebProxy("http://" + proxy._ip + ":" + proxy._port),
-                            UseProxy = true
-                        };
-                        httpClient = new HttpClient(handler);
-                    }
                     var youtube = new YoutubeClient(httpClient);
+                    try
+                    {
+                        currentVideo = await youtube.Videos.GetAsync(currentSong.Id);
+                    }
+                    catch
+                    {
+                        Proxy.GetProxies("https://www.youtube.com");
+                        proxy = Proxy.GetFirstWorkingProxy("https://www.youtube.com");
 
-                    currentVideo = await youtube.Videos.GetAsync(currentSong.Id);
+                        if (proxy != null)
+                        {
+                            handler = new HttpClientHandler()
+                            {
+                                Proxy = new System.Net.WebProxy("http://" + proxy._ip + ":" + proxy._port),
+                                UseProxy = true
+                            };
+                            httpClient = new HttpClient(handler);
+                        }
+                        youtube = new YoutubeClient(httpClient);
+                        currentVideo = await youtube.Videos.GetAsync(currentSong.Id);
+                    }
                     displayMessage = true;
 
                     TimeSpan duration = TimeSpan.Zero;
@@ -220,8 +231,17 @@ namespace Music_user_bot
                             last_message.Delete();
                     }
                     catch (Exception) { }
-                    last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title + "\n");
 
+                    var targetConnected = _client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
+
+                    if (CanSendEmbed(theirState, _client)){
+                        var embed = new EmbedMaker() { Title = _client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = _client.User.Avatar.Url };
+                        embed.AddField("**Now playing:**\n", currentVideo.Title + "\n\n**Duration:** " + currentVideo.Duration);
+
+                        last_message = Message.Channel.SendMessage(embed);
+                    }
+                    else
+                        last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title + "\n");
                     while (voiceClient.Microphone.CopyFrom( url, (int)duration.TotalSeconds, currentSong.CancellationTokenSource.Token))
                     {
                         if (TrackQueue.speedChanged)
@@ -361,6 +381,24 @@ namespace Music_user_bot
             }
 
             return bestStream.Url;
+        }
+        public bool CanSendEmbed(DiscordVoiceState theirState, DiscordSocketClient Client)
+        {
+            var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
+
+            if (channel.PermissionOverwrites.Count == 0)
+                return true;
+
+            foreach (var entry in channel.PermissionOverwrites)
+            {
+                if (entry.AffectedId == Message.Author.User.Id)
+                {
+                    var result = entry.GetPermissionState(DiscordPermission.EmbedLinks) == OverwrittenPermissionState.Allow;
+                    if (result)
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

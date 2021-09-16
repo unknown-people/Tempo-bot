@@ -17,14 +17,14 @@ namespace Music_user_bot
                 {
                     TrackQueue.goToIndex = song_index;
                     list.Tracks[0].CancellationTokenSource.Cancel();
-                    Program.SendMessage(Message, "Skipped to track **[" + song_index.ToString() + "]**");
+                    SendMessageAsync("Skipped to track **[" + song_index.ToString() + "]**");
                 }
                 else
-                    Program.SendMessage(Message, "Index out of range. See the current queue with **" + Settings.Default.Prefix + "queue**");
+                    SendMessageAsync("Index out of range. See the current queue with **" + Settings.Default.Prefix + "queue**");
             }
             else
             {
-                Program.SendMessage(Message, "There's no track to skip to");
+                SendMessageAsync("There's no track to skip to");
             }
         }
     }

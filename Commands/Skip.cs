@@ -18,7 +18,7 @@ namespace Music_user_bot
                 }
                 catch (IndexOutOfRangeException)
                 {
-                    Program.SendMessage(Message, "The queue is empty");
+                    SendMessageAsync("The queue is empty");
                     return;
                 }
             }

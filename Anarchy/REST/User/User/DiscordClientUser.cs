@@ -94,7 +94,7 @@ namespace Discord
         /// <param name="settings">Options for changing the profile</param>
         public void ChangeProfile(UserProfileUpdate settings)
         {
-            ChangeProfileAsync(settings).GetAwaiter().GetResult();
+           // ChangeProfileAsync(settings).GetAwaiter().GetResult();
         }
 
 

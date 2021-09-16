@@ -231,7 +231,7 @@ namespace Discord.Media
         public bool CopyFrom(string path_input, int duration, CancellationToken cancellationToken = default)
         {
             if (_client.State < MediaConnectionState.Ready)
-                throw new InvalidOperationException("Client is not currently connected");
+                return true;
 
             _nextTick = -1;
 
