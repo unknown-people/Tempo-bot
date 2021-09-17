@@ -17,7 +17,7 @@ namespace Music_user_bot
 
             if (canSendEmbed)
             {
-                var embed = new EmbedMaker() { Title = Client.User.Username, Color = System.Drawing.Color.IndianRed, ThumbnailUrl = "http://unknown-people.it/icon_tempo.png" };
+                var embed = new EmbedMaker() { Title = Client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = Client.User.Avatar.Url, Description = to_send };
                 try
                 {
                     int index = 0;
