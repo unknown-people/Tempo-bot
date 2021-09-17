@@ -93,14 +93,8 @@ namespace Discord.Commands
             {
                 CommandBase.isAdminDict[Message.Guild.Id] = false;
 
-                if (CanSendEmbed())
-                {
-                    var embed = new EmbedMaker() { Title = Client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = Client.User.Avatar.Url, Description = to_send };
-                    Task.Run(() => Message.Channel.SendMessage(embed));
-                    return;
-                }
+                Task.Run(() => Message.Channel.SendMessage(to_send));
             }
-            Task.Run(() => Message.Channel.SendMessage(to_send));
         }
         public abstract void Execute();
         public virtual void HandleError(string parameterName, string providedValue, Exception exception) { }
