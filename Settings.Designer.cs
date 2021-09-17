@@ -48,6 +48,7 @@ namespace Music_user_bot {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public ulong OwnerId {
             get {
                 return ((ulong)(this["OwnerId"]));

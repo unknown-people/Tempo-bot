@@ -19,11 +19,12 @@ namespace Music_user_bot.Commands
                 Settings.Default.Admins = Admin.admins;
                 Settings.Default.Save();
                 Settings.Default.Reload();
-                SendMessageAsync("Whitelist and Admin list have been saved");
+                Program.SaveSettings();
+                SendMessageAsync("All current settings have been saved");
             }
             catch (Exception)
             {
-                SendMessageAsync("Couldn't save whitelist and Admin list. Try again");
+                SendMessageAsync("Couldn't save current settings. Try again");
             }
         }
     }

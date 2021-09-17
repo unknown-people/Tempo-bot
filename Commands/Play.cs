@@ -115,16 +115,18 @@ namespace Music_user_bot.Commands
                 isPlaylist = true;
             }
             TrackQueue.isPaused = false;
+            var isQuery = !isPlaylist;
+
             if (Url.StartsWith(YouTubeVideo) || Url.StartsWith(YouTubePlaylist))
             {
-                int result = SearchVideo(Url, Message, voiceClient, channel, Client, null, isPlaylist).GetAwaiter().GetResult();
+                int result = SearchVideo(Url, Message, voiceClient, channel, Client, null, isQuery, isPlaylist).GetAwaiter().GetResult();
                 if(Program.TrackLists.TryGetValue(Message.Guild.Id, out var list))
                     if (result == 0)
                         SendMessageAsync("Track " + list.Tracks[list.Tracks.Count - 1].Title + " has been added to the queue");
             }
             else if (spotiPlaylist != null && spotiPlaylist != new List<string>() { })
             {
-                SearchVideo(Url, Message, voiceClient, channel, Client, spotiPlaylist, isPlaylist).GetAwaiter().GetResult();
+                SearchVideo(Url, Message, voiceClient, channel, Client, spotiPlaylist, isQuery, isPlaylist).GetAwaiter().GetResult();
             }
             else
             {

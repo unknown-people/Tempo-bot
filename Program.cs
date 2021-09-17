@@ -15,6 +15,8 @@ using System.Net;
 using System.Diagnostics;
 using System.Timers;
 using System.Xml;
+using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace Music_user_bot
 {
@@ -52,6 +54,16 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
+            bool ask_settings = true;
+            try
+            {
+                if (args[0] == "-na")
+                {
+                    ask_settings = false;
+                }
+            }
+            catch (IndexOutOfRangeException) { }
+
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             strWorkPath = Path.GetDirectoryName(strExeFilePath);
 
@@ -99,6 +111,8 @@ namespace Music_user_bot
                 Settings.Default.tk2 = "";
                 Settings.Default.Save();
                 Settings.Default.Reload();
+                SaveSettings();
+
                 return;
             }
 
@@ -135,17 +149,6 @@ namespace Music_user_bot
 
             var random = new string[] { };
             botToken = "";
-
-            bool ask_settings = true;
-            try
-            {
-                if (args[0] == "-na")
-                {
-                    ask_settings = false;
-                    Settings.Default.Upgrade();
-                }
-            }
-            catch (IndexOutOfRangeException) { }
 
             while (ask_settings)
             {
@@ -196,7 +199,26 @@ namespace Music_user_bot
                     Settings.Default.Prefix = Console.ReadLine();
                     Console.Clear();
 
+                    if (Settings.Default.isBot)
+                    {
+                        if (Settings.Default.Dj_role == 0)
+                        {
+                            Console.WriteLine("Please insert a role id to use for the dj role :)\nYou can change that later on!");
+                            if (ulong.TryParse(Console.ReadLine(), out var Dj_role))
+                            {
+                                Settings.Default.Dj_role = Dj_role;
+                                Settings.Default.Save();
+                                Console.Clear();
+                            }
+                            else
+                            {
+                                Console.WriteLine("Please use a valid role id");
+                            }
+                        }
+                    }
+
                     Settings.Default.Save();
+                    SaveSettings();
                     break;
                 }
                 else
@@ -216,6 +238,7 @@ namespace Music_user_bot
                     {
                         case 1:
                             ask_settings = false;
+                            SaveSettings();
                             break;
                         case 2:
                             Settings.Default.Token = "";
@@ -228,24 +251,9 @@ namespace Music_user_bot
                     }
                 }
             }
-
-            if (Settings.Default.isBot)
-            {
+            if(Settings.Default.isBot)
                 botToken += "Bot ";
-                if(Settings.Default.Dj_role == 0)
-                {
-                    Console.WriteLine("Please insert a role id to use for the dj role :)\nYou can change that later on!");
-                    if(ulong.TryParse(Console.ReadLine(), out var Dj_role))
-                    {
-                        Settings.Default.Dj_role = Dj_role;
-                        Settings.Default.Save();
-                    }
-                    else
-                    {
-                        Console.WriteLine("Please use a valid role id");
-                    }
-                }
-            }
+
             botToken += Settings.Default.Token;
             Whitelist.ownerID = Settings.Default.OwnerId;
             if (!Settings.Default.isBot)
@@ -506,6 +514,60 @@ namespace Music_user_bot
                     return true;
             }
             return false;
+        }
+        public static void SaveSettings()
+        {
+            XDocument xmlFile = XDocument.Load(strWorkPath + @"\Tempo.exe.config");
+            bool ownerIdExists = false;
+            foreach (XElement setting in xmlFile.Elements("configuration").Elements("userSettings").Elements("Music_user_bot.Settings").Elements("setting"))
+            {
+                switch (setting.Attribute("name").Value) {
+                    case "Token":
+                        setting.Element("value").Value = Settings.Default.Token;
+                        break;
+                    case "Username":
+                        setting.Element("value").Value = Settings.Default.Username;
+                        break;
+                    case "Password":
+                        setting.Element("value").Value = Settings.Default.Password;
+                        break;
+                    case "Prefix":
+                        setting.Element("value").Value = Settings.Default.Prefix;
+                        break;
+                    case "TTSlang":
+                        setting.Element("value").Value = Settings.Default.TTSlang;
+                        break;
+                    case "TTSvoice":
+                        setting.Element("value").Value = Settings.Default.TTSvoice;
+                        break;
+                    case "tk1":
+                        setting.Element("value").Value = Settings.Default.tk1;
+                        break;
+                    case "tk2":
+                        setting.Element("value").Value = Settings.Default.tk2;
+                        break;
+                    case "Dj_role":
+                        setting.Element("value").Value = Settings.Default.Dj_role.ToString();
+                        break;
+                    case "isBot":
+                        setting.Element("value").Value = Settings.Default.isBot.ToString();
+                        break;
+                    case "OwnerId":
+                        setting.Element("value").Value = Settings.Default.OwnerId.ToString();
+                        ownerIdExists = true;
+                        break;
+                };
+            }
+            if (!ownerIdExists)
+            {
+                XElement xe = xmlFile.XPathSelectElement("/userSettings/Music_user_bot.Settings[1]");
+                XElement ownerId = new XElement("OwnerId");
+                ownerId.Add(new XElement("value", Settings.Default.OwnerId));
+                xe.Add(ownerId);
+            }
+
+            File.Delete(strWorkPath + @"\Tempo.exe.config");
+            xmlFile.Save(strWorkPath + @"\Tempo.exe.config");
         }
     }
 }
