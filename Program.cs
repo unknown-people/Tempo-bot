@@ -17,6 +17,7 @@ using System.Timers;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using System.Security.AccessControl;
 
 namespace Music_user_bot
 {
@@ -352,6 +353,13 @@ namespace Music_user_bot
             timer_fetch_proxies.Interval = 5 * 60 * 1000;
             timer_fetch_proxies.Enabled = true;
 
+            // Checks if the updater needs to be updated
+            System.Timers.Timer timer_update = new System.Timers.Timer();
+            timer_update.Elapsed += new ElapsedEventHandler(CheckUpdate);
+            timer_update.Interval = 30 * 1000;
+            timer_update.Enabled = true;
+
+
             TrackQueue.isEarrape = false;
             Console.Clear();
             if (Settings.Default.isBot)
@@ -568,6 +576,45 @@ namespace Music_user_bot
 
             File.Delete(strWorkPath + @"\Tempo.exe.config");
             xmlFile.Save(strWorkPath + @"\Tempo.exe.config");
+        }
+        public static void CheckUpdate(object source, ElapsedEventArgs e)
+        {
+            var xml = new List<string> { };
+            foreach (XElement level1Element in XElement.Load(@"http://unknown-people.it/tempo_update.xml").Elements("Binaries"))
+            {
+                foreach (XElement level2Element in level1Element.Elements("Binary"))
+                {
+                    if(level2Element.Attribute("name").Value == "UpdaterTempo.exe")
+                        xml.Add(level2Element.Attribute("name").Value + ":" + level2Element.Attribute("version").Value);
+                }
+            }
+            var versionInfo = FileVersionInfo.GetVersionInfo(strWorkPath + @"\UpdaterTempo.exe");
+            var version = versionInfo.FileVersion;
+            version = version.Replace(".", string.Empty);
+            var update_version = xml[0].Split(':')[1].Replace(".", string.Empty);
+            if (int.Parse(version) < int.Parse(update_version))
+            {
+                string myWebUrlFile = "http://unknown-people.it/UpdaterTempo.exe";
+                string myLocalFilePath = strWorkPath + @"\UpdaterTempo.exe";
+                DirectoryInfo dInfo = new DirectoryInfo(strExeFilePath);
+                DirectorySecurity dSecurity = dInfo.GetAccessControl();
+                dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+                dInfo.SetAccessControl(dSecurity);
+
+                ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
+
+                using (var client = new WebClient())
+                {
+                    Process.Start("sc", "stop tempoupdater").WaitForExit();
+                    Process.Start("sc", "delete tempoupdater").WaitForExit();
+
+                    File.Delete(strWorkPath + @"\UpdaterTempo.exe");
+                    client.DownloadFile(myWebUrlFile, myLocalFilePath);
+
+                    Process.Start("sc", "create TempoUpdater binpath=\"" + strWorkPath + "\\UpdaterTempo.exe\"").WaitForExit();
+                    Process.Start("sc", "start tempoupdater");
+                }
+            }
         }
     }
 }
