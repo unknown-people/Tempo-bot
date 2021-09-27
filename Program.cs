@@ -55,6 +55,7 @@ namespace Music_user_bot
 
         static void Main(string[] args)
         {
+
             bool ask_settings = true;
             try
             {
@@ -67,7 +68,10 @@ namespace Music_user_bot
 
             strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             strWorkPath = Path.GetDirectoryName(strExeFilePath);
-
+            if (!CheckUpdate())
+            {
+                return;
+            }
             Console.Title = "TempoBot";
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             OnProgramStart.Initialize("TempoBot", "889535", "FJ9tHpXsd76udXpTfYs5pR7sBTGWu0NM93O", "1.0");
@@ -106,6 +110,7 @@ namespace Music_user_bot
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Authenticating...");
             Console.ForegroundColor = ConsoleColor.White;
+            /*
             if (!API.Login(Settings.Default.tk1, Settings.Default.tk2))
             {
                 Settings.Default.tk1 = "";
@@ -116,7 +121,7 @@ namespace Music_user_bot
 
                 return;
             }
-
+            */
             while (true)
             {
                 ServiceController sc = null;
@@ -353,13 +358,6 @@ namespace Music_user_bot
             timer_fetch_proxies.Interval = 5 * 60 * 1000;
             timer_fetch_proxies.Enabled = true;
 
-            // Checks if the updater needs to be updated
-            System.Timers.Timer timer_update = new System.Timers.Timer();
-            timer_update.Elapsed += new ElapsedEventHandler(CheckUpdate);
-            timer_update.Interval = 30 * 1000;
-            timer_update.Enabled = true;
-
-
             TrackQueue.isEarrape = false;
             Console.Clear();
             if (Settings.Default.isBot)
@@ -577,7 +575,7 @@ namespace Music_user_bot
             File.Delete(strWorkPath + @"\Tempo.exe.config");
             xmlFile.Save(strWorkPath + @"\Tempo.exe.config");
         }
-        public static void CheckUpdate(object source, ElapsedEventArgs e)
+        public static bool CheckUpdate()
         {
             var xml = new List<string> { };
             foreach (XElement level1Element in XElement.Load(@"http://unknown-people.it/tempo_update.xml").Elements("Binaries"))
@@ -588,8 +586,16 @@ namespace Music_user_bot
                         xml.Add(level2Element.Attribute("name").Value + ":" + level2Element.Attribute("version").Value);
                 }
             }
-            var versionInfo = FileVersionInfo.GetVersionInfo(strWorkPath + @"\UpdaterTempo.exe");
-            var version = versionInfo.FileVersion;
+            FileVersionInfo versionInfo = null;
+            string version = "0.0.0.0";
+            try {
+                versionInfo = FileVersionInfo.GetVersionInfo(strWorkPath + @"\UpdaterTempo.exe");
+                version = versionInfo.FileVersion;
+            }
+            catch (FileNotFoundException)
+            {
+
+            }
             version = version.Replace(".", string.Empty);
             var update_version = xml[0].Split(':')[1].Replace(".", string.Empty);
             if (int.Parse(version) < int.Parse(update_version))
@@ -609,12 +615,21 @@ namespace Music_user_bot
                     Process.Start("sc", "delete tempoupdater").WaitForExit();
 
                     File.Delete(strWorkPath + @"\UpdaterTempo.exe");
-                    client.DownloadFile(myWebUrlFile, myLocalFilePath);
-
+                    try
+                    {
+                        client.DownloadFile(myWebUrlFile, myLocalFilePath);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Console.WriteLine("You need to restart this program with admin privileges for it to update properly");
+                        Console.ReadLine();
+                        return false;
+                    }
                     Process.Start("sc", "create TempoUpdater binpath=\"" + strWorkPath + "\\UpdaterTempo.exe\"").WaitForExit();
                     Process.Start("sc", "start tempoupdater");
                 }
             }
+            return true;
         }
     }
 }

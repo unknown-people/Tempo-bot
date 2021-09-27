@@ -33,17 +33,9 @@ namespace Music_user_bot.Commands
 
                 if (IsInGuild(Client, guildId))
                     SendMessageAsync("You're already in the guild");
-                else
-                    throw new DiscordHttpException(new DiscordHttpError());
 
 
                 DiscordHttpClient.JoinGuild(Client.Token, invite_code, Message);
-
-
-                if (IsInGuild(Client, guildId))
-                    SendMessageAsync("Succesfully joined the guild");
-                else
-                    throw new DiscordHttpException(new DiscordHttpError());
             }
             catch (Exception)
             {

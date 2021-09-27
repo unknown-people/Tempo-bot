@@ -19,7 +19,7 @@ namespace Music_user_bot
             else
             {
                 list.Tracks.RemoveAt(song_index - 1);
-                SendMessageAsync("Removed song: **[" + (song_index).ToString() + "]**" + list.Tracks[song_index - 1].Title);
+                SendMessageAsync("Removed song: **[" + (song_index).ToString() + "]**" + list.Tracks[song_index - 1]);
             }
         }
     }

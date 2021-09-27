@@ -29,7 +29,7 @@ namespace Music_user_bot
                     {
                         if (index >= 20)
                             break;
-                        embed.AddField($"[{index + 1}]", song.Title);
+                        embed.AddField($"[{index + 1}]", song);
                         index++;
                     }
                 }
@@ -44,7 +44,7 @@ namespace Music_user_bot
                 {
                     if (index >= 30)
                         break;
-                    message += "**[" + index + "]**" + song.Title + ";\n";
+                    message += "**[" + index + "]**" + song + ";\n";
                     index += 1;
                 }
                 if (message == "**Current queue:**\n")

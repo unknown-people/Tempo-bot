@@ -60,7 +60,7 @@ namespace Music_user_bot
                 TrackQueue.isLooping = true;
 
                 if (!Program.TrackLists.TryGetValue(Message.Guild.Id, out var list)) list = Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
-                list.Tracks.Add(track);
+                list.Tracks.Add(track.Title);
                 SendMessageAsync("Now playing " + track.Title);
             }
             catch (Exception) {

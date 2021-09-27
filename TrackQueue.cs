@@ -13,12 +13,13 @@ using YoutubeExplode.Videos;
 using System.Text;
 using System.Net.Http;
 using Discord.Commands;
+using YoutubeExplode.Search;
 
 namespace Music_user_bot
 {
     public class TrackQueue
     {
-        public List<AudioTrack> Tracks { get; private set; }
+        public List<string> Tracks { get; private set; }
         public bool Running { get; set; }
         public static DiscordMessage Message { get; set; }
         public static int seekTo { get; set; }
@@ -35,7 +36,7 @@ namespace Music_user_bot
         public Stream _stream { get; set; }
         public static int stream_volume { get; set; }
         public static AudioTrack currentSong { get; set; }
-        public static Video currentVideo { get; set; }
+        public static VideoSearchResult currentVideo { get; set; }
         public static TimeSpan currentSongTime { get; set; }
         public static bool displayMessage { get; set; }
         public static bool deleteMessage { get; set; }
@@ -46,6 +47,7 @@ namespace Music_user_bot
         public static bool isStopping { get; set; }
         public static bool isAddingTracks { get; set; }
         public static bool isVolumeChanged { get; internal set; }
+        public static bool autoplay { get; set; }
 
         private DiscordSocketClient _client;
         private ulong _guildId;
@@ -54,7 +56,7 @@ namespace Music_user_bot
         {
             _client = client;
             _guildId = guildId;
-            Tracks = new List<AudioTrack>();
+            Tracks = new List<string>();
             isLooping = false;
             stream_volume = 100;
             speed = 1.0f;
@@ -164,12 +166,25 @@ namespace Music_user_bot
                 var voiceClient = _client.GetVoiceClient(_guildId);
 
                 last_message = null;
+                var last_song_name = "";
 
-                while (voiceClient.State == MediaConnectionState.Ready && Tracks.Count > 0)
+                while (voiceClient.State == MediaConnectionState.Ready && Tracks.Count > 0 || autoplay)
                 {
+                    if(autoplay && Tracks.Count == 0)
+                    {
+                        var new_track = Spotify.GetRelatedTrack(currentSong.Title);
+                        if (new_track != null)
+                            Tracks.Add(new_track);
+                        else
+                        {
+                            Message.Channel.SendMessage("I couldn't find any songs related to this one so here's a random one");
+                            var vid = new AudioTrack(CommandHandler.GetRandomSong());
+                            Tracks.Add(vid.Title);
+                        }
+                    }
                     if (isStopping)
                     {
-                        Tracks = new List<AudioTrack>();
+                        Tracks = new List<string>();
                         isStopping = false;
                         continue;
                     }
@@ -181,9 +196,7 @@ namespace Music_user_bot
                         }
                         goToIndex = 0;
                     }
-
-                    currentSong = Tracks[0];
-
+                    
                     VoiceChannel currentChannel = (VoiceChannel)_client.GetChannel(voiceClient.Channel.Id);
 
                     Proxy proxy = null;
@@ -192,7 +205,7 @@ namespace Music_user_bot
                     var youtube = new YoutubeClient(httpClient);
                     try
                     {
-                        currentVideo = await youtube.Videos.GetAsync(currentSong.Id);
+                        currentVideo = Program.YouTubeClient.Search.GetVideo(Tracks[0]);
                     }
                     catch
                     {
@@ -209,8 +222,10 @@ namespace Music_user_bot
                             httpClient = new HttpClient(handler);
                         }
                         youtube = new YoutubeClient(httpClient);
-                        currentVideo = await youtube.Videos.GetAsync(currentSong.Id);
+                        currentVideo = Program.YouTubeClient.Search.GetVideo(Tracks[0]);
                     }
+                    currentSong = new AudioTrack(currentVideo.Id);
+                    last_song_name = Tracks[0];
                     displayMessage = true;
 
                     TimeSpan duration = TimeSpan.Zero;
@@ -234,14 +249,14 @@ namespace Music_user_bot
 
                     var targetConnected = _client.GetVoiceStates(Message.Author.User.Id).GuildVoiceStates.TryGetValue(Message.Guild.Id, out var theirState);
 
-                    if (CanSendEmbed(theirState, _client)){
+                    if (CanSendEmbed(_client)){
                         var embed = new EmbedMaker() { Title = _client.User.Username, TitleUrl = "https://discord.gg/DWP2AMTWdZ", Color = System.Drawing.Color.IndianRed, ThumbnailUrl = _client.User.Avatar.Url };
                         embed.AddField("**Now playing:**\n", currentVideo.Title + "\n\n**Duration:** " + currentVideo.Duration);
 
                         last_message = Message.Channel.SendMessage(embed);
                     }
                     else
-                        last_message = Message.Channel.SendMessage("**Now playing:**\n" + currentVideo.Title + "\n");
+                        last_message = Message.Channel.SendMessage("**Now playing:**\n" + Tracks[0] + "\n");
                     while (voiceClient.Microphone.CopyFrom( url, (int)duration.TotalSeconds, currentSong.CancellationTokenSource.Token))
                     {
                         if (TrackQueue.speedChanged)
@@ -291,7 +306,7 @@ namespace Music_user_bot
                     {
                         if (isLooping)
                         {
-                            Tracks.Add(new AudioTrack(currentVideo.Id));
+                            Tracks.Add(Tracks[0]);
                         }
                     }
                     catch (Exception)
@@ -382,10 +397,15 @@ namespace Music_user_bot
 
             return bestStream.Url;
         }
-        public bool CanSendEmbed(DiscordVoiceState theirState, DiscordSocketClient Client)
+        public bool CanSendEmbed(DiscordSocketClient Client)
         {
-            var channel = (VoiceChannel)Client.GetChannel(theirState.Channel.Id);
-
+            var channel = (TextChannel)Client.GetChannel(Message.Channel.Id);
+            try
+            {
+                if (CommandBase.isAdminDict[Message.Guild.Id])
+                    return true;
+            }
+            catch { }
             if (channel.PermissionOverwrites.Count == 0)
                 return true;
 

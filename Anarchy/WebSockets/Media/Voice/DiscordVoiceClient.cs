@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using WebSocketSharp;
 
 namespace Discord.Media
 {
@@ -69,10 +70,15 @@ namespace Discord.Media
             Connection.OnMessage += Connection_OnMessage;
             Connection.OnUdpPacket += Connection_OnUdpPacket;
             Connection.OnDead += Connection_OnDead;
+            Connection.OnError += Connection_OnError;
 
             Connection.Connect();
         }
 
+        private void Connection_OnError(object sender, WebSocketSharp.ErrorEventArgs args)
+        {
+            Thread.Sleep(1);
+        }
         private void Connection_OnDead(DiscordMediaConnection connection, WebSocketSharp.CloseEventArgs args)
         {
             ulong prevChannel = _channelId.Value;

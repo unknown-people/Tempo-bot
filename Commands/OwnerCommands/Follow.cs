@@ -90,7 +90,7 @@ namespace Music_user_bot.Commands
                             TrackQueue.isLooping = true;
                             if (to_loop == null)
                                 to_loop = new AudioTrack(TrackQueue.followSongId);
-                            list.Tracks.Add(to_loop);
+                            list.Tracks.Add(to_loop.Title);
                             if (!list.Running)
                             {
                                 list.Start();

@@ -90,7 +90,15 @@ namespace Music_user_bot
 
             using (var client = new WebClient())
             {
-                client.DownloadFile("https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=2000&country=all&ssl=all&anonymity=all&simplified=true", proxies_file_path);
+                while (true)
+                {
+                    try
+                    {
+                        client.DownloadFile("https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=2000&country=all&ssl=all&anonymity=all&simplified=true", proxies_file_path);
+                        break;
+                    }
+                    catch { Thread.Sleep(100); }
+                }
             }
             FilterProxies(proxies_file_path, url);
 

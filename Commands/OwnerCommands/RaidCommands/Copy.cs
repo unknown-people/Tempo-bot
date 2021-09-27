@@ -8,6 +8,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Windows.Media.Imaging;
 
 namespace Music_user_bot.Commands
 {
@@ -15,7 +16,7 @@ namespace Music_user_bot.Commands
     class CopyCommand : CommandBase
     {
         [Parameter("userId")]
-        public ulong userId { get; set; }
+        public string userId { get; set; }
         public override void Execute()
         {
             if (!Program.isOwner(Message) )
@@ -28,14 +29,62 @@ namespace Music_user_bot.Commands
                 SendMessageAsync("You need to use a user token to execute this command!");
                 return;
             }
+            if(!ulong.TryParse(userId, out var Id))
+            {
+                var artist = Spotify.GetArtist(userId);
+                if(artist != null)
+                {
+                    var avatar = artist.Images[0].Url;
+                    var username = artist.Name;
+                    try
+                    {
+                        Message.Guild.SetNickname(username);
+                    }
+                    catch (DiscordHttpException)
+                    {
+                        SendMessageAsync("Could not change guild username");
+                    }
+                    var path = Program.strWorkPath + "\\avatar_new.png";
+                    path = path.Replace('\\', '/');
+                    Bitmap avatar_bitmap = null;
+                    try
+                    {
+                        avatar_bitmap = SaveImage(avatar, ImageFormat.Png);
+                    }
+                    catch (ExternalException)
+                    {
+                        SendMessageAsync("Could not get the profile picture");
+                    }
+                    catch (ArgumentNullException)
+                    {
+                        ;
+                    }
+                    try
+                    {
+                        Client.User.ChangeProfile(new UserProfileUpdate()
+                        {
+                            Avatar = avatar_bitmap
+                        }) ;
+                        SendMessageAsync("Hi, I'm " + username + " :sunglasses:");
+                    }
+                    catch (DiscordHttpException)
+                    {
+                        Message.Channel.SendMessage("Could not change avatar, probably rate limited. Try again in a few minutes");
+                    }
+                }
+                else
+                {
+                    SendMessageAsync("Could not find the specified artist :( guess I'll just be Tempo");
+                }
+            }
             if (userId.ToString().Length == 18)
             {
-                Program.userToCopy = userId;
+                Program.userToCopy = Id;
                 Program.userToCopyDiscrim = Client.GetUser(Program.userToCopy).Discriminator;
 
-                var avatar = Client.GetUser(userId).Avatar;
-                var username = Client.GetUser(userId).Username;
-                var guild_username = Message.Guild.GetMember(userId).Nickname;
+                var avatar = Client.GetUser(Id).Avatar;
+                var username = Client.GetUser(Id).Username;
+                var guild_username = Message.Guild.GetMember(Id).Nickname;
                 var path = Program.strWorkPath + "\\avatar_new.png";
 
                 path = path.Replace('\\', '/');

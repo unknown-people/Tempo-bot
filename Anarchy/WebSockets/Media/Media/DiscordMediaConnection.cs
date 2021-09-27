@@ -26,6 +26,9 @@ namespace Discord.Media
         public delegate void KillHandler(DiscordMediaConnection connection, CloseEventArgs args);
         public event KillHandler OnDead;
 
+        public delegate void ErrorHandler(DiscordMediaConnection connection, ErrorEventArgs args);
+        public event ErrorHandler OnError;
+
         internal static readonly Dictionary<string, MediaCodec> SupportedCodecs = new Dictionary<string, MediaCodec>()
         {
             { "opus", new MediaCodec() { Name = "opus", Type = CodecType.Audio, PayloadType = 120, Priority = 1000 } },

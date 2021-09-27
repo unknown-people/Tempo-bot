@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk;Microsoft.NET.Sdk.Publish">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net471</TargetFramework>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>Tempo</AssemblyName>
-    <AssemblyVersion>1.0.3.6</AssemblyVersion>
+    <AssemblyVersion>1.0.4.2</AssemblyVersion>
     <Copyright>Unknown People</Copyright>
     <Version>1.0.0</Version>
-    <FileVersion>1.0.3.6</FileVersion>
+    <FileVersion>1.0.4.2</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -66,6 +66,7 @@
     <PackageReference Include="YoutubeExplodeModified" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System.Diagnostics.Tracing" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Windows.Forms" />
@@ -118,6 +119,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="libopenh264.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="librespot.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="libspotify.dll">

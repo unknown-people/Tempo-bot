@@ -276,7 +276,7 @@ namespace Discord.Commands
                 attr = null;
                 return false;
             }
-        private static string GetRandomSong()
+        public static string GetRandomSong()
         {
             string request_url = "https://music.catostudios.nl/api/music/";
             WebRequest request = WebRequest.Create(request_url);

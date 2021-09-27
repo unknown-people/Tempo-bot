@@ -16,7 +16,7 @@ namespace Music_user_bot
                 if (song_index < list.Tracks.Count)
                 {
                     TrackQueue.goToIndex = song_index;
-                    list.Tracks[0].CancellationTokenSource.Cancel();
+                    TrackQueue.currentSong.CancellationTokenSource.Cancel();
                     SendMessageAsync("Skipped to track **[" + song_index.ToString() + "]**");
                 }
                 else

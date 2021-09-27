@@ -88,6 +88,10 @@ namespace Discord.Commands
                     Task.Run(() => Message.Channel.SendMessage(embed));
                     return;
                 }
+                else
+                {
+                    Task.Run(() => Message.Channel.SendMessage(to_send));
+                }
             }
             catch
             {
