@@ -27,6 +27,7 @@ namespace Music_user_bot.Commands
         {
             Program.TrackLists[Message.Guild.Id] = new TrackQueue(Client, Message.Guild.Id);
             TrackQueue.isStopping = true;
+            TrackQueue.autoplay = false;
         }
     }
 }

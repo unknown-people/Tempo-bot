@@ -113,6 +113,7 @@ namespace Discord.Gateway
         internal VoiceClientDictionary VoiceClients { get; private set; }
 
         public DiscordUserSettings UserSettings { get; private set; }
+        public string token { get; set; }
 
         // websocket connection
         internal DiscordWebSocket<GatewayOpcode> WebSocket { get; private set; }
